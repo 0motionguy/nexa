@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 42" role="img" aria-labelledby="title">
+  <title id="title">Monerium</title>
+  <rect width="190" height="42" rx="8" fill="#0f172a"/>
+  <circle cx="24" cy="21" r="11" fill="#2dd4bf"/>
+  <path d="M17 27V15h4l3 6 3-6h4v12h-3v-8l-3 6h-2l-3-6v8h-3z" fill="#0f172a"/>
+  <text x="44" y="27" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Monerium</text>
+</svg>

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>MAZE · Checkout</title>
+<meta name="description" content="Secure checkout, powered by MAZE." />
+<meta name="theme-color" content="#F5F6FA" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0A0A0C" media="(prefers-color-scheme: dark)" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23FF6A1A'/%3E%3Cg fill='%23F5F6FA'%3E%3Crect x='14' y='14' width='8' height='36'/%3E%3Crect x='28' y='22' width='8' height='28'/%3E%3Crect x='42' y='14' width='8' height='36'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/src/fonts.css" />
+<link rel="stylesheet" href="/src/tokens.css" />
+<link rel="stylesheet" href="/src/tokens.semantic.css" />
+<link rel="stylesheet" href="/src/base.css" />
+<link rel="stylesheet" href="/src/checkout.css" />
+<script>
+/* Motion gate — design contract: motion ON by default; ?motion=off opts out. */
+(function () {
+  var q = (location.search.match(/[?&]motion=(\w+)/) || [])[1];
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (q === 'off' || (!q && reduce)) document.documentElement.classList.add('rm');
+})();
+/* Theme — honor the choice persisted by app-main.ts so a dark toggle on
+   /app.html carries over to a checkout opened in the same browser. */
+(function () {
+  try {
+    var stored = localStorage.getItem('maze.theme');
+    var choice = stored === 'light' || stored === 'dark'
+      ? stored
+      : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-boot-theme', choice);
+  } catch (e) { /* private mode */ }
+})();
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="m-emblem" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="12" fill="var(--m-square, #FF6A1A)"/>
+      <g fill="var(--m-bars, #F5F6FA)">
+        <rect x="14" y="14" width="8" height="36"/>
+        <rect x="28" y="22" width="8" height="28"/>
+        <rect x="42" y="14" width="8" height="36"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="stage co-stage" id="stage" data-theme="light">
+  <main class="co-wrap">
+    <div class="co-card" role="region" aria-label="Checkout">
+
+      <header class="co-brand">
+        <svg class="m-mark lg" aria-hidden="true"><use href="#m-emblem"/></svg>
+        <span class="co-wordmark">MAZE</span>
+      </header>
+
+      <!-- loading -->
+      <div id="coLoading" class="co-state">
+        <div class="co-skel co-skel-title"></div>
+        <div class="co-skel co-skel-price"></div>
+        <div class="co-skel co-skel-line"></div>
+      </div>
+
+      <!-- not found / inactive -->
+      <div id="coError" class="co-state" hidden>
+        <h1 class="co-error-title">This checkout isn't available</h1>
+        <p class="co-sub" id="coErrorMsg">The link may be expired, or the seller has paused it.</p>
+      </div>
+
+      <!-- the offer -->
+      <div id="coOffer" class="co-state" hidden>
+        <p class="co-eyebrow" id="coSeller">SECURE CHECKOUT</p>
+        <h1 class="co-title" data-testid="checkout-title" id="coTitle"></h1>
+        <img class="co-image" id="coImage" alt="" hidden />
+        <div class="co-price" data-testid="checkout-amount" id="coAmount"></div>
+        <p class="co-desc" id="coDesc" hidden></p>
+
+        <!-- balance pay (signed-in OR DEMO_MODE) -->
+        <form class="co-form" id="coForm" novalidate hidden>
+          <div class="co-balance-panel" id="coBalancePanel" hidden>
+            <div class="co-balance-row">
+              <span class="co-balance-label">MAZE balance</span>
+              <span class="co-balance-now" id="coBalanceNow">—</span>
+            </div>
+            <div class="co-balance-row co-balance-after" id="coBalanceAfter" hidden>
+              <span class="co-balance-label">After this payment</span>
+              <span class="co-balance-next" id="coBalanceNext">—</span>
+            </div>
+          </div>
+
+          <button class="co-pay" type="submit" data-testid="checkout-pay" id="coPay">
+            <span id="coPayLabel">Pay</span>
+          </button>
+          <p class="co-trust" id="coTrust">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9.2 12.2l2 2 3.6-4"/></svg>
+            Paid from your MAZE balance.
+          </p>
+          <p class="co-trust" id="coLowBal" hidden>
+            <a href="#" id="coTopupLink">Not enough balance? Top up first</a>
+          </p>
+        </form>
+
+        <!-- Stack upgrades Phase 4 — alternative methods (card / bank wire).
+             Always rendered alongside balance/auth so unsigned-in buyers have a
+             one-click card path AND a non-custodial wire option. -->
+        <div class="co-alt-methods" id="coAltMethods" hidden>
+          <div class="co-alt-divider" id="coAltDivider" hidden>
+            <span>or</span>
+          </div>
+
+          <div class="co-alt-card">
+            <label class="co-field" id="coCardEmailField">
+              <span>Email <span class="co-optional">(receipt)</span></span>
+              <input class="co-inp" id="coCardEmail" name="cardEmail" type="email" inputmode="email"
+                     autocomplete="email" placeholder="you@example.com" />
+            </label>
+            <button class="co-pay co-pay-alt" type="button" data-testid="checkout-pay-card" id="coPayCard">
+              <span id="coPayCardLabel">Pay with card or Apple Pay</span>
+            </button>
+            <p class="co-trust">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>
+              Secure card checkout · Apple Pay · Google Pay
+            </p>
+          </div>
+
+          <details class="co-alt-fold" id="coBankFold">
+            <summary data-testid="checkout-bank-summary">
+              Pay by bank transfer
+              <span class="co-alt-sub">USD wire · 1–3 business days</span>
+            </summary>
+            <div class="co-bank-panel" id="coBankPanel" data-testid="checkout-bank-panel">
+              <label class="co-field" id="coBankEmailField">
+                <span>Email <span class="co-optional">(we email when it arrives)</span></span>
+                <input class="co-inp" id="coBankEmail" name="bankEmail" type="email" inputmode="email"
+                       autocomplete="email" placeholder="you@example.com" />
+              </label>
+              <button class="co-pay co-pay-alt" type="button" data-testid="checkout-bank-reveal" id="coBankReveal">
+                <span id="coBankRevealLabel">Show wire instructions</span>
+              </button>
+              <div class="co-bank-instructions" id="coBankInstructions" hidden data-testid="checkout-bank-instructions">
+                <div class="co-bank-row"><span class="co-bank-key">Bank</span><span class="co-bank-val" id="coBankName">—</span></div>
+                <div class="co-bank-row"><span class="co-bank-key">Routing</span><span class="co-bank-val" id="coBankRouting" data-testid="checkout-bank-routing">—</span></div>
+                <div class="co-bank-row"><span class="co-bank-key">Account</span><span class="co-bank-val" id="coBankAccount" data-testid="checkout-bank-account">—</span></div>
+                <div class="co-bank-row"><span class="co-bank-key">Amount</span><span class="co-bank-val" id="coBankAmount">—</span></div>
+                <p class="co-trust" id="coBankNote">Wire the offer amount to this account. We'll credit on receipt and email a receipt.</p>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <!-- inline OTP for signed-out buyers -->
+        <form class="co-form" id="coAuthForm" novalidate hidden>
+          <div class="co-field">
+            <label for="coAuthEmail">Email <span class="co-optional">(sign in to pay)</span></label>
+            <input class="co-inp" id="coAuthEmail" name="email" type="email" inputmode="email"
+                   autocomplete="email" placeholder="you@example.com" required />
+          </div>
+          <button class="co-pay" type="submit" id="coAuthStart" data-testid="checkout-auth-start">
+            <span id="coAuthStartLabel">Continue</span>
+          </button>
+          <p class="co-trust">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="M4 6l8 7 8-7"/></svg>
+            We'll email a 6-digit code.
+          </p>
+        </form>
+
+        <!-- OTP code entry -->
+        <form class="co-form" id="coOtpForm" novalidate hidden>
+          <div class="co-field">
+            <label for="coOtpCode">Verification code</label>
+            <input class="co-inp num" id="coOtpCode" name="otp" inputmode="numeric"
+                   autocomplete="one-time-code" placeholder="123456" maxlength="6"
+                   pattern="[0-9]{6}" required data-testid="checkout-otp-code" />
+          </div>
+          <button class="co-pay" type="submit" id="coOtpVerify" data-testid="checkout-otp-verify">
+            <span id="coOtpVerifyLabel">Verify</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- success -->
+      <div id="coSuccess" class="co-state co-success" data-testid="checkout-success" hidden>
+        <div class="co-check" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.2 4L19 7"/></svg>
+        </div>
+        <h1 class="co-title">Payment complete</h1>
+        <p class="co-sub" id="coPaidLine"></p>
+        <div class="co-fulfillment" data-testid="checkout-fulfillment" id="coFulfillment"></div>
+        <p class="co-source" data-testid="checkout-source">
+          <span class="co-source-dot" aria-hidden="true"></span>
+          Settled · <span id="coSettlementProvider">MAZE balance</span> · USDC on Base
+        </p>
+      </div>
+
+    </div>
+    <p class="co-footer">Powered by <b>MAZE</b> · MAZE is a financial technology company, not a bank.</p>
+  </main>
+</div>
+
+<script type="module" src="/src/checkout-main.ts"></script>
+</body>
+</html>

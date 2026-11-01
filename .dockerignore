@@ -1,0 +1,24 @@
+# Monorepo Docker build context. Compose builds from /opt/neobank/src, so
+# app-local .dockerignore files are not enough.
+node_modules
+**/node_modules
+dist
+**/dist
+coverage
+**/coverage
+test-results
+playwright-report
+graphify-out
+.playwright-mcp
+**/*.spec.ts
+**/*.test.ts
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.vscode
+.idea
+README.md

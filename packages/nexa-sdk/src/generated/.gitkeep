@@ -1,0 +1,8 @@
+# F088 Sprint 18 — placeholder for `api-schema.ts` generated from the live
+# `/v1/openapi.json` spec.
+#
+# After `pnpm --filter @nexa/sdk add -D openapi-typescript` lands and
+# `pnpm --filter @nexa/sdk gen:types` runs (against a running API),
+# `api-schema.ts` will appear here. Until then, this folder stays empty
+# but the SDK build (tsc) doesn't break — generated types are not yet
+# referenced by src/index.ts.

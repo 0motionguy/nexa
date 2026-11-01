@@ -1,0 +1,1 @@
+ALTER TABLE "nb_market_positions" ADD COLUMN "copied_from" varchar(64);

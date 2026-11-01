@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MAZE · Bank for humans &amp; agents</title>
+  <meta name="description" content="A global dollar account, live in 2 minutes. A Visa card, earnings on by default, and a budgeted wallet your AI agents spend from. Installs straight from your browser." />
+  <meta property="og:title" content="MAZE · Bank for humans & agents" />
+  <meta property="og:description" content="One account for you. A budgeted wallet for your AI. Installs from the browser as a real app." />
+  <meta name="theme-color" content="#FF6A1A" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="MAZE" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23FF6A1A'/%3E%3Cg fill='%23F5F6FA'%3E%3Crect x='14' y='14' width='8' height='36'/%3E%3Crect x='28' y='22' width='8' height='28'/%3E%3Crect x='42' y='14' width='8' height='36'/%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/src/fonts.css" />
+  <link rel="stylesheet" href="/src/tokens.css" />
+  <link rel="stylesheet" href="/src/tokens.semantic.css" />
+  <link rel="stylesheet" href="/src/base.css" />
+  <link rel="stylesheet" href="/src/landing.css" />
+  <script>
+  /* Motion gate */
+  (function () {
+    var q = (location.search.match(/[?&]motion=(\w+)/) || [])[1];
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (q === 'off' || (!q && reduce)) document.documentElement.classList.add('rm');
+  })();
+  </script>
+</head>
+<body>
+
+  <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="m-emblem" viewBox="0 0 64 64">
+        <rect width="64" height="64" rx="12" fill="var(--m-square, #FF6A1A)"/>
+        <g fill="var(--m-bars, #F5F6FA)">
+          <rect x="14" y="14" width="8" height="36"/>
+          <rect x="28" y="22" width="8" height="28"/>
+          <rect x="42" y="14" width="8" height="36"/>
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="topnav">
+    <div class="container topnav-inner">
+      <a class="wordmark" href="#top" aria-label="MAZE home"><svg class="m-mark" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE</a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#thesis">Account</a>
+        <a href="#card">Card</a>
+        <a href="#earn">Earn</a>
+        <a href="#agents">Agents</a>
+      </nav>
+      <button class="btn btn-ink btn-sm" data-install>Install MAZE</button>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ░░░░ HERO ░░░░ product-first. The phone IS the proof. -->
+    <section class="hero" aria-label="MAZE">
+      <div class="container hero-grid">
+        <div class="hero-words">
+          <h1 class="hero-statement">
+            <span class="hl"><span>Bank for</span></span>
+            <span class="hl"><span>humans <span class="amp">&amp;</span></span></span>
+            <span class="hl"><span>agents.</span></span>
+          </h1>
+          <p class="hero-lede">Hold dollars globally. Spend with a Visa. Earn while it sits. Give your AI a budget to spend from.</p>
+          <div class="hero-cta">
+            <button class="btn btn-ink btn-lg" data-install>Install MAZE</button>
+            <a class="btn btn-bare arrow" href="#thesis">See the machine</a>
+          </div>
+          <p class="hero-fine">Live in 2 minutes · iPhone, Android, Desktop · No app store.</p>
+        </div>
+
+        <div class="phone-wrap rev" aria-label="Preview of the MAZE app home screen">
+          <div class="phone">
+            <div class="island" aria-hidden="true"></div>
+            <div class="screen">
+              <div class="statusbar" aria-hidden="true">
+                <span>9:41</span>
+                <svg viewBox="0 0 46 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 9h3M6 7h3v2H6zM11 5h3v4h-3zM16 2.5h3V9h-3z" fill="currentColor" stroke="none"/><path d="M24 6.2c2.6-2.4 6.4-2.4 9 0M26 8.4c1.5-1.4 3.5-1.4 5 0" stroke-linecap="round"/><rect x="36" y="3" width="9" height="6.4" rx="1.6"/><rect x="37.2" y="4.2" width="5.4" height="4" rx=".8" fill="currentColor" stroke="none"/></svg>
+              </div>
+              <div class="app-head">
+                <span class="wordmark"><svg class="m-mark sm" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE</span>
+                <span class="bell" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6M10.5 19a2 2 0 0 0 3 0"/></svg><i></i></span>
+              </div>
+              <div>
+                <p class="greet">Good morning, Mirko</p>
+                <div class="bal-row">
+                  <div class="balance num" data-count data-target="4820.40" data-prefix="$" data-dec="2">$0.00</div>
+                  <span class="earn-pill"><i></i>EARNING 8.4%</span>
+                </div>
+                <p class="greet" style="margin-top:2px;">Total balance</p>
+              </div>
+              <div class="quick" aria-hidden="true">
+                <span class="qa"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M7 17 17 7M9 7h8v8"/></svg></b>Send</span>
+                <span class="qa"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M17 7 7 17M15 17H7V9"/></svg></b>Receive</span>
+                <span class="qa"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18"/></svg></b>Card</span>
+                <span class="qa"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="5.5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18.5" cy="12" r="1"/></svg></b>More</span>
+              </div>
+              <div class="phone-globe">
+                <canvas data-globe="ink" data-ascii data-arcs data-markers data-marker-scale="0.78" data-arc-gap="380" data-arc-dur="2400" data-dots="2200" data-speed="0.00009" data-r="0.5" data-boost="1.85" aria-hidden="true"></canvas>
+              </div>
+              <div class="mini-card spend-row">
+                <div class="grow">
+                  <p class="spend-label">Spending this month</p>
+                  <div style="display:flex; align-items:baseline; gap:8px;">
+                    <span class="spend-num num" data-count data-target="1692.45" data-prefix="$" data-dec="2">$0.00</span>
+                    <span class="spend-up">↑ 12%</span>
+                  </div>
+                </div>
+                <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+                  <circle cx="22" cy="22" r="15" fill="none" stroke="var(--border-md)" stroke-width="7"/>
+                  <circle cx="22" cy="22" r="15" fill="none" stroke="var(--accent)" stroke-width="7" stroke-dasharray="26.4 67.8" transform="rotate(-90 22 22)"/>
+                </svg>
+              </div>
+              <div class="txs">
+                <div class="tx">
+                  <b aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14"/></svg></b>
+                  <span><span class="t-name">Salary · Acme Studio</span><br /><span class="t-sub">ACH · Today</span></span>
+                  <span class="t-amt pos">+$2,400.00</span>
+                </div>
+                <div class="tx">
+                  <b aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9.5 12h5M12 9.5v5"/></svg></b>
+                  <span><span class="t-name">api.exa.ai</span><br /><span class="t-sub">AGENT · policy ok</span></span>
+                  <span class="t-amt">−$0.12</span>
+                </div>
+                <div class="tx">
+                  <b aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18"/></svg></b>
+                  <span><span class="t-name">Blue Bottle Coffee</span><br /><span class="t-sub">CARD · Apple Pay</span></span>
+                  <span class="t-amt">−$6.40</span>
+                </div>
+              </div>
+              <div class="tabbar" aria-hidden="true">
+                <span class="tb on"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 11 12 4l8 7v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/></svg>Home</span>
+                <span class="tb"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18"/></svg>Cards</span>
+                <span class="tb-plus">+</span>
+                <span class="tb"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 19V10M10 19V5M16 19v-7M21 19H3"/></svg>Insights</span>
+                <span class="tb"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c1.6-3 4-4.5 7-4.5s5.4 1.5 7 4.5"/></svg>Profile</span>
+              </div>
+              <div class="home-ind" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░░ TRUST STRIP ░░░░ cream. OFFICIAL SVG logos downloaded from each
+         protocol's brand kit / press page / Wikimedia. All saved under
+         /public/integrations/. Rendered grayscale by default, brand-color on
+         hover. Consistent height (28px) lets wordmark widths breathe naturally. -->
+    <section class="trust-strip" aria-label="MAZE integrations">
+      <div class="container trust-strip-row">
+        <p class="trust-caption">Built on</p>
+        <ul class="trust-logos" role="list">
+          <li class="trust-chip"><img src="/integrations/aave.svg" alt="Aave" loading="lazy" /></li>
+          <li class="trust-chip"><img src="/integrations/compound.svg" alt="Compound" loading="lazy" /></li>
+          <li class="trust-chip"><img src="/integrations/morpho.svg" alt="Morpho" loading="lazy" /></li>
+          <li class="trust-chip"><img src="/integrations/hyperliquid.svg" alt="Hyperliquid" loading="lazy" /></li>
+          <li class="trust-chip"><img src="/integrations/polymarket.svg" alt="Polymarket" loading="lazy" /></li>
+          <li class="trust-chip"><img src="/integrations/privy.svg" alt="Privy" loading="lazy" /></li>
+          <li class="trust-chip"><img src="/integrations/stripe.svg" alt="Stripe" loading="lazy" /></li>
+          <li class="trust-chip"><img src="/integrations/coinbase.svg" alt="Coinbase x402" loading="lazy" /></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ░░░░ LEDGER STRIP ░░░░ ink. Mono glyphs replace dot pellets. -->
+    <section class="ledger" aria-label="Live account activity examples">
+      <div class="ledger-track">
+        <div class="ledger-set">
+          <span class="li"><em class="g g-up">↑</em>SALARY RECEIVED <b>+$2,400.00</b> · ACH</span>
+          <span class="li"><em class="g g-dn">↓</em>AGENT PAID api.exa.ai <b>−$0.12</b> · POLICY OK</span>
+          <span class="li"><em class="g g-up">↑</em>EARNINGS CREDITED <b>+$3.20</b> · 8.4% EST</span>
+          <span class="li"><em class="g g-dn">↓</em>CARD · BLUE BOTTLE <b>−$6.40</b> · APPLE PAY</span>
+          <span class="li"><em class="g g-up">↑</em>PAYMENT LINK CLAIMED <b>+$18.40</b></span>
+          <span class="li"><em class="g g-up">↑</em>IBAN TRANSFER <b>+€640.00</b> · SEPA</span>
+          <span class="li"><em class="g g-no">⊘</em>AGENT BLOCKED dataset.vendor.io · NOT ON ALLOWLIST</span>
+          <span class="li"><em class="g g-n">·</em>CARD FROZEN BY MIRKO · ONE TAP</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░░ THESIS ░░░░ ink, the manifesto. Globe + live route log. -->
+    <section class="section section-dark grid-tex" id="thesis" data-theme="dark">
+      <div class="container globe-grid">
+        <div class="rev">
+          <h2 class="display">One account.<br />Every border.</h2>
+          <p class="lead">Money on MAZE moves like a request, not like a wire. Payments route in seconds between people, businesses, and machines, anywhere on the map.</p>
+          <div class="thesis" aria-label="What MAZE is">
+            <span><b>Humans</b> hold, spend, earn, invest.</span>
+            <span><b>Agents</b> transact under your policy.</span>
+            <span><b>Creators</b> get paid through links.</span>
+            <span><b>Vendors</b> sell to machines.</span>
+            <span><b>Everything</b> logged, limited, controllable.</span>
+          </div>
+          <ul class="route-log" id="routeLog" aria-label="Live route log">
+            <li><i>ACH</i>NEW YORK → LISBON<b>+$2,400.00</b></li>
+            <li><i>AGENT</i>SINGAPORE → TOKYO<b>−$0.12</b></li>
+            <li><i>SEPA</i>LONDON → SÃO PAULO<b>+€640.00</b></li>
+          </ul>
+        </div>
+        <div class="globe-stage rev" aria-label="Rotating globe with live payment routes">
+          <canvas id="heroGlobe" data-globe="paper" data-arcs data-arc-gap="1100" data-dots="1500" data-speed="0.00012" data-r="0.44" data-boost="1"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░░ THE CARD ░░░░ cream specimen fold. The card lives in negative space. -->
+    <section class="section section-specimen" id="card">
+      <div class="container">
+        <div class="specimen-stage card-stage rev" id="cardStage">
+          <div class="bigcard" id="bigCard">
+            <div class="bc-top">
+              <span class="wm"><svg class="m-mark md" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE</span>
+              <span class="bc-live" aria-hidden="true"><i></i>LIVE</span>
+            </div>
+            <div class="chip" aria-hidden="true"><i></i></div>
+            <span class="pan num">5312 ···· ···· 4406</span>
+            <div class="bc-bot">
+              <span class="holder">MIRKO · MEMBER 001</span>
+              <span class="net">VISA · DEBIT</span>
+            </div>
+            <span class="frozen-badge">FROZEN</span>
+          </div>
+        </div>
+        <div class="specimen-words rev">
+          <h2 class="display">One card.<br />Yours, and theirs.</h2>
+          <p class="lead">A Visa debit card from day one, spending straight from your earning balance. And when your agent needs to buy something off the API rails, issue it a virtual card with its own cap.</p>
+          <ul class="ctrl">
+            <li><span class="c-l">FREEZE</span><span class="c-v">Instant freeze and unfreeze, any time</span><button class="copy-btn" id="freezeBtn">FREEZE</button></li>
+            <li><span class="c-l">APPLE PAY</span><span class="c-v">In your wallet <b>before the plastic ships</b></span></li>
+            <li><span class="c-l">LIMITS</span><span class="c-v">Per-day caps, merchant rules, country rules</span></li>
+            <li><span class="c-l">AGENT CARD</span><span class="c-v">Virtual card on a <b>budget you set</b>. Freeze it independently.</span></li>
+            <li><span class="c-l">TOP-UP</span><span class="c-v">Automatic, from your balance. Earnings accrue until you swipe.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░░ AGENT WALLET ░░░░ ink. The one surviving eyebrow. Trust line absorbed. -->
+    <section class="section section-dark grid-tex" id="agents">
+      <div class="container agent-grid">
+        <div class="rev">
+          <p class="eyebrow">Agent wallet · only on MAZE</p>
+          <h2 class="display">Give your agent a budget.<br />Never your card.</h2>
+          <p class="lead">A supervised sub-account your AI spends from. You set the caps, allowlist the services, and watch every cent live, with a kill switch that works instantly.</p>
+          <div class="agent-foot">
+            <span class="tag tag-dark">x402-native rails</span>
+            <span class="tag tag-dark">Per-request payments</span>
+            <span class="tag tag-dark">Full audit log</span>
+          </div>
+          <div class="mcp-chip">
+            <code>maze://mcp · connect Claude in one paste</code>
+            <button class="copy-btn" data-copy="maze://mcp · sample connection string (product preview)">COPY</button>
+          </div>
+          <p class="trust-line">Passkeys by default. Human approvals on anything above your thresholds. Every action audited on one ledger. One-tap kill switch on every card and every agent. All built-in, no toggles to find.</p>
+        </div>
+        <div style="display: grid; gap: 18px;">
+          <div class="dark-card rev">
+            <div class="agent-head">
+              <span class="agent-name">ResearchBot-01</span>
+              <span class="status-pill live" id="agentPill"><i aria-hidden="true"></i>ACTIVE</span>
+            </div>
+            <p class="agent-sub">Data procurement agent · supervised by Mirko</p>
+            <div class="budget-row">
+              <span class="b-cap">$50.00 <small>/ WEEK</small></span>
+              <span class="b-spent">spent <span id="agentSpent">$13.20</span></span>
+            </div>
+            <div class="meter"><i id="agentMeter" style="width: 26.4%;"></i></div>
+            <div class="rules">
+              <span class="rule-row">RAILS · <b>APIs only</b></span>
+              <span class="rule-row">MAX PER REQUEST · <b>$5.00</b></span>
+              <span class="rule-row">NEW VENDORS · <b>need your approval</b></span>
+            </div>
+            <div class="agent-foot">
+              <button class="btn btn-ghost-dark" id="pauseBtn">Pause agent</button>
+            </div>
+          </div>
+          <div class="dark-card rev">
+            <div class="feed-head"><span class="feed-title">LIVE ACTIVITY</span><span class="feed-title" id="feedState">STREAMING</span></div>
+            <ul class="feed" id="feed">
+              <li class="ok"><span class="f-t">12:04:11</span><span class="f-main">paid <b>api.exa.ai</b> · market data</span><span class="f-amt">$0.12</span></li>
+              <li class="ok"><span class="f-t">12:03:58</span><span class="f-main">paid <b>weather.api</b> · forecast pull</span><span class="f-amt">$0.002</span></li>
+              <li class="blocked"><span class="f-t">12:03:41</span><span class="f-main">blocked <b>dataset.vendor.io</b> · not on allowlist</span></li>
+              <li class="ask"><span class="f-t">12:03:12</span><span class="f-main">wants <b>$2.40</b> · dataset access</span><button class="approve">APPROVE</button></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░░ EARN ░░░░ cream. Two engines, side by side. -->
+    <section class="section" id="earn">
+      <div class="container">
+        <div class="rev section-head">
+          <h2 class="display">Money that works.<br />Work that pays.</h2>
+          <p class="lead">Two engines. Your balance earns automatically the moment it lands. And the Earn tab pays you for internet work: clips, memes, translations, bounties.</p>
+        </div>
+        <div class="grid-2 earn-grid">
+          <div class="glass-card rev">
+            <div class="row-between">
+              <h3>Earning is the default</h3>
+              <span class="tag earn-auto"><i aria-hidden="true"></i>AUTO · ON</span>
+            </div>
+            <nexa-yield-ramp id="landingYieldRamp"></nexa-yield-ramp>
+            <p class="fine">Blended yield, refreshed every 30 seconds · estimated · variable · not guaranteed</p>
+            <div class="earn-calc">
+              <div class="earn-out">
+                <span class="eo-bal">If your balance is <b id="calcBal">$5,000</b></span>
+                <span class="eo-yr" id="calcYr">≈ $420 / yr</span>
+              </div>
+              <input type="range" id="earnRange" min="500" max="50000" step="250" value="5000" aria-label="Balance amount" />
+            </div>
+            <p class="body">Earnings accrue automatically and show up in your activity like any other entry. Withdraw anytime. Usually instant, occasionally up to 24h.</p>
+          </div>
+          <div class="glass-card rev">
+            <div class="row-between">
+              <h3>Get paid for internet work</h3>
+              <span class="tag tag-hot payout-ready"><i aria-hidden="true"></i>PAYOUT-READY</span>
+            </div>
+            <ul class="camp">
+              <li>
+                <span><span class="cp-name">CLIP MAZE LAUNCH</span><br /><span class="cp-pay">$5 guaranteed · +$20 at 10k views · $100 top clip</span></span>
+                <button class="copy-btn join" data-join>JOIN</button>
+              </li>
+              <li>
+                <span><span class="cp-name">CREATE A MEME</span><br /><span class="cp-pay">$3 approved · +$50 top performer</span></span>
+                <button class="copy-btn join" data-join>JOIN</button>
+              </li>
+              <li>
+                <span><span class="cp-name">TRANSLATE A THREAD</span><br /><span class="cp-pay">$8 fixed payout</span></span>
+                <button class="copy-btn join" data-join>JOIN</button>
+              </li>
+            </ul>
+            <div class="link-maker">
+              <span class="fine">OR CREATE A PAYMENT LINK</span>
+              <div class="chips" role="group" aria-label="Link type">
+                <button class="chip-opt" data-chip aria-pressed="true">PAY ME</button>
+                <button class="chip-opt" data-chip aria-pressed="false">CLIP BOUNTY</button>
+                <button class="chip-opt" data-chip aria-pressed="false">INVOICE</button>
+              </div>
+              <div class="lm-row">
+                <input class="lm-amt num" id="lmAmt" inputmode="decimal" value="18.40" aria-label="Amount in dollars" />
+                <button class="btn btn-ink btn-sm" id="lmCreate">Create link</button>
+              </div>
+              <div class="lm-result" id="lmResult">
+                <code id="lmLink">maze.to/pay/…</code>
+                <button class="copy-btn" id="lmCopy" data-copy="">COPY</button>
+              </div>
+              <p class="fine" id="lmHint">One-time claim · expires in 7 days · approval optional</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░░ GLOBAL ACCOUNT ░░░░ cream. Card LEFT, text RIGHT — breaks zigzag. -->
+    <section class="section section-divider" id="account">
+      <div class="container grid-2">
+        <div class="glass-card rev">
+          <div class="row-between">
+            <h3>Your accounts are live</h3>
+            <span class="acct-live"><i aria-hidden="true"></i>ROUTING</span>
+          </div>
+          <div class="acct">
+            <div class="acct-row"><span class="flag-ic" aria-hidden="true"><svg viewBox="0 0 24 16" width="22" height="14"><rect width="24" height="16" fill="#bf0a30"/><rect y="1.23" width="24" height="1.23" fill="#fff"/><rect y="3.69" width="24" height="1.23" fill="#fff"/><rect y="6.15" width="24" height="1.23" fill="#fff"/><rect y="8.62" width="24" height="1.23" fill="#fff"/><rect y="11.08" width="24" height="1.23" fill="#fff"/><rect y="13.54" width="24" height="1.23" fill="#fff"/><rect width="10" height="8.62" fill="#002868"/></svg></span><span class="a-l">US ACCOUNT</span><span class="a-v num">···· 7841 9920</span><button class="copy-btn" data-copy="MAZE sample · your US account number appears after sign-up">COPY</button></div>
+            <div class="acct-row"><span class="flag-ic" aria-hidden="true"><svg viewBox="0 0 24 16" width="22" height="14"><rect width="24" height="16" fill="#bf0a30"/><rect y="1.23" width="24" height="1.23" fill="#fff"/><rect y="3.69" width="24" height="1.23" fill="#fff"/><rect y="6.15" width="24" height="1.23" fill="#fff"/><rect y="8.62" width="24" height="1.23" fill="#fff"/><rect y="11.08" width="24" height="1.23" fill="#fff"/><rect y="13.54" width="24" height="1.23" fill="#fff"/><rect width="10" height="8.62" fill="#002868"/></svg></span><span class="a-l">US ROUTING</span><span class="a-v num">···· ··0 593</span><button class="copy-btn" data-copy="MAZE sample · your routing number appears after sign-up">COPY</button></div>
+            <div class="acct-row"><span class="flag-ic" aria-hidden="true"><svg viewBox="0 0 24 16" width="22" height="14"><rect width="24" height="16" fill="#003399"/><g fill="#ffcc00"><circle cx="12" cy="3.5" r="0.9"/><circle cx="14.5" cy="4.5" r="0.9"/><circle cx="16.5" cy="6.5" r="0.9"/><circle cx="17" cy="9" r="0.9"/><circle cx="16" cy="11.5" r="0.9"/><circle cx="14" cy="13" r="0.9"/><circle cx="10" cy="13" r="0.9"/><circle cx="8" cy="11.5" r="0.9"/><circle cx="7" cy="9" r="0.9"/><circle cx="7.5" cy="6.5" r="0.9"/><circle cx="9.5" cy="4.5" r="0.9"/><circle cx="12" cy="3" r="0.9"/></g></svg></span><span class="a-l">EU IBAN</span><span class="a-v num">DE89 ···· 0130 00</span><button class="copy-btn" data-copy="MAZE sample · your EU IBAN appears after sign-up">COPY</button></div>
+          </div>
+          <p class="body">Share these with your employer or clients. Money lands in your balance, already earning, already spendable on the card.</p>
+          <p class="fine">Sample details. Yours are issued at sign-up.</p>
+        </div>
+        <div class="rev">
+          <h2 class="display">Get paid like a local,<br />anywhere.</h2>
+          <div class="check-list">
+            <p class="check"><span>A <b>US account number</b> for ACH. Salaries, platforms, clients.</span></p>
+            <p class="check"><span>An <b>EU IBAN</b> for SEPA transfers, in your name.</span></p>
+            <p class="check"><span><b>Send dollars to any email.</b> No account on their side? They claim it the moment they sign up.</span></p>
+            <p class="check"><span><b>No residency requirement.</b> Live in 2 minutes, anywhere.</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░░ MARKETS ░░░░ ink. Vertical stack (head on top, panel full-width below). -->
+    <section class="section section-dark grid-tex" id="markets">
+      <div class="container">
+        <div class="mkt-head-row rev">
+          <div class="mkt-head-text">
+            <h2 class="display">Markets, when you're eligible.</h2>
+            <p class="lead">A pro module behind a clear gate. Live market data and event probabilities, with the same policy engine on top. Off by default, gated by region and eligibility. Your agents can read the data, never trade it, unless you explicitly allow it.</p>
+          </div>
+          <div class="agent-foot mkt-tags">
+            <span class="tag tag-dark">Region-gated</span>
+            <span class="tag tag-dark">Agents: read-only</span>
+            <span class="tag tag-dark">Risk disclosures first</span>
+          </div>
+        </div>
+        <div class="dark-card mkt-panel mkt-panel-wide rev" id="mktPanel">
+          <div class="mkt-head">
+            <img src="/integrations/hyperliquid.svg" alt="Hyperliquid" class="mkt-brand" />
+            <span class="mkt-label">Perpetuals</span>
+          </div>
+          <!-- Hyperliquid SVG was downloaded from their dark-themed app navbar so
+               it's already light-on-dark friendly. No -light variant needed. -->
+          <div class="mkt-rows" id="landingHlRows" aria-label="Hyperliquid perps">
+            <nexa-market-row symbol="BTC"  venue="Hyperliquid" name="Bitcoin perpetual"  price="96720.50" currency="USD" change-pct="2.14" source="provider-demo" logo-url="/integrations/btc.svg"></nexa-market-row>
+            <nexa-market-row symbol="ETH"  venue="Hyperliquid" name="Ethereum perpetual" price="3485.20"  currency="USD" change-pct="1.42" source="provider-demo" logo-url="/integrations/eth.svg"></nexa-market-row>
+            <nexa-market-row symbol="SOL"  venue="Hyperliquid" name="Solana perpetual"   price="228.50"   currency="USD" change-pct="4.21" source="provider-demo" logo-url="/integrations/sol.svg"></nexa-market-row>
+            <nexa-market-row symbol="HYPE" venue="Hyperliquid" name="HYPE perpetual"     price="28.40"    currency="USD" change-pct="8.73" source="provider-demo" logo-url="/integrations/hype.svg"></nexa-market-row>
+          </div>
+          <div class="mkt-head" style="margin-top:22px">
+            <img src="/integrations/polymarket-light.svg" alt="Polymarket" class="mkt-brand" />
+            <span class="mkt-label">Events</span>
+          </div>
+          <div class="mkt-rows" id="landingPmRows" aria-label="Polymarket events">
+            <div class="pm-row">
+              <p class="pm-q">Will the Fed cut rates at the March meeting?</p>
+              <div class="pm-meter"><i style="width:64%"></i></div>
+              <div class="pm-foot"><span class="pm-top">YES 64%</span></div>
+            </div>
+            <div class="pm-row">
+              <p class="pm-q">Will BTC close above $100k by end of Q1?</p>
+              <div class="pm-meter"><i style="width:71%"></i></div>
+              <div class="pm-foot"><span class="pm-top">YES 71%</span></div>
+            </div>
+            <div class="pm-row">
+              <p class="pm-q">Will ETH ETFs see $5B net inflows this quarter?</p>
+              <div class="pm-meter"><i style="width:58%"></i></div>
+              <div class="pm-foot"><span class="pm-top">YES 58%</span></div>
+            </div>
+          </div>
+          <p class="mkt-foot">Reads available worldwide. Trading off by default, gated by region and eligibility. Not investment advice.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░░ INSTALL ░░░░ cream. Install + "live in 2 minutes" claim absorbed. -->
+    <section class="section" id="get">
+      <div class="container">
+        <div class="install-wrap rev">
+          <h2 class="display install-title">Install MAZE.</h2>
+          <p class="lead install-lede">Live in about 2 minutes. MAZE installs straight from your browser as a real app: home-screen icon, full screen, works offline. The App Store build comes later. This is shipping today.</p>
+          <button class="btn btn-accent btn-lg" data-install>Install MAZE</button>
+          <p class="meta install-status" data-install-status>Checking install support on this device…</p>
+        </div>
+        <div class="grid-3 plat-grid rev">
+          <div class="plat" data-plat="ios">
+            <span class="p-dev">IPHONE · IPAD <span class="p-this">THIS DEVICE</span></span>
+            <p>Open in <b>Safari</b>, tap <b>Share</b>, then <b>Add to Home Screen</b>. MAZE appears like any other app.</p>
+          </div>
+          <div class="plat" data-plat="android">
+            <span class="p-dev">ANDROID <span class="p-this">THIS DEVICE</span></span>
+            <p>Tap the button above, or open <b>Chrome</b> menu <b>⋮</b>, then <b>Install app</b>. After install, use the same button to open MAZE.</p>
+          </div>
+          <div class="plat" data-plat="desktop">
+            <span class="p-dev">DESKTOP <span class="p-this">THIS DEVICE</span></span>
+            <p>Tap the button above, or use the <b>install icon</b> in the address bar of <b>Chrome</b> or <b>Edge</b>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ░░░░ FOOTER ░░░░ ink. Show-your-work absorbed as the lede. -->
+  <footer class="pagefoot">
+    <div class="container">
+      <div class="foot-grid">
+        <div>
+          <p class="foot-mark"><svg class="m-mark md" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE</p>
+          <p class="foot-sourced">Live numbers in MAZE carry a quiet badge: who provided it, how recent, with a link to their docs. <span id="transLive" class="num">18</span> providers live. Refreshed when the API is reachable.</p>
+        </div>
+        <nav class="foot-links" aria-label="Footer">
+          <a href="#thesis">Account</a>
+          <a href="#card">Card</a>
+          <a href="#earn">Earn</a>
+          <a href="#agents">Agents</a>
+          <a href="#markets">Markets</a>
+          <a href="#get">Install</a>
+        </nav>
+      </div>
+      <div class="powered-block">
+        <p class="powered-label">Powered by</p>
+        <ul class="powered-grid" role="list">
+          <li>Aave</li>
+          <li>Alchemy</li>
+          <li>Compound</li>
+          <li>Hyperliquid</li>
+          <li>LI.FI</li>
+          <li>Marinade</li>
+          <li>Mayan</li>
+          <li>Monerium</li>
+          <li>Morpho</li>
+          <li>Polymarket</li>
+          <li>Privy</li>
+          <li>Resend</li>
+          <li>Sentry</li>
+          <li>Socket</li>
+          <li>Stripe</li>
+          <li>x402</li>
+          <li>yoUSD</li>
+        </ul>
+      </div>
+      <p class="disclaimer">MAZE is a financial technology company, not a bank. Account and card services are provided by licensed partners. The earning rate shown is estimated, variable, and not guaranteed. Markets is an optional module, unavailable in some regions. This page is a product preview; figures shown are illustrative.</p>
+      <p class="foot-line"><span>MAZE © 2026</span><span>bank for humans &amp; agents</span></p>
+    </div>
+  </footer>
+
+  <!-- ░░░░ INSTALL SHEET ░░░░ -->
+  <div class="sheet-wrap" id="sheet" hidden>
+    <div class="sheet-backdrop" data-sheet-close></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="row-between">
+        <h3 id="sheetTitle">Install MAZE on this device</h3>
+        <button class="sheet-x" data-sheet-close aria-label="Close">×</button>
+      </div>
+      <p class="meta">Your browser didn't offer a one-tap install. Use the steps for your device:</p>
+      <div class="plat" data-plat="ios"><span class="p-dev">IPHONE · IPAD <span class="p-this">THIS DEVICE</span></span><p>Open this page in <b>Safari</b>, then <b>Share</b>, then <b>Add to Home Screen</b>.</p></div>
+      <div class="plat" data-plat="android"><span class="p-dev">ANDROID <span class="p-this">THIS DEVICE</span></span><p><b>Chrome</b> menu <b>⋮</b>, then <b>Install app</b> (or <b>Add to Home screen</b>).</p></div>
+      <div class="plat" data-plat="desktop"><span class="p-dev">DESKTOP <span class="p-this">THIS DEVICE</span></span><p>Use the <b>install icon</b> in the address bar of <b>Chrome</b> or <b>Edge</b>. Other browsers: keep the tab. The full app works right here.</p></div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/landing-main.ts"></script>
+</body>
+</html>

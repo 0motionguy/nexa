@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MAZE Admin · Test Cohort</title>
+<meta name="description" content="Internal admin console for managing the test cohort, viewing on-chain balances, tagging users, and running force-recovery on Privy server wallets." />
+<meta name="robots" content="noindex,nofollow" />
+<link rel="stylesheet" href="/src/base.css" />
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0A0A0C;
+    --fg: #F5F6FA;
+    --muted: #8a8d96;
+    --accent: #FF6A1A;
+    --surface: #15161A;
+    --surface-2: #1d1e23;
+    --edge: #2a2c33;
+    --good: #5fd680;
+    --warn: #ffb84d;
+    --bad: #ff5f6d;
+  }
+  body { margin: 0; font: 14px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: var(--bg); color: var(--fg); }
+  header { padding: 16px 24px; border-bottom: 1px solid var(--edge); display: flex; align-items: center; gap: 16px; }
+  header h1 { margin: 0; font-size: 16px; letter-spacing: 0.5px; }
+  header .tag { background: var(--accent); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+  main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+  section { margin-bottom: 32px; padding: 20px; background: var(--surface); border-radius: 8px; border: 1px solid var(--edge); }
+  section h2 { margin: 0 0 16px 0; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  input, button, select { font: inherit; padding: 8px 12px; border: 1px solid var(--edge); border-radius: 4px; background: var(--surface-2); color: var(--fg); }
+  input { min-width: 240px; }
+  input.long { min-width: 360px; }
+  input::placeholder { color: var(--muted); }
+  button { cursor: pointer; background: var(--accent); color: #fff; border: 0; font-weight: 600; }
+  button:hover { opacity: 0.9; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.danger { background: var(--bad); }
+  button.muted { background: var(--surface-2); color: var(--fg); border: 1px solid var(--edge); }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--edge); font-size: 13px; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  td.addr { font-size: 11px; color: var(--muted); word-break: break-all; }
+  .pill { padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+  .pill.ok { background: #1e3024; color: var(--good); }
+  .pill.warn { background: #3a2e15; color: var(--warn); }
+  .pill.bad { background: #3a1a1f; color: var(--bad); }
+  .pill.idle { background: var(--surface-2); color: var(--muted); }
+  .status { margin-top: 12px; padding: 10px 12px; background: var(--surface-2); border-radius: 4px; font-size: 12px; color: var(--muted); white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow: auto; }
+  .status.ok { border-left: 3px solid var(--good); }
+  .status.bad { border-left: 3px solid var(--bad); }
+  small.hint { color: var(--muted); display: block; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MAZE Admin · Test Cohort</h1>
+  <span class="tag">INTERNAL</span>
+  <span style="flex:1"></span>
+  <span id="connStatus" class="pill idle">not connected</span>
+</header>
+
+<main>
+
+  <section id="tokenSection">
+    <h2>Admin token</h2>
+    <div class="row">
+      <input id="adminToken" type="password" placeholder="paste ADMIN_TOKEN (Bearer ...)" autocomplete="off" />
+      <button id="connectBtn" type="button">Connect</button>
+      <button id="clearTokenBtn" type="button" class="muted">Clear</button>
+    </div>
+    <small class="hint">Token is held in memory only — never persisted to localStorage. Refresh = paste again. Required for every call below.</small>
+  </section>
+
+  <section id="cohortSection">
+    <h2>Tag user as tester</h2>
+    <div class="row">
+      <input id="cohortUserId" type="text" placeholder="userId (uuid)" />
+      <input id="cohortTag" type="text" placeholder="cohort tag" value="tester-2026Q3" />
+      <button id="cohortSetBtn" type="button">Set</button>
+      <button id="cohortClearBtn" type="button" class="muted">Clear (null)</button>
+    </div>
+    <div id="cohortStatus" class="status idle">awaiting input</div>
+  </section>
+
+  <section id="dashboardSection">
+    <h2>Test users dashboard</h2>
+    <div class="row">
+      <input id="dashboardCohort" type="text" placeholder="cohort tag" value="tester-2026Q3" />
+      <label><input id="dashboardOnchain" type="checkbox" checked /> on-chain USDC</label>
+      <button id="dashboardRefreshBtn" type="button">Refresh</button>
+      <span id="dashboardCount" style="color: var(--muted); font-size: 12px;"></span>
+    </div>
+    <div id="dashboardTableHost"></div>
+    <div id="dashboardStatus" class="status idle">click Refresh to load</div>
+  </section>
+
+  <section id="withdrawSection">
+    <h2>Force recovery (drain wallet)</h2>
+    <div class="row">
+      <input id="withdrawUserId" type="text" placeholder="userId (uuid)" />
+      <select id="withdrawChain">
+        <option value="base">Base (USDC)</option>
+        <option value="solana">Solana (SOL)</option>
+      </select>
+      <input id="withdrawDestination" type="text" class="long" placeholder="destination wallet (0x... or base58)" />
+      <button id="withdrawBtn" type="button" class="danger">Drain</button>
+    </div>
+    <small class="hint">
+      Reads the user's on-chain balance, builds a single transfer call, submits via the sponsored executor (Base) or
+      Privy Solana signer (Solana). Self-drain (dest = source) is blocked. Rate-limited to 10/min per IP. Every call —
+      even malformed — is recorded in <code>nb_audit_log</code> with <code>admin.withdraw-all.attempted</code>.
+    </small>
+    <div id="withdrawStatus" class="status idle">awaiting input</div>
+  </section>
+
+</main>
+
+<script type="module" src="/src/admin-main.ts"></script>
+</body>
+</html>

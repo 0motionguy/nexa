@@ -1,0 +1,2 @@
+CREATE INDEX "nb_offers_seller_created_idx" ON "nb_offers" USING btree ("seller_id","created_at");--> statement-breakpoint
+CREATE INDEX "nb_x402_events_agent_created_idx" ON "nb_x402_events" USING btree ("agent_id","created_at");

@@ -1,0 +1,110 @@
+/* ═══ NEXA tokens — primitive layer.
+   Lifted verbatim from app-v2.html lines 27-49 (the design contract).
+   Touch ONLY when the source HTML token block changes.
+   Semantic aliases live in tokens.semantic.css. ═══ */
+:root {
+  /* surfaces */
+  --bg: #F5F6FA;
+  --surface: #FFFFFF;
+  --fg: #090A0C;
+  --muted: #4F535C;
+  --meta: #8A8D96;
+
+  /* borders */
+  --border: rgba(10, 10, 12, .09);
+  --border-md: rgba(10, 10, 12, .16);
+
+  /* accent */
+  --accent: #FF6A1A;
+  --accent-deep: #C84D12;
+  --accent-soft: rgba(255, 106, 26, .12);
+
+  /* state */
+  --success: #18A957;
+  --warn: #F5A524;
+  --danger: #E5484D;
+
+  /* ink (used for dark surfaces inside the light theme — cards, phone frame) */
+  --ink: #0A0A0C;
+  --ink-fg: #F4F5F8;
+  --ink-muted: rgba(244, 245, 248, .6);
+  --ink-border: rgba(244, 245, 248, .13);
+  --ink-glass: rgba(244, 245, 248, .06);
+
+  /* misc surfaces */
+  --glass: rgba(255, 255, 255, .78);
+  --gain-soft: rgba(24, 169, 87, .13);
+  --warn-soft: rgba(245, 165, 36, .14);
+  --danger-soft: rgba(229, 72, 77, .12);
+  --emboss: rgba(244, 245, 248, .13);
+  --scrim: rgba(10, 10, 12, .44);
+
+  /* shadows */
+  --sh-soft: 0 10px 40px rgba(10, 10, 12, .08);
+  --sh-card: 0 16px 45px rgba(30, 34, 44, .12);
+  --sh-phone: 0 34px 80px rgba(10, 10, 12, .22);
+
+  /* tiny accent-edge primitive — used for hairlines, focus rings, dark-mode
+     definition where a 1px orange tint reads as a light source. Light-mode
+     value is calmer so it doesn't pop on white. */
+  --accent-edge: rgba(255, 106, 26, .42);
+
+  /* elevated surface — sits above --surface in z-order. In light theme it's
+     barely cooler than --bg; in dark theme it's the only thing keeping the
+     virtual card and elevated panels visible against #0A0A0C. */
+  --surface-2: #F8F9FB;
+
+  /* typography
+     --sans: Geist Variable (Vercel, OFL). Replaces Inter as the body/display
+     stack on landing; the variable font covers all weights in a single woff2,
+     so weight-contrast headlines don't add network requests. System and Inter
+     stay as fallbacks while every surface migrates. */
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --sans: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+  /* radii */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --pill: 999px;
+
+  /* motion */
+  --ease: cubic-bezier(.2, .65, .25, 1);
+}
+
+/* Dark theme — scoped to .stage[data-theme="dark"] so light + dark
+   can coexist (e.g., review chrome stays dark while stage flips). */
+.stage[data-theme="dark"] {
+  --bg: #0A0A0C;
+  --surface: #121215;
+  --fg: #F4F5F8;
+  --muted: rgba(244, 245, 248, .66);
+  --meta: rgba(244, 245, 248, .42);
+
+  /* Border opacity boosted from .11 → .16 so card dividers and lrow
+     borders actually appear against the dark canvas. */
+  --border: rgba(244, 245, 248, .16);
+  --border-md: rgba(244, 245, 248, .24);
+
+  --glass: rgba(18, 18, 21, .78);
+  --scrim: rgba(0, 0, 0, .6);
+
+  --gain-soft: rgba(24, 169, 87, .18);
+  --warn-soft: rgba(245, 165, 36, .16);
+  --danger-soft: rgba(229, 72, 77, .16);
+
+  /* Accent-soft bumped from .12 → .22 so backgrounds tinted with the
+     accent (e.g. s20 create-agent rule callout) are actually visible. */
+  --accent-soft: rgba(255, 106, 26, .22);
+
+  /* Stronger edge for dark mode — the "tiny highlight line" primitive
+     reads more clearly against #0A0A0C at .55 than at the light .42. */
+  --accent-edge: rgba(255, 106, 26, .55);
+
+  /* Elevated dark surface. Sits between --surface (#121215) and the bg
+     (#0A0A0C). Used for the virtual card so it stops being invisible. */
+  --surface-2: #1c1c21;
+
+  --sh-soft: 0 10px 40px rgba(0, 0, 0, .4);
+  --sh-card: 0 16px 45px rgba(0, 0, 0, .5);
+}

@@ -1,0 +1,21 @@
+# Sprint 17 F079 — exclude noisy / sensitive paths from build context.
+node_modules
+**/node_modules
+dist
+**/dist
+coverage
+**/coverage
+test-results
+playwright-report
+**/*.spec.ts
+**/*.test.ts
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.vscode
+.idea
+README.md

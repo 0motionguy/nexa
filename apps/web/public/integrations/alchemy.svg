@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 42" role="img" aria-labelledby="title">
+  <title id="title">Alchemy</title>
+  <rect width="180" height="42" rx="8" fill="#111827"/>
+  <circle cx="24" cy="21" r="10" fill="#6366f1"/>
+  <path d="M20 25l4-12 4 12h-3l-.6-2h-4.8l-.6 2h-3zm.4-5h3.2L22 15l-1.6 5z" fill="#fff"/>
+  <text x="42" y="27" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">Alchemy</text>
+</svg>

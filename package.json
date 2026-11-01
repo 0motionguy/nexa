@@ -1,0 +1,55 @@
+{
+  "name": "nexa",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "NEXA Neo Bank — humans + agents on one ledger. Crypto-rails neobank with agent wallets and x402.",
+  "packageManager": "pnpm@9.12.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @nexa/* dev",
+    "dev:web": "pnpm --filter @nexa/web dev",
+    "dev:api": "pnpm --filter @nexa/api dev",
+    "build": "pnpm --filter @nexa/* build",
+    "test": "pnpm --filter @nexa/* test && pnpm test:e2e",
+    "test:e2e": "pnpm --filter @nexa/web test:e2e",
+    "typecheck": "pnpm --filter @nexa/* typecheck",
+    "lint": "pnpm --filter @nexa/* lint",
+    "verify": "pnpm verify:providers && pnpm verify:deploy && pnpm --filter @nexa/shared-zod build && pnpm --filter @nexa/sdk build && pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm verify:neo",
+    "verify:public": "node scripts/verify-public-connectivity.mjs",
+    "verify:deploy": "node --test scripts/merge-prometheus-managed.test.mjs && node scripts/verify-deploy-contract.mjs",
+    "verify:providers": "node scripts/check-provider-coverage.mjs",
+    "verify:neo": "node scripts/verify-neo.mjs",
+    "route:inventory": "node scripts/route-inventory.mjs --providers",
+    "route:inventory:ci": "node scripts/route-inventory.mjs --providers --strict",
+    "probe:transactions": "pnpm --filter @nexa/api exec tsx ../../scripts/probe-transaction-actions.mjs",
+    "probe:auth-market-actions": "pnpm --filter @nexa/api exec tsx ../../scripts/probe-auth-market-actions.mjs",
+    "probe:sdk-transactions": "pnpm --filter @nexa/api exec tsx ../../scripts/probe-sdk-transaction-surface.mjs",
+    "probe:prod-transactions": "node scripts/probe-production-transaction-readiness.mjs",
+    "load:gate": "node scripts/load-gate.mjs",
+    "db:migrate": "pnpm --filter @nexa/api drizzle:migrate",
+    "db:generate": "pnpm --filter @nexa/api drizzle:generate"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@polymarket/builder-relayer-client@0.0.10>axios": "1.18.1",
+      "esbuild": "0.28.1",
+      "form-data": "4.0.6",
+      "js-yaml@3.14.2": "3.15.0",
+      "js-yaml@4.1.1": "4.2.0",
+      "postcss@8.4.49": "8.5.10",
+      "uuid": "11.1.1",
+      "vite": "6.4.3",
+      "ws": "8.21.0"
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
+    "globals": "^17.6.0",
+    "typescript-eslint": "^8.61.0"
+  }
+}

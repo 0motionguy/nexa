@@ -1,0 +1,1 @@
+ALTER TABLE "nb_x402_contracts" ADD COLUMN "payee_address" varchar(64);

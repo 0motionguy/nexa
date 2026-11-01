@@ -1,0 +1,2299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>MAZE · bank for humans & agents</title>
+<meta name="description" content="MAZE · self-custody dollar accounts, agent wallets, and x402-native payments on one ledger." />
+<meta name="theme-color" content="#F5F6FA" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0A0A0C" media="(prefers-color-scheme: dark)" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="apple-touch-icon" href="/icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="MAZE" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23FF6A1A'/%3E%3Cg fill='%23F5F6FA'%3E%3Crect x='14' y='14' width='8' height='36'/%3E%3Crect x='28' y='22' width='8' height='28'/%3E%3Crect x='42' y='14' width='8' height='36'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/src/fonts.css" />
+<link rel="stylesheet" href="/src/tokens.css" />
+<link rel="stylesheet" href="/src/tokens.semantic.css" />
+<link rel="stylesheet" href="/src/base.css" />
+<link rel="stylesheet" href="/src/app.css" />
+<style>
+/* s27 market rows + trade sheets. Scoped here for the markets-polish handoff. */
+.mkt-row-wrap{display:flex;align-items:center;gap:8px;border-top:1px solid var(--border)}
+.mkt-row-wrap:first-child{border-top:0}
+.mkt-row-wrap>nexa-market-row{flex:1;min-width:0;border-top:0}
+.mkt-info{width:36px;height:36px;flex:0 0 auto;margin-right:10px;border:1px solid var(--border-md);border-radius:var(--pill);background:var(--surface);color:var(--meta);font-family:var(--mono);font-size:12px;font-weight:700;display:grid;place-items:center}
+.mkt-info:hover,.mkt-info:focus-visible{color:var(--accent);border-color:var(--accent-edge);background:var(--accent-soft);outline:0}
+.pm-event-wrap{align-items:stretch;padding-right:0}
+.pm-event-stack{flex:1;min-width:0}
+.pm-event-stack>nexa-market-row{width:100%}
+.pm-mobile-question{display:none}
+.pm-outcomes{margin:-6px 0 10px 42px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--meta);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.market-order-sheet{border-radius:var(--r-lg);padding:var(--sp-5) var(--sp-5) calc(var(--sp-5) + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:0;max-height:calc(100% - 16px);-webkit-overflow-scrolling:touch}
+.market-sheet-head{display:flex;align-items:center;gap:var(--sp-3);margin-top:var(--sp-1)}
+.order-logo{width:42px;height:42px;border-radius:var(--r-md);border:1px solid var(--border);background:var(--surface-2);display:grid;place-items:center;overflow:hidden;flex:0 0 auto;font-family:var(--mono);font-weight:700}
+.order-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.order-logo-fallback{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-soft),transparent),var(--surface-2)}
+.market-head-main{min-width:0;flex:1}
+.market-head-main .symbol{display:block;font-family:var(--mono);font-size:22px;font-weight:700;letter-spacing:0;line-height:1.1}
+.market-head-main .name{display:block;margin-top:3px;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.market-head-side{text-align:right;flex:0 0 auto}
+.market-head-side .price{font-family:var(--mono);font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.market-chip{margin-top:5px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--pill);padding:4px 9px;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--success);background:var(--gain-soft)}
+.market-chip.down{color:var(--danger);background:var(--danger-soft)}
+.market-stat-row{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3);font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--meta)}
+.market-region-label{display:inline-flex;align-items:center;border-radius:var(--pill);border:1px solid color-mix(in oklab,var(--success) 35%,transparent);background:color-mix(in oklab,var(--success) 8%,transparent);color:var(--success);padding:4px 9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+.market-region-label.blocked{border-color:color-mix(in oklab,var(--danger) 35%,transparent);background:color-mix(in oklab,var(--danger) 8%,transparent);color:var(--danger)}
+.market-sheet-actions{position:sticky;bottom:0;margin-top:var(--sp-4);padding-top:var(--sp-3);background:linear-gradient(180deg,color-mix(in oklab,var(--surface) 0%,transparent),var(--surface) 28%)}
+@media (max-width:480px){.mkt-row-wrap{gap:6px}.mkt-info{width:32px;height:32px;margin-right:4px}.pm-mobile-question{display:block;margin:-4px 42px 4px 34px;font-size:11.5px;line-height:1.35;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.pm-outcomes{margin:0 42px 10px 34px;font-size:10px}.ovl .market-order-sheet{left:0;right:0;top:0;bottom:0;max-height:100dvh;min-height:100%;border-radius:0;border-inline:0;border-bottom:0;padding:max(var(--sp-4),env(safe-area-inset-top)) var(--sp-5) max(var(--sp-5),env(safe-area-inset-bottom))}.market-order-sheet .grab{margin-bottom:var(--sp-3)}.market-head-main .symbol{font-size:20px}.market-head-side .price{font-size:16px}}
+</style>
+<script>
+/* Motion gate … per the design contract (app-v2.html), motion plays by
+   default; ?motion=off opts out. prefers-reduced-motion alone does NOT
+   disable it (the prototype's REVIEW_FORCE_MOTION behavior). */
+(function () {
+  var q = (location.search.match(/[?&]motion=(\w+)/) || [])[1];
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (q === 'off' || (!q && reduce)) document.documentElement.classList.add('rm');
+})();
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="m-emblem" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="12" fill="var(--m-square, #FF6A1A)"/>
+      <g fill="var(--m-bars, #F5F6FA)">
+        <rect x="14" y="14" width="8" height="36"/>
+        <rect x="28" y="22" width="8" height="28"/>
+        <rect x="42" y="14" width="8" height="36"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="stage" id="stage" data-theme="light">
+
+  <!-- ════ 01 WELCOME ════ -->
+  <section class="scr" id="s01" data-screen-label="01 Welcome">
+    <div class="body notab center">
+      <div class="globe-slot"><canvas data-globe data-dots="640" data-speed="0.00012" data-r="0.46" data-boost="1.4"></canvas></div>
+      <h1 class="h-big" style="text-align:center;margin-top:18px">Your self-custody dollar account.<br/>Live in 2 minutes.</h1>
+      <p class="sub" style="text-align:center;max-width:32ch;margin-inline:auto">Trade, stake, and send worldwide. A budget your AI can spend safely. No bank required.</p>
+      <div style="margin-top:26px" id="privy-island" data-state="loading"></div>
+      <p class="sub" style="text-align:center;font-size:11px;margin-top:14px;font-family:var(--mono);color:var(--meta)">MAZE is a financial technology company, not a bank.</p>
+    </div>
+  </section>
+
+  <section class="scr" id="s08" data-screen-label="08 Home" data-tab="home">
+    <div class="appbar home-appbar">
+      <span class="home-wordmark"><svg class="m-mark md" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE</span>
+      <span class="spacer"></span>
+      <button class="iconb" id="homeRefreshBtn" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2-2A6 6 0 0 0 6 12"/><path d="M20 12a8 8 0 0 1-14 5l-2 2v-6h6l-2 2A6 6 0 0 0 18 12"/></svg></button>
+      <button class="iconb" data-toast="No new notifications" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6M10.5 19a2 2 0 0 0 3 0"/></svg><span class="dot"></span></button>
+      <button class="iconb" data-go="s26" aria-label="More"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button>
+    </div>
+    <div class="body home-body">
+      <div id="kycBanner" class="banner" hidden><b>VERIFY</b><span class="grow">Add a photo ID to use bank rails.</span><button data-open="kycSheet" aria-label="Verify">Verify</button></div>
+      <div id="homeSkel" hidden>
+        <div class="skel" style="height:84px;margin-bottom:12px"></div>
+        <div class="skel" style="height:48px;margin-bottom:12px"></div>
+        <div class="skel" style="height:160px"></div>
+      </div>
+      <div id="homeBody">
+        <p class="home-greet">Welcome</p>
+        <div class="home-balance" id="balEl">…</div>
+        <p class="home-total">Total balance</p>
+        <p class="home-eur" id="eurLine" hidden>+ €0.00 EUR</p>
+        <div class="qa-grid">
+          <button class="qa" data-go="s09"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg></b>Add</button>
+          <button class="qa" data-go="s10"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M7 17 17 7M9 7h8v8"/></svg></b>Send</button>
+          <button class="qa" data-go="s30"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 19V5M7 10l5-5 5 5"/><path d="M5 20h14"/></svg></b>Receive</button>
+          <button class="qa" data-go="s16"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M8 4v13M5 7l3-3 3 3M16 20V7M13 17l3 3 3-3"/></svg></b>Swap</button>
+        </div>
+        <button class="get-paid-cta" id="earnTile" data-open="earnSheet" hidden>
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 20V4M4 14l6-6 4 4 6-8"/></svg></span>
+          <span class="grow"><span class="t">Earn on idle balance</span><br/><span class="s">VARIABLE RATE. WITHDRAW ANYTIME.</span></span>
+          <span class="chev">›</span>
+        </button>
+        <button class="get-paid-cta" id="newOfferCta" data-act="new-offer" hidden>
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v16M5 8.5h9a3 3 0 0 1 0 6H8m6 0H5"/></svg></span>
+          <span class="grow"><span class="t">Get paid</span><br/><span class="s">CREATE A CHECKOUT LINK · SHARE ANYWHERE</span></span>
+          <span class="chev">›</span>
+        </button>
+        <button class="home-card spend-card" id="spendInsightCard" data-go="s34" hidden>
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg></span>
+          <span class="grow"><span class="label">Spent this month</span><br/><span class="amount" id="spendInsightAmount">-</span><br/><span class="subline" id="spendInsightSub">No spend yet</span></span>
+          <span class="chev">›</span>
+        </button>
+        <div class="card" id="activationChecklist" hidden style="margin-top:12px;padding:6px 14px">
+          <div class="row" style="padding:8px 0 4px;align-items:center"><span class="grow"><span class="t" style="font-weight:600">Activate your account</span><br/><span class="s">60 SECOND SETUP</span></span><span class="tag" id="activationProgress">0/2</span></div>
+          <div class="lrow" id="activationKyc" data-open="kycSheet" role="button" tabindex="0" style="cursor:pointer" hidden><span class="tag" data-activation-dot="kyc">1</span><span class="grow"><span class="t">Verify identity</span><br/><span class="s">UNLOCK BANK DETAILS</span></span><span class="chev">›</span></div>
+          <div class="lrow" id="activationFund" data-go="s09" role="button" tabindex="0" style="cursor:pointer"><span class="tag" data-activation-dot="fund">1</span><span class="grow"><span class="t">Add first dollars</span><br/><span class="s">BANK TRANSFER OR CARD</span></span><span class="chev">›</span></div>
+          <div class="lrow" id="activationAgent" data-go="s20" role="button" tabindex="0" style="cursor:pointer"><span class="tag" data-activation-dot="agent">2</span><span class="grow"><span class="t">Connect first agent</span><br/><span class="s">OPTIONAL SPEND BUDGET</span></span><span class="chev">›</span></div>
+        </div>
+        <div class="home-orbit">
+          <div class="globe-slot home-globe"><canvas data-globe data-ascii data-arcs data-markers data-arc-gap="260" data-arc-dur="2800" data-dots="5500" data-speed="0.00024" data-r="0.48" data-boost="1.85"></canvas></div>
+        </div>
+        <div id="homeEmpty" hidden>
+          <div class="card" style="margin-top:16px;text-align:center;padding:28px 18px">
+            <div class="globe-slot" style="height:120px"><canvas data-globe data-dots="380" data-speed="0.0001" data-r="0.46" data-boost="1.3"></canvas></div>
+            <h3 style="font-size:15px;margin-top:10px">Nothing here yet, and that's correct.</h3>
+            <p class="sub" style="font-size:13px">Add your first dollars or share your new account number. Activity shows up the second money moves.</p>
+            <div style="margin-top:14px"><button class="btn sm acc" data-go="s09" style="margin-inline:auto">Add money</button></div>
+          </div>
+        </div>
+        <div id="homeFull" style="display:none">
+          <div class="home-card tx-card">
+            <div class="tx-head"><h3>Activity</h3><button class="view-link" id="viewAllActivityBtn" data-go="s29">All</button></div>
+            <div id="actList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 34 INSIGHTS ════ -->
+  <section class="scr" id="s34" data-screen-label="34 Insights" data-tab="home">
+    <div class="appbar"><button class="backb" data-go="s08" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Insights</span><span class="spacer"></span><button class="pillbtn" id="insightsExportCsv">CSV</button></div>
+    <div class="body">
+      <div class="card insights-hero">
+        <p class="eyebrow" id="insightsMonth">THIS MONTH</p>
+        <div class="home-balance" id="insightsTotal" style="font-size:38px;text-align:left">$0.00</div>
+        <p class="sub" id="insightsPace" style="font-size:13px;margin-top:6px">No spend yet.</p>
+      </div>
+      <p class="eyebrow" style="margin:18px 0 6px">CATEGORIES</p>
+      <div class="card" id="insightsCategoryList" style="padding:4px 14px">
+        <div class="lrow"><span class="grow"><span class="t">Loading spend...</span><br/><span class="s">/spend/monthly</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 09 ADD MONEY (MAZE time-to-arrive rail picker) ════ -->
+  <section class="scr" id="s09" data-screen-label="09 Add money" data-tab="home">
+    <div class="appbar"><button class="backb" data-go="s08" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Add money</span></div>
+    <div class="body">
+      <!-- Brand bar -->
+      <div class="row" style="margin-top:8px;align-items:center;justify-content:space-between">
+        <span class="row" style="gap:8px;margin:0;align-items:center">
+          <svg class="m-mark md" aria-hidden="true"><use href="#m-emblem"/></svg>
+          <span class="t" style="font-size:15px;font-weight:600">Add to balance</span>
+        </span>
+      </div>
+
+      <!-- Detail pane (Crypto open by default). JS swaps in the matching <template> when a rail row is tapped. -->
+      <div id="addRailDetail" style="margin-top:14px"></div>
+
+      <!-- Rail picker. Card / Crypto / Bank order. Each row leads with a time-to-arrive tag. -->
+      <p class="eyebrow" style="margin:22px 0 8px">OTHER WAYS</p>
+      <div class="card" style="padding:4px 14px" id="addRailList">
+        <div class="lrow" data-addrail="card" style="cursor:pointer" role="button" tabindex="0">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18"/></svg></span>
+          <span class="grow"><span class="t">Card</span><br/><span class="s">VISA · MASTERCARD · APPLE PAY</span></span>
+          <span class="tag" style="color:var(--accent);border-color:color-mix(in oklab,var(--accent) 45%,transparent);background:var(--accent-soft);font-weight:600;letter-spacing:.06em">INSTANT</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="lrow on" data-addrail="crypto" style="cursor:pointer" role="button" tabindex="0">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 3 L4 8 L4 16 L12 21 L20 16 L20 8 Z"/><path d="M12 3 L12 21 M4 8 L20 16 M20 8 L4 16"/></svg></span>
+          <span class="grow"><span class="t">Crypto</span><br/><span class="s">SOL · BASE · ETH</span></span>
+          <span class="tag ok" style="font-weight:600;letter-spacing:.06em">~30 SEC</span>
+          <span class="chev">›</span>
+        </div>
+        <div class="lrow" data-addrail="bank" style="cursor:pointer" role="button" tabindex="0">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M3 9 L12 4 L21 9"/><path d="M4 9 L4 19 M20 9 L20 19 M8 11 L8 17 M12 11 L12 17 M16 11 L16 17 M3 19 L21 19"/></svg></span>
+          <span class="grow"><span class="t">Bank transfer</span><br/><span class="s">ACH · SEPA · NO FEES</span></span>
+          <span class="tag" style="color:var(--muted);border-color:var(--border-md);font-weight:600;letter-spacing:.06em">1-3 DAYS</span>
+          <span class="chev">›</span>
+        </div>
+      </div>
+
+      <template id="addRailTpl-card">
+        <div class="card">
+          <p class="eyebrow" style="margin-bottom:8px">CARD CHECKOUT</p>
+          <p class="sub" style="font-size:13px;margin:0">Stripe-hosted page. Lands in your balance the second the card clears.</p>
+          <div style="margin-top:14px"><button class="btn" id="onrampStripeBtn">Continue to checkout</button></div>
+        </div>
+      </template>
+
+      <template id="addRailTpl-crypto">
+        <div class="card">
+          <div class="row" style="gap:8px;justify-content:flex-start">
+            <button class="pillbtn onx" data-addnet="base">BASE · CASH</button>
+            <button class="pillbtn" data-addnet="solana">SOL</button>
+            <button class="pillbtn" data-addnet="ethereum">ETH</button>
+          </div>
+          <div style="text-align:center;margin-top:18px">
+            <div style="width:188px;height:188px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:var(--r-md);display:grid;place-items:center;padding:10px;box-sizing:border-box">
+              <img id="addCryptoQr" alt="Deposit QR" width="168" height="168" style="display:block" />
+            </div>
+          </div>
+          <p class="num" id="addCryptoAddr" style="text-align:center;margin-top:14px;font-size:12px;overflow-wrap:anywhere;padding:0 8px;line-height:1.55;color:var(--muted)">Address unavailable</p>
+          <div style="margin-top:14px"><button class="pillbtn" id="copyBaseAddr" style="width:100%;justify-content:center" disabled>COPY ADDRESS</button></div>
+        </div>
+      </template>
+
+      <template id="addRailTpl-bank">
+        <div class="card">
+          <div class="kv"><span class="k">US ACCOUNT</span><span class="num" data-acct="us-number">Unavailable</span></div>
+          <div class="kv"><span class="k">ROUTING</span><span class="num" data-acct="us-routing">Unavailable</span></div>
+          <div class="kv"><span class="k">EU IBAN</span><span class="num" id="moneriumIban" data-mn-iban data-acct="eu-iban">Unavailable</span></div>
+          <div class="row" style="margin-top:12px"><button class="pillbtn" id="copyFundingDetails" disabled>COPY DETAILS</button></div>
+        </div>
+      </template>
+
+    </div>
+  </section>
+
+  <!-- ════ 10 SEND ════ -->
+  <section class="scr" id="s30" data-screen-label="30 Receive" data-tab="pay">
+    <div class="appbar"><button class="backb" data-go="s08" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Receive</span></div>
+    <div class="body">
+      <div class="card" style="text-align:center">
+        <p class="eyebrow" style="margin-bottom:6px">USDC ON BASE</p>
+        <div id="receiveQrWrap" style="width:188px;height:188px;margin:10px auto;border:1px solid var(--border);border-radius:8px;display:grid;place-items:center;background:var(--surface-2)">
+          <img id="receiveQr" alt="QR code for your Base USDC address" width="172" height="172" referrerpolicy="no-referrer" hidden />
+          <span class="sub mono" id="receiveQrEmpty" style="font-size:11px">ADDRESS UNAVAILABLE</span>
+        </div>
+        <p class="num" id="receiveBaseAddr" style="font-size:12px;overflow-wrap:anywhere">Unavailable</p>
+        <div class="row" style="margin-top:10px;justify-content:center;gap:8px"><button class="pillbtn" id="copyReceiveBase" disabled>COPY ADDRESS</button><button class="pillbtn" id="copyReceiveHandle" disabled>SHARE @HANDLE</button></div>
+      </div>
+      <div class="card" id="receiveBankCard" style="margin-top:12px">
+        <p class="eyebrow" style="margin-bottom:4px">BANK DEPOSIT</p>
+        <p class="sub" style="font-size:13px">Use these same account details for payroll, clients, or bank transfers.</p>
+        <div class="kv" style="margin-top:8px"><span class="k">US ACCOUNT</span><span class="num" data-acct="us-number">Unavailable</span></div>
+        <div class="kv"><span class="k">ROUTING</span><span class="num" data-acct="us-routing">Unavailable</span></div>
+        <div class="kv"><span class="k">EU IBAN</span><span class="num" data-acct="eu-iban">Unavailable</span></div>
+        <div class="row" style="margin-top:10px"><button class="pillbtn" id="copyReceiveBank" disabled>COPY BANK DETAILS</button></div>
+      </div>
+      <details class="adv"><summary>Advanced</summary><div class="advb">Only send USDC on Base to this address. Other assets or networks may not be recoverable.</div></details>
+    </div>
+  </section>
+
+  <section class="scr" id="s10" data-screen-label="10 Send" data-tab="pay">
+    <div class="appbar"><button class="backb" data-go="s08" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Send</span></div>
+    <div class="body">
+      <div id="sendStep1">
+        <!-- Mode toggle: cash to a person OR crypto to a wallet address -->
+        <div class="row" style="justify-content:center;margin-top:4px;gap:8px" data-sendmode-bar>
+          <button class="pillbtn onx" data-sendmode="person">To a person</button>
+          <button class="pillbtn" data-sendmode="wallet">To a wallet</button>
+        </div>
+        <div style="margin-top:14px" class="amount-disp" id="amtDisp">$<span>0</span><small id="amtCents"></small></div>
+        <p class="sub" style="text-align:center;font-size:11.5px;font-family:var(--mono);color:var(--meta)">BALANCE <span id="balMini">…</span> · NO FEES</p>
+        <div class="kpad" id="kpad">
+          <button>1</button><button>2</button><button>3</button>
+          <button>4</button><button>5</button><button>6</button>
+          <button>7</button><button>8</button><button>9</button>
+          <button>.</button><button>0</button><button aria-label="Delete">⌫</button>
+        </div>
+        <div style="margin-top:14px"><button class="btn" id="amtGo" data-sendmode-target="person" disabled><span data-sendmode-cta>Choose contact</span></button></div>
+      </div>
+      <div id="sendStep2" hidden>
+        <p class="eyebrow">SEND <span id="amtEcho2">$20.00</span> TO</p>
+        <div class="field" style="margin-top:4px"><input class="inp" id="recipInp" placeholder="Name, email, phone, or @handle" value="bob@x.com" aria-label="Recipient"/></div>
+        <div class="card" style="margin-top:14px;padding:6px 14px">
+          <div class="lrow" id="recipTyped" data-recip="" data-new="1" hidden style="cursor:pointer"><span class="agent-av hot">→</span><span class="grow"><span class="t" id="recipTypedT">Send to …</span><br/><span class="s">FROM YOUR INPUT</span></span><span class="chev">›</span></div>
+          <div class="lrow" data-recip="Lena K." style="cursor:pointer"><span class="agent-av">LK</span><span class="grow"><span class="t">Lena K.</span><br/><span class="s">lena@studio.co · RECENT</span></span><span class="chev">›</span></div>
+          <div class="lrow" data-recip="Jonas M." style="cursor:pointer"><span class="agent-av">JM</span><span class="grow"><span class="t">Jonas M.</span><br/><span class="s">+49 171 ··· 882 · PHONE</span></span><span class="chev">›</span></div>
+          <div class="lrow" data-recip="bob@x.com" data-new="1" style="cursor:pointer"><span class="agent-av">@</span><span class="grow"><span class="t">bob@x.com</span><br/><span class="s">NEW · GETS A CLAIM LINK</span></span><span class="chev">›</span></div>
+        </div>
+        <div class="card" id="claimNote" style="margin-top:12px;background:var(--gain-soft);border-color:color-mix(in oklab,var(--success) 30%,transparent)">
+          <p class="sub" style="font-size:12.5px;color:var(--fg)"><span id="claimNoteName">bob@x.com</span> doesn't have MAZE yet. We'll email a claim link.</p>
+        </div>
+      </div>
+      <div id="sendStep2Wallet" hidden>
+        <p class="eyebrow">SEND <span id="amtEcho2W">$20.00</span> TO WALLET</p>
+        <div class="row" style="gap:8px;margin-top:10px">
+          <button class="pillbtn onx" data-sendnet="solana">SOL</button>
+          <button class="pillbtn" data-sendnet="base">BASE</button>
+          <button class="pillbtn" data-sendnet="ethereum">ETH</button>
+        </div>
+        <div class="field" style="margin-top:14px"><label for="sendWalletAddr">Wallet address</label><input class="inp num" id="sendWalletAddr" inputmode="text" placeholder="Paste the recipient's address" autocomplete="off" spellcheck="false" style="font-size:13px"/></div>
+        <p class="sub" id="sendWalletHint" style="font-size:11.5px;font-family:var(--mono);color:var(--meta);margin-top:8px">FUNDS LEAVE FROM YOUR MAZE WALLET · CONFIRMS IN ~30 SEC</p>
+        <div style="margin-top:18px"><button class="btn" id="sendWalletGo" disabled>Continue</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 11 CONFIRM SEND ════ -->
+  <section class="scr" id="s11" data-screen-label="11 Confirm send" data-tab="pay">
+    <div class="appbar"><button class="backb" data-go="s10" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Confirm</span></div>
+    <div class="body">
+      <div id="cfBody">
+        <div class="card" style="margin-top:8px">
+          <div class="kv"><span class="k">TO</span><b id="cfTo">bob@x.com</b></div>
+          <div class="kv"><span class="k">AMOUNT</span><span class="num" id="cfAmt">$20.00</span></div>
+          <div class="kv"><span class="k">FEES</span><span class="num">$0.00</span></div>
+          <div class="kv"><span class="k">ARRIVES</span><b>Instant claim link · returns in 30 days if unclaimed</b></div>
+        </div>
+        <div style="margin-top:16px"><button class="btn acc" id="sendNow">Send <span id="cfAmt2">$20.00</span></button></div>
+      </div>
+      <div id="cfDone" hidden style="text-align:center;padding-top:46px">
+        <div class="checkw"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.2 4L19 7"/></svg></div>
+        <h1 class="h-big">Sent.</h1>
+        <p class="sub" style="margin-inline:auto;max-width:28ch"><span id="cfDoneTxt">bob@x.com gets a claim email right now.</span></p>
+        <div style="margin-top:20px;display:grid;gap:10px">
+          <button class="btn ghost" id="previewEmail">Preview their email</button>
+          <button class="btn" data-go="s08">Done</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 12 REQUEST ════ -->
+  <section class="scr" id="s12" data-screen-label="12 Request" data-tab="pay">
+    <div class="appbar"><button class="backb" data-go="s08" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Request</span></div>
+    <div class="body">
+      <div class="field"><label for="reqAmt">Amount</label><input class="inp num" id="reqAmt" inputmode="decimal" value="75.00"/></div>
+      <div class="field"><label for="reqNote">Note</label><input class="inp" id="reqNote" value="Edit for launch video"/></div>
+      <div style="margin-top:16px"><button class="btn" id="reqGo">Create payment link</button></div>
+      <div class="card" id="reqOut" hidden style="margin-top:14px">
+        <p class="eyebrow" style="margin-bottom:6px">YOUR LINK</p>
+        <div class="row"><code class="mono" id="reqLink" style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis">maze.to/pay/…</code><button class="pillbtn" id="reqCopy" data-copy="">COPY</button></div>
+        <p class="sub" style="font-size:11.5px;margin-top:8px;font-family:var(--mono);color:var(--meta)">ONE-TIME CLAIM · EXPIRES IN 7 DAYS</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 13 ACTIVITY DETAIL ════ -->
+  <section class="scr" id="s13" data-screen-label="13 Activity detail" data-tab="activity">
+    <div class="appbar"><button class="backb" data-go="s08" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Activity</span></div>
+    <div class="body">
+      <div style="text-align:center;margin-top:8px">
+        <span class="agent-av" id="adAv" style="margin:0 auto;width:48px;height:48px">NX</span>
+        <h1 class="h-big" id="adName" style="font-size:22px;margin-top:10px">Activity</h1>
+        <p class="bignum" id="adAmt" style="font-size:34px;color:var(--success)">…</p>
+        <span class="tag ok" id="adTag" style="margin-top:6px">PENDING</span>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <div class="kv"><span class="k">METHOD</span><b id="adMethod">Bank transfer · ACH</b></div>
+        <div class="kv"><span class="k">DATE</span><b id="adDate">Today, 09:12</b></div>
+        <div class="kv"><span class="k">STATUS</span><b id="adStatus">In your balance · earning</b></div>
+        <div class="kv" id="adVenueRow" hidden><span class="k">VENUE</span><b id="adVenue">…</b></div>
+        <div class="kv" id="adSignerRow" hidden><span class="k">SIGNER</span><span class="num" id="adSigner">…</span></div>
+        <div class="kv"><span class="k">REFERENCE</span><span class="num" id="adRef">NX-2406-8841</span></div>
+        <div class="kv" id="adExplorerRow" hidden><span class="k">EXPLORER</span><a class="view-link" id="adExplorer" href="#" target="_blank" rel="noreferrer">Open</a></div>
+      </div>
+      <details class="adv"><summary>Advanced</summary><div class="advb" id="adAdv">Settlement: USDC on Base · tx 0x4f2e8c…9a1c · auto-converted on arrival · gas sponsored by MAZE.</div></details>
+    </div>
+  </section>
+
+  <!-- ════ 14 EARN ════ -->
+  <section class="scr" id="s14" data-screen-label="14 Earn" data-tab="earn">
+    <div class="appbar home-appbar section-appbar"><span class="home-wordmark"><svg class="m-mark md" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE</span><span class="section-label">Earn</span><span class="spacer"></span><span class="tag ok">AUTO · ON</span></div>
+    <div class="body">
+      <p class="eyebrow" style="text-align:center;margin-top:8px">GROW BALANCE</p>
+      <div class="home-balance" id="earnPos" style="text-align:center">$0</div>
+      <div style="text-align:center;margin-top:10px">
+        <span class="tag ok" id="earnApyTag" data-earn-apy style="font-size:12px;padding:5px 12px">Up to 11.79% APY</span>
+      </div>
+      <div class="row" style="justify-content:center;margin-top:16px;gap:10px">
+        <button class="btn sm" data-go="s15" style="flex:1;max-width:160px">Deposit</button>
+        <button class="btn sm ghost" data-open="wdSheet" style="flex:1;max-width:160px">Withdraw</button>
+      </div>
+      <p class="eyebrow" style="margin:24px 0 8px">EXPLORE</p>
+
+      <button class="card lrow" data-go="s14a" style="width:100%;cursor:pointer;text-align:left;background:var(--surface);border:1px solid var(--border)">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="14" r="6"/><circle cx="15" cy="10" r="6"/><path d="M15 10v0M9 14v0" stroke-width="0"/><text x="9" y="17.5" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="7" font-weight="700" stroke="none" fill="currentColor">€</text><text x="15" y="13.5" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="7" font-weight="700" stroke="none" fill="currentColor">$</text></svg></span>
+        <span class="grow"><span class="t">Stablecoin Yields</span><br/><span class="s">Dollar-denominated yields.</span></span>
+        <span class="chev">›</span>
+      </button>
+
+      <button class="card lrow" data-go="s14b" style="margin-top:10px;width:100%;cursor:pointer;text-align:left;background:var(--surface);border:1px solid var(--border)">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 5 L18 5 L16 7.5 L4 7.5 Z"/><path d="M4 11.25 L16 11.25 L18 13.75 L6 13.75 Z"/><path d="M6 17.5 L18 17.5 L16 20 L4 20 Z"/></svg></span>
+        <span class="grow"><span class="t">SOL Staking</span><br/><span class="s">Earn yield on SOL via Marinade.</span></span>
+        <span class="chev">›</span>
+      </button>
+
+      <button class="card lrow" data-go="s14c" style="margin-top:10px;width:100%;cursor:pointer;text-align:left;background:var(--surface);border:1px solid var(--border)">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="7" width="18" height="11" rx="1.5"/><circle cx="12" cy="12.5" r="2.5"/><path d="M6 10v5M18 10v5"/></svg></span>
+        <span class="grow"><span class="t">Get Paid</span><br/><span class="s">Campaigns, payment links.</span></span>
+        <span class="chev">›</span>
+      </button>
+
+      <!-- Best yields across assets — populated by hydrateEarnLanding(). One
+           row per asset (USDC, USDT, SOL, BTC, ETH, sUSDe) showing the top
+           venue. Native venues open the in-app deposit flow; deeplink rows
+           open the venue's own page. -->
+      <p class="eyebrow" style="margin:24px 0 8px">BEST YIELDS RIGHT NOW</p>
+      <div class="card" style="padding:4px 14px" id="earnLandingList">
+        <div class="lrow"><span class="grow"><span class="t">Scanning across venues…</span><br/><span class="s">Aave · Morpho · Compound · Jupiter Lend · Fluid · Kamino</span></span><span class="num" style="font-weight:600">…</span></div>
+      </div>
+
+      <!-- Automation collapsed by default -->
+      <details class="adv" style="margin-top:22px"><summary>Automation</summary>
+        <div class="advb">
+          <div class="card" style="padding:6px 16px" id="earnCfgCard">
+            <div class="lrow"><span class="grow"><span class="t">Auto-deposit excess balance</span></span><button class="sw" id="earnCfgDefault" role="switch" aria-checked="false" aria-label="Auto-deposit excess balance into Earn"></button></div>
+            <div class="lrow"><span class="grow"><span class="t">Auto-withdraw when spending</span></span><button class="sw" id="earnCfgDivest" role="switch" aria-checked="false" aria-label="Auto-withdraw from Earn when spending"></button></div>
+            <div class="lrow" style="align-items:center"><span class="grow"><span class="t">Keep at least</span></span><span class="num" id="earnCfgThVal" style="font-weight:600">$50</span></div>
+            <div style="padding:6px 4px 10px"><input type="range" id="earnCfgThresh" min="0" max="1000" step="10" value="50" aria-label="Cash reserve threshold"/></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Hidden: legacy wallet chip (kept for JS) -->
+      <button class="pillbtn" id="earnWalletChip" data-go="s31" hidden>Wallet <span data-wallet-short>Unavailable</span></button>
+    </div>
+  </section>
+
+  <!-- ════ 14A STABLECOIN YIELDS ════ -->
+  <section class="scr" id="s14a" data-screen-label="14a Stablecoin yields" data-tab="earn">
+    <div class="appbar"><button class="backb" data-go="s14" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Stablecoin Yields</span></div>
+    <div class="body">
+      <p class="sub" style="font-size:13px">Dollar-denominated yields.</p>
+      <div class="card" style="margin-top:14px">
+        <div class="kv"><span class="k">PROJECTED / YEAR</span><span class="num" style="color:var(--success)" id="earnProj">Live APY pending</span></div>
+        <div class="kv"><span class="k">EARNED SO FAR</span><span class="num" style="color:var(--success)" id="earnEarnedLbl">…</span></div>
+      </div>
+      <div class="row" style="margin-top:14px;gap:10px">
+        <button class="btn sm" data-go="s15" style="flex:1">Deposit</button>
+        <button class="btn sm ghost" data-open="wdSheet" style="flex:1">Withdraw</button>
+      </div>
+      <p class="eyebrow" style="margin:22px 0 10px">PROTOCOLS</p>
+      <div class="card" style="padding:4px 14px" id="earnProtocolList">
+        <div class="lrow" data-earn-protocol="morpho" style="cursor:pointer"><span class="agent-av brand"><img src="/integrations/morpho-icon.svg" alt="" loading="lazy" decoding="async"/></span><span class="grow"><span class="t">Morpho · Standard</span><br/><span class="s">USDC · BASE</span></span><span class="num" style="font-weight:600">APY pending</span></div>
+        <div class="lrow" data-earn-protocol="morpho-high-yield" style="cursor:pointer"><span class="agent-av brand"><img src="/integrations/morpho-icon.svg" alt="" loading="lazy" decoding="async"/></span><span class="grow"><span class="t">Morpho · High Yield</span><br/><span class="s">bbqUSDC</span></span><span class="num" style="font-weight:600">APY pending</span></div>
+        <div class="lrow" data-earn-protocol="aave" style="cursor:pointer"><span class="agent-av brand"><img src="/integrations/aave.svg" alt="" loading="lazy" decoding="async"/></span><span class="grow"><span class="t">Aave v3</span><br/><span class="s">USDC · BASE</span></span><span class="num" style="font-weight:600">APY pending</span></div>
+        <div class="lrow" data-earn-protocol="compound" style="cursor:pointer"><span class="agent-av brand"><img src="/integrations/compound-icon.svg" alt="" loading="lazy" decoding="async"/></span><span class="grow"><span class="t">Compound III</span><br/><span class="s">USDC · BASE</span></span><span class="num" style="font-weight:600">APY pending</span></div>
+        <div class="lrow" data-earn-protocol="yousd" style="cursor:pointer"><span class="agent-av brand"><img src="/integrations/yousd.png" alt="" loading="lazy" decoding="async"/></span><span class="grow"><span class="t">yoUSD</span><br/><span class="s">YIELD VAULT</span></span><span class="num" style="font-weight:600">APY pending</span></div>
+        <div class="lrow" data-earn-protocol="ethena" style="cursor:pointer"><span class="agent-av brand"><img src="/integrations/ethena.svg" alt="" loading="lazy" decoding="async"/></span><span class="grow"><span class="t">Ethena · sUSDe</span><br/><span class="s">SYNTHETIC DOLLAR</span></span><span class="num" style="font-weight:600">APY pending</span></div>
+      </div>
+      <p class="eyebrow" style="margin:22px 0 10px">AUTOMATION</p>
+      <div class="card" style="padding:6px 16px" id="earnCfgCardS14a">
+        <div class="lrow"><span class="grow"><span class="t">Auto-deposit excess balance</span></span><button class="sw" id="earnCfgDefaultS14a" role="switch" aria-checked="false" aria-label="Auto-deposit excess balance into Earn"></button></div>
+        <div class="lrow"><span class="grow"><span class="t">Auto-withdraw when spending</span></span><button class="sw" id="earnCfgDivestS14a" role="switch" aria-checked="false" aria-label="Auto-withdraw from Earn when spending"></button></div>
+        <div class="lrow" style="align-items:center"><span class="grow"><span class="t">Keep at least</span></span><span class="num" id="earnCfgThValS14a" style="font-weight:600">$50</span></div>
+        <div style="padding:6px 4px 10px"><input type="range" id="earnCfgThreshS14a" min="0" max="1000" step="10" value="50" aria-label="Cash reserve threshold"/></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 14B ASSET YIELDS ════ -->
+  <section class="scr" id="s14b" data-screen-label="14b SOL Staking" data-tab="earn">
+    <div class="appbar"><button class="backb" data-go="s14" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">SOL Staking</span></div>
+    <div class="body">
+      <div style="text-align:center;margin-top:8px">
+        <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid var(--border-md);border-radius:var(--pill);background:var(--surface)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 5 L18 5 L16 7.5 L4 7.5 Z"/><path d="M4 11.25 L16 11.25 L18 13.75 L6 13.75 Z"/><path d="M6 17.5 L18 17.5 L16 20 L4 20 Z"/></svg>
+          <span class="t" style="font-weight:600">SOL</span>
+        </span>
+      </div>
+      <p class="sub" style="text-align:center;font-size:13px;margin-top:10px">Earn yield on SOL through Marinade liquid staking.</p>
+      <div class="row" style="justify-content:center;gap:6px;margin-top:10px;flex-wrap:wrap">
+        <span class="tag">No lock-ups</span>
+        <span class="tag">Liquid mSOL</span>
+        <span class="tag">Solana network</span>
+      </div>
+      <div class="card" style="margin-top:18px;padding:14px 16px;text-align:center">
+        <p class="eyebrow" style="margin:0 0 6px">APY</p>
+        <div style="font-family:var(--mono);font-size:32px;font-weight:700;color:var(--success);line-height:1.1" id="solStakingApy" data-earn-apy-marinade>6.80%</div>
+      </div>
+      <div class="card" style="margin-top:10px;padding:6px 16px">
+        <div class="kv"><span class="k">MIN. DEPOSIT</span><b>0.01 SOL</b></div>
+        <div class="kv"><span class="k">VALIDATOR</span><b>Marinade · stake pool</b></div>
+        <div class="kv"><span class="k">UNSTAKE</span><b>Instant or delayed</b></div>
+      </div>
+      <div style="margin-top:16px"><button class="btn acc" data-go="s15" id="solStakingDeposit">Start staking</button></div>
+      <p class="sub" style="text-align:center;font-size:11px;margin-top:10px;font-family:var(--mono);color:var(--meta)">RECEIVES mSOL · NON-CUSTODIAL · MARINADE PROTOCOL</p>
+    </div>
+  </section>
+
+  <!-- ════ 14C GET PAID ════ -->
+  <section class="scr" id="s14c" data-screen-label="14c Get paid" data-tab="earn">
+    <div class="appbar"><button class="backb" data-go="s14" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Get Paid</span></div>
+    <div class="body" id="eseg2">
+      <p class="eyebrow" style="margin:6px 0 4px">CAMPAIGNS</p>
+      <div class="card" id="campLiveList" hidden style="padding:4px 14px"></div>
+      <div class="card" id="campDemoList" style="padding:4px 14px">
+        <div class="lrow"><span class="grow"><span class="t mono" style="font-size:12.5px;font-weight:600">CLIP MAZE LAUNCH</span><br/><span class="camp-pay">$5 guaranteed · +$20 at 10k views · $100 top clip</span></span><button class="pillbtn join2" data-join2>JOIN</button></div>
+        <div class="lrow"><span class="grow"><span class="t mono" style="font-size:12.5px;font-weight:600">CREATE A MEME</span><br/><span class="camp-pay">$3 approved · +$50 top performer</span></span><button class="pillbtn join2" data-join2>JOIN</button></div>
+        <div class="lrow"><span class="grow"><span class="t mono" style="font-size:12.5px;font-weight:600">TRANSLATE A THREAD</span><br/><span class="camp-pay">$8 fixed payout</span></span><button class="pillbtn join2" data-join2>JOIN</button></div>
+      </div>
+      <p class="eyebrow" style="margin:16px 0 4px">MY SUBMISSIONS</p>
+      <div class="card" style="padding:4px 14px">
+        <div class="lrow"><span class="grow"><span class="t">TikTok clip · launch recap</span><br/><span class="s">PENDING · POTENTIAL $30</span></span><span class="tag warnx">PENDING</span></div>
+        <div class="lrow" id="claimRow"><span class="grow"><span class="t">X thread clip</span><br/><span class="s">APPROVED</span></span><button class="pillbtn" id="claimPay" style="color:var(--accent);border-color:color-mix(in oklab,var(--accent) 50%,transparent)">CLAIM $12.40</button></div>
+      </div>
+      <p class="eyebrow" style="margin:16px 0 4px">PAYMENT LINK</p>
+      <div class="card">
+        <div class="row" style="flex-wrap:wrap;gap:8px">
+          <button class="pillbtn onx" data-echip>PAY ME</button>
+          <button class="pillbtn" data-echip>CLIP BOUNTY</button>
+          <button class="pillbtn" data-echip>INVOICE</button>
+        </div>
+        <div class="row" style="margin-top:12px;gap:10px">
+          <input class="inp num" id="e2Amt" inputmode="decimal" value="18.40" aria-label="Amount" style="flex:1;min-width:0"/>
+          <button class="btn sm" id="e2Go">Create</button>
+        </div>
+        <div class="row" id="e2Out" hidden style="margin-top:12px;border:1px dashed var(--border-md);border-radius:var(--r-md);padding:10px 13px">
+          <code class="mono" id="e2Link" style="font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis">maze.to/pay/…</code>
+          <button class="pillbtn" id="e2Copy" data-copy="" style="margin-left:auto">COPY</button>
+        </div>
+        <p class="sub" style="font-size:11px;margin-top:10px;font-family:var(--mono);color:var(--meta)" id="e2Hint">EXPIRES IN 7 DAYS</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 14D PERKS ════ -->
+  <section class="scr" id="s14d" data-screen-label="14d Perks" data-tab="more">
+    <div class="appbar"><button class="backb" data-go="s26" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Perks</span></div>
+    <div class="body">
+      <div class="row" style="align-items:baseline;gap:10px"><span class="bignum" style="font-size:30px">Operator II</span><span class="tag live">18,420 PTS</span></div>
+      <div class="meter" style="margin-top:12px"><i style="width:73.7%"></i></div>
+      <p class="sub" style="font-size:11px;margin-top:6px;font-family:var(--mono);color:var(--meta)">NEXT LEVEL AT 25,000 PTS</p>
+      <div id="perksLiveCard" hidden style="margin-top:14px" class="card">
+        <div class="kv"><span class="k">TIER</span><b id="perksTier">Starter</b></div>
+        <div class="kv"><span class="k">POINTS</span><span class="num" id="perksPoints">0</span></div>
+        <div class="kv"><span class="k">MULTIPLIER</span><span class="num" id="perksMult">1.00×</span></div>
+        <div class="kv"><span class="k">LIFETIME EARNED</span><span class="num" id="perksLife">$0.00</span></div>
+      </div>
+      <p class="eyebrow" style="margin:16px 0 4px">REGION</p>
+      <div class="card"><region-pill id="perksRegion"></region-pill></div>
+      <p class="eyebrow" style="margin:16px 0 4px">MARKETS</p>
+      <div class="card" id="marketsRegionCard" style="padding:4px 14px">
+        <div class="lrow"><span class="grow"><span class="t">Hyperliquid</span><br/><span class="s">PERPS</span></span><region-pill id="hlRegion"></region-pill></div>
+        <div class="lrow"><span class="grow"><span class="t">Polymarket</span><br/><span class="s">EVENT MARKETS</span></span><region-pill id="pmRegion"></region-pill></div>
+      </div>
+      <p class="eyebrow" style="margin:16px 0 4px">ACTIVE BOOSTS</p>
+      <div class="card" style="padding:4px 14px">
+        <div class="lrow"><span class="grow"><span class="t">+10% clip payout boost</span></span><span class="tag ok">ON</span></div>
+        <div class="lrow"><span class="grow"><span class="t">−20% vendor fee</span></span><span class="tag ok">ON</span></div>
+        <div class="lrow"><span class="grow"><span class="t">Priority campaign access</span></span><span class="tag ok">ON</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 15 EARN DEPOSIT ════ -->
+  <section class="scr" id="s15" data-screen-label="15 Earn deposit" data-tab="earn">
+    <div class="appbar"><button class="backb" data-go="s14" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Deposit</span></div>
+    <div class="body">
+      <!-- Hidden legacy range/value so existing TS handlers still bind -->
+      <input type="range" id="depRange" min="50" max="1600" step="50" value="0" aria-label="Deposit amount" hidden />
+      <span id="depV" hidden>0</span>
+
+      <div class="amount-disp" id="depAmtDisp" style="margin-top:14px">$<span id="depAmtWhole">0</span><small id="depAmtCents"></small></div>
+      <p class="sub" style="text-align:center;font-size:11.5px;font-family:var(--mono);color:var(--meta);margin-top:4px">FROM YOUR BALANCE · <span id="depBalMini">$0</span></p>
+
+      <p class="sub" id="depEligible" style="text-align:center;font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.45">No eligible balance yet. Add money first, then deposit any amount.</p>
+
+      <div class="row" style="justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap" id="depQuickFill">
+        <button class="pillbtn" data-depfill="0.25">25%</button>
+        <button class="pillbtn" data-depfill="0.5">50%</button>
+        <button class="pillbtn" data-depfill="0.75">75%</button>
+        <button class="pillbtn" data-depfill="1">MAX</button>
+      </div>
+
+      <div class="kpad" id="depKpad" style="margin-top:18px">
+        <button data-depk="1">1</button><button data-depk="2">2</button><button data-depk="3">3</button>
+        <button data-depk="4">4</button><button data-depk="5">5</button><button data-depk="6">6</button>
+        <button data-depk="7">7</button><button data-depk="8">8</button><button data-depk="9">9</button>
+        <button data-depk=".">.</button><button data-depk="0">0</button><button data-depk="bs" aria-label="Delete">⌫</button>
+      </div>
+
+      <div style="margin-top:14px"><button class="btn acc" id="depGo">Deposit</button></div>
+      <p class="sub" style="font-size:11px;text-align:center;margin-top:10px;font-family:var(--mono);color:var(--meta)">FEES · $0.00 · WITHDRAW ANYTIME</p>
+    </div>
+  </section>
+
+  <!-- ════ 16 SWAP ════ -->
+  <section class="scr" id="s16" data-screen-label="16 Swap" data-tab="earn">
+    <div class="appbar"><button class="backb" data-go="s08" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Swap</span></div>
+    <div class="body">
+      <div class="card swap-leg">
+        <p class="eyebrow" style="margin-bottom:6px">YOU PAY</p>
+        <div class="swap-row">
+          <input class="swap-amt num" id="swAmt" inputmode="decimal" value="500" aria-label="Amount to swap"/>
+          <button class="token-pick" id="swFromBtn" data-tokpick="from"><span class="token-ic" id="swFromIc">$</span><b id="swFromSym">USDC</b><span class="tk-chev">▾</span></button>
+        </div>
+        <div class="swap-meta"><span id="swFromUsd">$0.00</span><span class="grow"></span><span class="s" id="swBalLbl">BALANCE …</span></div>
+      </div>
+      <div class="swap-flip-wrap"><button class="iconb swap-flip" id="swFlip" aria-label="Flip tokens"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M8 4v13M5 7l3-3 3 3M16 20V7M13 17l3 3 3-3"/></svg></button></div>
+      <div class="card swap-leg">
+        <p class="eyebrow" style="margin-bottom:6px">YOU RECEIVE</p>
+        <div class="swap-row">
+          <span class="swap-amt num" id="swOut">0.00</span>
+          <button class="token-pick" id="swToBtn" data-tokpick="to"><span class="token-ic" id="swToIc">€</span><b id="swToSym">EURC</b><span class="tk-chev">▾</span></button>
+        </div>
+        <div class="swap-meta"><span id="swToUsd">$500.00</span></div>
+      </div>
+      <div class="swap-quote-strip" id="swQuoteStrip" hidden>
+        <span class="swap-quote-eyebrow">BEST ROUTE</span>
+        <span class="swap-quote-route" id="swRouteStrip">…</span>
+        <span class="swap-quote-eta" id="swEtaStrip">~35s</span>
+        <nexa-source-badge data-swap-source source="unavailable" provider="Socket" hidden></nexa-source-badge>
+      </div>
+      <div class="kv" style="margin-top:14px"><span class="k">RATE</span><span class="num" id="swRate">Quote pending</span></div>
+      <div class="kv"><span class="k">BEST ROUTE</span><b id="swRoute">Quote pending</b></div>
+      <div class="kv"><span class="k">NETWORK FEE</span><span class="num" id="swFee">Quote pending</span></div>
+      <div class="swap-slippage">
+        <span class="k">SLIPPAGE TOLERANCE</span>
+        <div class="swap-slippage-options" role="group" aria-label="Slippage tolerance">
+          <button class="pillbtn" data-slip="0.1">0.1%</button>
+          <button class="pillbtn onx" data-slip="0.5">0.5%</button>
+          <button class="pillbtn" data-slip="1.0">1.0%</button>
+          <button class="pillbtn" data-slip="3.0">3.0%</button>
+        </div>
+        <span class="num" id="swSlipDisp" style="font-weight:600;font-size:13px;color:var(--meta);font-family:var(--mono)">0.5%</span>
+      </div>
+      <div style="margin-top:16px"><button class="btn" id="swGo">Review swap</button></div>
+    </div>
+  </section>
+
+  <!-- token picker for swap -->
+  <div class="ovl" id="tokenSheet">
+    <div class="scrim" data-close="tokenSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Select token" style="max-height:84%">
+      <div class="grab"></div>
+      <p class="eyebrow">SELECT TOKEN</p>
+      <input class="inp" id="tokenSearch" placeholder="Search name or symbol" aria-label="Search token"/>
+      <div id="tokenList" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <!-- ════ 17 CARD ════ -->
+  <section class="scr" id="s17" data-screen-label="17 Card" data-tab="more">
+    <div class="appbar"><button class="backb" data-go="s26" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Card</span><span class="spacer"></span><button class="iconb" data-go="s18" aria-label="Card settings"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14.2 3h-4l-.4 2.7a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2l.4 2.7h4l.4-2.7a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg></button></div>
+    <div class="body">
+      <div class="vcard" id="vCard">
+        <div class="row" style="justify-content:space-between"><span class="wmk"><svg class="m-mark" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".7"><path d="M6 8.5a8.5 8.5 0 0 1 0 7M9.5 7a11 11 0 0 1 0 10M13 5.5a13.5 13.5 0 0 1 0 13"/></svg></div>
+        <span class="vpan" id="vPan">Card not issued</span>
+        <div class="vrow"><span>MIRKO · MEMBER 001</span><span id="vCvv">Unavailable</span></div>
+        <span class="frozen-b">FROZEN</span>
+      </div>
+      <div class="row" style="margin-top:12px;gap:8px">
+        <button class="pillbtn" id="revealBtn" style="flex:1;justify-content:center;display:flex">REVEAL</button>
+        <button class="pillbtn" id="freezeBtn2" style="flex:1;justify-content:center;display:flex">FREEZE</button>
+        <button class="pillbtn" id="applePayBtn" style="flex:1;justify-content:center;display:flex">APPLE&nbsp;PAY</button>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="lrow" data-go="s18" style="cursor:pointer"><span class="grow"><span class="t">Card settings</span></span><span class="chev">›</span></div>
+      </div>
+      <p class="eyebrow" style="margin:16px 0 2px">RECENT</p>
+      <div class="card" id="cardActivityList" style="padding:4px 14px">
+        <div class="lrow"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18"/></svg></span><span class="grow"><span class="t">No card activity yet</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 18 CARD SETTINGS ════ -->
+  <section class="scr" id="s18" data-screen-label="18 Card settings" data-tab="more">
+    <div class="appbar"><button class="backb" data-go="s17" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Card settings</span></div>
+    <div class="body">
+      <div class="card" style="padding:6px 16px">
+        <div class="lrow"><span class="grow"><span class="t">Freeze card</span></span><button class="sw" id="freezeSw" role="switch" aria-checked="false" aria-label="Freeze card"></button></div>
+        <div class="lrow"><span class="grow"><span class="t">Auto top-up</span><br/><span class="s">FROM BALANCE WHEN LOW</span></span><button class="sw" role="switch" aria-checked="true" data-swtoggle aria-label="Auto top-up"></button></div>
+        <div class="lrow" data-open="limitSheet" style="cursor:pointer"><span class="grow"><span class="t">Per-day limit</span></span><span class="num" id="dayLimitVal" style="font-weight:600">$500</span><span class="chev">›</span></div>
+        <div class="lrow"><span class="grow"><span class="t">Online payments</span></span><button class="sw" role="switch" aria-checked="true" data-swtoggle aria-label="Online payments"></button></div>
+        <div class="lrow" data-open="merchSheet" style="cursor:pointer"><span class="grow"><span class="t">Merchant rules</span></span><span class="chev">›</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 19 AGENT HOME ════ -->
+  <section class="scr" id="s19" data-screen-label="19 Agent home" data-tab="more">
+    <div class="appbar home-appbar section-appbar"><span class="home-wordmark"><svg class="m-mark md" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE</span><span class="section-label">Agents</span><span class="spacer"></span><span class="tag live" id="agStatus"><i style="width:5px;height:5px;background:var(--accent)"></i>ACTIVE</span></div>
+    <div class="body">
+      <p class="sub" style="font-size:11.5px;font-family:var(--mono);color:var(--meta)">AGENT BUDGET THIS WEEK</p>
+      <div class="row" style="align-items:baseline;gap:10px"><span class="bignum"><span id="agSpent">$13.20</span></span><span class="sub num" style="font-size:14px">of $50.00</span></div>
+      <div class="meter" style="margin-top:10px"><i id="agMeter" style="width:26.4%"></i></div>
+      <div class="card" style="margin-top:16px">
+        <div class="row"><span class="grow"><span class="t" style="font-weight:600">Kill switch</span></span><button class="sw" id="killSw" role="switch" aria-checked="false" aria-label="Kill switch"></button></div>
+      </div>
+      <div class="row" style="margin-top:16px;justify-content:space-between"><p class="eyebrow" style="margin:0">YOUR AGENTS</p><button class="pillbtn" data-go="s20">+ CREATE</button></div>
+      <div class="card" style="padding:4px 14px" id="agentList">
+        <div class="lrow" data-go="s22" role="button" tabindex="0" aria-label="Open ResearchBot-01 agent" style="cursor:pointer"><span class="agent-av hot">R1</span><span class="grow"><span class="t">ResearchBot-01</span><br/><span class="s">$36.80 LEFT · APIS ONLY</span></span><span class="tag live" data-agpill>LIVE</span></div>
+        <div class="lrow" data-open="opsSheet" style="cursor:pointer"><span class="agent-av">O2</span><span class="grow"><span class="t">OpsAgent-02</span><br/><span class="s" id="opsSub">$25.00 LEFT · NEEDS REVIEW</span></span><span class="tag warnx" id="opsTag">REVIEW</span></div>
+      </div>
+      <div class="row" style="margin-top:12px;gap:10px">
+        <button class="btn sm ghost" data-go="s21" style="flex:1">Fund</button>
+        <button class="btn sm ghost" data-open="mcpSheet" style="flex:1">Connect agents</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 20 CREATE AGENT ════ -->
+  <section class="scr" id="s20" data-screen-label="20 Create agent" data-tab="more">
+    <div class="appbar"><button class="backb" data-go="s19" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Create agent</span></div>
+    <div class="body">
+      <div class="field"><label for="agName">Name</label><input class="inp" id="agName" value="MarketScan-03"/></div>
+      <div class="row" style="gap:10px">
+        <div class="field" style="flex:1"><label for="agCapDay">$ / day cap</label><input class="inp num" id="agCapDay" inputmode="decimal" value="10.00"/></div>
+        <div class="field" style="flex:1"><label for="agCapTx">$ / payment cap</label><input class="inp num" id="agCapTx" inputmode="decimal" value="1.00"/></div>
+      </div>
+      <div class="field"><label>Allowed services</label>
+        <div class="row" style="flex-wrap:wrap;gap:8px">
+          <button class="pillbtn onx" data-chip2>RESEARCH APIS</button>
+          <button class="pillbtn" data-chip2>DATA FEEDS</button>
+          <button class="pillbtn" data-chip2>CUSTOM URL</button>
+        </div>
+      </div>
+      <div class="field"><label>Expiry</label>
+        <div class="row" style="gap:8px">
+          <button class="pillbtn" data-chip3>7 DAYS</button>
+          <button class="pillbtn onx" data-chip3>30 DAYS</button>
+          <button class="pillbtn" data-chip3>NEVER</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;background:var(--accent-soft);border-color:color-mix(in oklab,var(--accent) 35%,transparent)">
+        <p class="sub" style="font-size:12px;color:var(--fg)">Anything outside these rules is <b>blocked before payment</b> and logged. You approve exceptions by tap.</p>
+      </div>
+      <div style="margin-top:16px"><button class="btn acc" id="agCreate">Create agent</button></div>
+    </div>
+  </section>
+
+  <!-- ════ 21 FUND AGENT ════ -->
+  <section class="scr" id="s21" data-screen-label="21 Fund agent" data-tab="more">
+    <div class="appbar"><button class="backb" data-go="s19" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Fund agent</span></div>
+    <div class="body">
+      <div class="row" style="margin-top:8px"><span class="agent-av hot">R1</span><span class="grow"><span class="t" style="font-weight:600">ResearchBot-01</span><br/><span class="s">DATA PROCUREMENT · SUPERVISED BY YOU</span></span></div>
+      <div style="text-align:center;margin-top:22px" class="amount-disp">$<span id="fundV">50</span></div>
+      <p class="sub" style="text-align:center;font-size:11.5px;font-family:var(--mono);color:var(--meta)">FROM YOUR MAIN BALANCE · WEEKLY BUDGET</p>
+      <div style="margin-top:16px;padding-inline:6px"><input type="range" id="fundRange" min="10" max="500" step="10" value="50" aria-label="Funding amount"/></div>
+      <div class="card" style="margin-top:16px">
+        <div class="kv"><span class="k">AGENT CAN HOLD</span><span class="num" id="fundEcho">$50.00</span></div>
+        <div class="kv"><span class="k">PULL BACK</span><b>Anytime, instantly</b></div>
+      </div>
+      <div style="margin-top:16px"><button class="btn" id="fundGo">Fund in one tap</button></div>
+    </div>
+  </section>
+
+  <!-- ════ 22 AGENT ACTIVITY ════ -->
+  <section class="scr" id="s22" data-screen-label="22 Agent activity" data-tab="more">
+    <div class="appbar"><button class="backb" data-go="s19" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">ResearchBot-01</span><span class="spacer"></span><span class="tag live" data-agpill><i style="width:5px;height:5px;background:var(--accent)"></i>LIVE</span></div>
+    <div class="body">
+      <div class="card" style="padding:6px 14px" id="agFeed">
+        <details class="lrow" style="display:block;padding:0">
+          <summary class="row" style="list-style:none;cursor:pointer;padding:13px 2px;min-height:52px"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9.5 12h5M12 9.5v5"/></svg></span><span class="grow"><span class="t">Paid api.exa.ai</span><br/><span class="s">MARKET DATA · 12:04:11 · ✓ POLICY</span><br/><nexa-source-badge source="live" provider="Coinbase x402" docs-url="https://x402.coinbase.com"></nexa-source-badge></span><span class="amt">−$0.12</span></summary>
+          <div class="advb" style="padding:0 2px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7">RECEIPT · GET api.exa.ai/v1/search · 402 → paid → 200 OK · $0.12 USDC on Base · ref 0x8c1f…e2d4 · rule: APIs only ✓ · cap $5/tx ✓ · settled via Coinbase x402</div>
+        </details>
+        <details class="lrow" style="display:block;padding:0">
+          <summary class="row" style="list-style:none;cursor:pointer;padding:13px 2px;min-height:52px"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M9.5 12h5M12 9.5v5"/></svg></span><span class="grow"><span class="t">Paid weather.api</span><br/><span class="s">FORECAST PULL · 12:03:58 · ✓ POLICY</span><br/><nexa-source-badge source="live" provider="Coinbase x402" docs-url="https://x402.coinbase.com"></nexa-source-badge></span><span class="amt">−$0.002</span></summary>
+          <div class="advb" style="padding:0 2px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7">RECEIPT · GET weather.api/v1/daily · 402 → paid → 200 OK · $0.002 USDC · ref 0x77b0…41aa · rule: APIs only ✓ · settled via Coinbase x402</div>
+        </details>
+        <details class="lrow" style="display:block;padding:0">
+          <summary class="row" style="list-style:none;cursor:pointer;padding:13px 2px;min-height:52px"><span class="ic" style="border-color:color-mix(in oklab,var(--danger) 40%,transparent)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="1.7"><path d="M12 8v5M12 16.5v.5"/><circle cx="12" cy="12" r="9"/></svg></span><span class="grow"><span class="t" style="color:var(--danger)">Blocked dataset.vendor.io</span><br/><span class="s">12:03:41 · RULE CAUGHT IT</span></span><span class="tag dang">BLOCKED</span></summary>
+          <div class="advb" style="padding:0 2px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7">Rule that fired: <b style="color:var(--danger)">vendor not on allowlist</b>. No payment was made. Add the vendor in Policy to allow next time.</div>
+        </details>
+        <div class="lrow"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2"/></svg></span><span class="grow"><span class="t">Wants $2.40 · dataset access</span><br/><span class="s">ABOVE $1 · NEEDS YOUR OK</span></span><button class="pillbtn" id="agApprove" style="color:var(--accent);border-color:color-mix(in oklab,var(--accent) 50%,transparent)">APPROVE</button></div>
+      </div>
+      <p class="sub" style="font-size:11px;margin-top:10px;font-family:var(--mono);color:var(--meta)">EVERY PAYMENT IS LOGGED · TAP A ROW FOR ITS RECEIPT</p>
+    </div>
+  </section>
+
+  <!-- ════ 25 PAY ════ -->
+  <section class="scr" id="s24" data-screen-label="24 Connect agents" data-tab="more">
+    <div class="appbar"><button class="backb" data-go="s19" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Connect agents</span></div>
+    <div class="body">
+      <p class="sub" style="margin-top:6px">Connect any agent that speaks MCP. It can check its budget, pay for services, and request funds, always inside your rules.</p>
+      <p class="eyebrow" style="margin:16px 0 6px">WORKS WITH</p>
+      <div class="card" style="padding:4px 14px">
+        <div class="lrow"><span class="agent-av" data-brand="claude"></span><span class="grow"><span class="t">Claude</span><br/><span class="s">MCP - ANTHROPIC</span></span><span class="tag ok">READY</span></div>
+        <div class="lrow"><span class="agent-av">Cx</span><span class="grow"><span class="t">Codex</span><br/><span class="s">MCP - OPENAI</span></span><span class="tag ok">READY</span></div>
+        <div class="lrow"><span class="agent-av">H</span><span class="grow"><span class="t">Hermes</span><br/><span class="s">MCP - NOUS</span></span><span class="tag ok">READY</span></div>
+        <div class="lrow"><span class="agent-av">Oc</span><span class="grow"><span class="t">OpenClaw</span><br/><span class="s">MCP - OPEN SOURCE</span></span><span class="tag ok">READY</span></div>
+      </div>
+      <pre class="cfg" id="mcpCfg">{
+  "mcpServers": {
+    "maze": {
+      "url": "https://maze.aiso.tools/api/mcp",
+      "key": "&lt;your key below&gt;"
+    }
+  }
+}</pre>
+      <div class="row" style="margin-top:10px"><button class="pillbtn" id="mcpCopy" data-copy='{"mcpServers":{"maze":{"url":"https://maze.aiso.tools/api/mcp","key":"<paste-your-agent-key>"}}}'>COPY CONFIG</button></div>
+      <p class="eyebrow" style="margin:16px 0 6px">OR CALL THE API DIRECTLY</p>
+      <pre class="cfg" id="directApiCfg">curl https://maze.aiso.tools/api/v1/agent/pay \
+  -H "Authorization: Bearer &lt;your key&gt;" \
+  -d '{"endpoint":"api.exa.ai","amount":0.12}'</pre>
+      <div class="card" style="margin-top:14px">
+        <div class="row"><span class="grow"><span class="t" style="font-weight:600">API key</span><br/><span class="s num" id="apiKey">agent_key_••••_••••</span></span><button class="pillbtn" id="keyReveal">REVEAL</button></div>
+      </div>
+      <p class="eyebrow" style="margin:16px 0 6px">TOOLS YOUR AGENT GETS</p>
+      <div class="card" style="padding:4px 14px" id="mcpToolList">
+        <div class="lrow"><span class="grow"><span class="t">Loading agent tools...</span><br/><span class="s">FROM LIVE PROVIDER REGISTRY</span></span></div>
+      </div>
+      <p class="sub" style="font-size:11px;margin-top:8px;font-family:var(--mono);color:var(--meta)">Every tool call is policy-checked, capped, and logged. Surface refreshed from /api/system/providers.</p>
+    </div>
+  </section>
+
+  <section class="scr" id="s25" data-screen-label="25 Pay" data-tab="pay">
+    <div class="appbar home-appbar section-appbar"><span class="home-wordmark"><svg class="m-mark md" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE</span><span class="section-label">Pay</span></div>
+    <div class="body">
+      <div class="qa-grid" style="grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px">
+        <button class="qa" data-go="s10"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M7 17 17 7M9 7h8v8"/></svg></b>Send</button>
+        <button class="qa" data-go="s30"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 19V5M7 10l5-5 5 5"/><path d="M5 20h14"/></svg></b>Receive</button>
+        <button class="qa" data-go="s12"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v13M7 12l5 5 5-5"/><path d="M5 20h14"/></svg></b>Request</button>
+        <button class="qa" data-open="bridgeWdSheet"><b><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 7h16v10H4z"/><path d="M4 11h16"/></svg></b>Cash out</button>
+      </div>
+      <p class="eyebrow" style="margin:18px 0 6px">PAYMENT LINKS</p>
+      <div class="card" style="padding:4px 14px">
+        <div class="lrow" data-go="s12" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 15l6-6M10 8h5v5"/></svg></span><span class="grow"><span class="t">Create a payment link</span><br/><span class="s">REQUEST · ONE-TIME CLAIM</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-go="s14" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M5 12l4 4L19 7"/></svg></span><span class="grow"><span class="t">Claim a payout</span><br/><span class="s">CLIPS · CAMPAIGNS · LINKS</span></span><span class="chev">›</span></div>
+      </div>
+      <p class="eyebrow" style="margin:18px 0 6px">CASH IN AND OUT</p>
+      <div class="card" style="padding:4px 14px">
+        <div class="lrow" data-go="s30" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 19V5M7 10l5-5 5 5"/><path d="M5 20h14"/></svg></span><span class="grow"><span class="t">Receive money</span><br/><span class="s">BASE USDC · BANK DETAILS · @HANDLE</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-go="s09" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M3 10l9-6 9 6M5 10v9h14v-9"/></svg></span><span class="grow"><span class="t">Add money</span><br/><span class="s">CRYPTO · CARD · BANK</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-go="s32" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M3 7h14M14 4l3 3-3 3M21 17H7M10 14l-3 3 3 3"/></svg></span><span class="grow"><span class="t">Move between buckets</span><br/><span class="s">CASH · PERPS · PREDICTIONS · MEMES · XSTOCKS</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-open="bridgeWdSheet" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M3 10l9-6 9 6M5 10v9h14v-9M12 19v-7"/></svg></span><span class="grow"><span class="t">Cash out to bank</span><br/><span class="s">POWERED BY RAMP PARTNERS</span></span><span class="chev">›</span></div>
+      </div>
+      <p class="eyebrow" style="margin:18px 0 6px">RECENT</p>
+      <div class="card" style="padding:4px 14px">
+        <div class="lrow" data-go="s10" role="button" tabindex="0" style="cursor:pointer"><span class="agent-av">LK</span><span class="grow"><span class="t">Lena K.</span><br/><span class="s">lena@studio.co</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-go="s10" role="button" tabindex="0" style="cursor:pointer"><span class="agent-av">JM</span><span class="grow"><span class="t">Jonas M.</span><br/><span class="s">+49 171 ··· 882</span></span><span class="chev">›</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 26 MORE ════ -->
+  <section class="scr" id="s26" data-screen-label="26 More" data-tab="more">
+    <div class="appbar home-appbar section-appbar"><span class="home-wordmark"><svg class="m-mark md" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE</span><span class="section-label">More</span></div>
+    <div class="body">
+      <div class="row" style="gap:12px;margin-top:4px"><span class="avatarb">M</span><span class="grow"><span class="t" style="font-weight:600;font-size:14px">Mirko</span><br/><span class="s">VERIFIED · MEMBER 001</span></span><span class="tag ok">PASSKEYS ON</span></div>
+      <p class="eyebrow" style="margin:18px 0 6px">ACCOUNTS</p>
+      <div class="card" style="padding:4px 14px">
+        <div class="lrow" data-go="s17" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10.5h18"/></svg></span><span class="grow"><span class="t">Card</span><br/><span class="s">DEBIT CARD</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-go="s31" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="M8 12h8M8 15h5"/></svg></span><span class="grow"><span class="t">Wallet</span><br/><span class="s">ONCHAIN WALLET</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-go="s27" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 18l5-6 4 4 7-9"/></svg></span><span class="grow"><span class="t">Markets</span><br/><span class="s">SPOT · PERPS · PREDICTION</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-go="s33" data-cards-back="s26" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M8 9h8M8 13h5M16 17l2-2 2 2"/></svg></span><span class="grow"><span class="t">Cards</span><br/><span class="s">COLLECTOR CRYPT</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-go="s14d" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></span><span class="grow"><span class="t">Perks</span><br/><span class="s">POINTS · BOOSTS</span></span><span class="chev">›</span></div>
+        <a class="lrow" id="moreX402" data-open="mcpSheet" href="#mcpSheet" style="cursor:pointer;text-decoration:none;color:inherit"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 7h16v10H4z"/><path d="M8 7V5h8v2M9 12h6"/></svg></span><span class="grow"><span class="t">Developers</span><br/><span class="s">MCP · API KEYS</span></span><span class="chev">›</span></a>
+      </div>
+      <p class="eyebrow" style="margin:18px 0 6px">SETTINGS</p>
+      <div class="card" style="padding:4px 14px">
+        <div class="lrow"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M5.6 5.6 4.2 4.2M19.8 19.8 18.4 18.4M5.6 18.4 4.2 19.8M19.8 4.2 18.4 5.6"/></svg></span><span class="grow"><span class="t">Appearance</span><br/><span class="s" data-theme-lbl>LIGHT</span></span><button class="sw" data-theme-sw role="switch" aria-checked="false" aria-label="Dark mode"></button></div>
+        <div class="lrow"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6M10.5 19a2 2 0 0 0 3 0"/></svg></span><span class="grow"><span class="t">Notifications</span><br/><span class="s" id="notificationStatus">OFF</span></span><button class="sw" id="notificationToggle" role="switch" aria-checked="false" aria-label="Payment and activity notifications"></button></div>
+        <div class="lrow" id="moreProfile" data-open="profileSheet" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 20c1.4-4 3.6-6 6.5-6s5.1 2 6.5 6"/></svg></span><span class="grow"><span class="t">Profile</span></span><span class="chev">›</span></div>
+        <a class="lrow" id="moreDevelopers" data-go="s28" href="#s28" style="cursor:pointer;text-decoration:none;color:inherit"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13 6l-2 12"/></svg></span><span class="grow"><span class="t">System / Docs</span></span><span class="chev">›</span></a>
+        <div class="lrow" data-act="sign-out" role="button" tabindex="0" hidden style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M15 8l4 4-4 4M19 12H9"/></svg></span><span class="grow"><span class="t">Sign out</span><br/><span class="s">THIS DEVICE</span></span><span class="chev">›</span></div>
+      </div>
+      <p class="eyebrow" style="margin:18px 0 6px">SUPPORT</p>
+      <div class="card" style="padding:4px 14px">
+        <div class="lrow" data-toast="Support: help@maze.to" role="button" tabindex="0" style="cursor:pointer"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.5a2.4 2.4 0 0 1 3.9 1.9c0 1.6-2 2-2 3M12 17.4h.01"/></svg></span><span class="grow"><span class="t">Help and support</span></span><span class="chev">›</span></div>
+      </div>
+      <p class="sub" style="text-align:center;font-size:10.5px;font-family:var(--mono);color:var(--meta);margin-top:20px">MAZE is a financial technology company, not a bank.</p>
+    </div>
+  </section>
+
+  <!-- ════ 31 WALLET ════ -->
+  <section class="scr" id="s31" data-screen-label="31 Wallet" data-tab="more">
+    <div class="appbar"><button class="backb" data-go="s26" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Wallet</span></div>
+    <div class="body">
+      <!-- All-assets overview — every venue leg in one place. On-chain buckets
+           come from /balances; Hyperliquid perp/HIP-3 equity from
+           /markets/portfolio/summary; the app cash ledger is shown as its own
+           labeled line (it is a separate accounting world until reconciled). -->
+      <div class="card">
+        <p class="eyebrow" style="margin-bottom:4px">ALL ASSETS</p>
+        <p class="num" data-wallet-total style="font-size:26px;font-weight:700;margin:2px 0">…</p>
+        <p class="sub" style="font-size:11.5px;color:var(--muted);margin:0 0 10px">On-chain USDC + Hyperliquid equity</p>
+        <div class="kv"><span class="k">CASH · BASE</span><span class="num" data-wallet-bucket="cash">—</span></div>
+        <div class="kv"><span class="k">PERPS · HL EQUITY</span><span class="num" data-wallet-hl-perp>—</span></div>
+        <div class="kv"><span class="k">PERPS · ARBITRUM USDC</span><span class="num" data-wallet-arb-usdc>—</span></div>
+        <div class="kv"><span class="k">HL SPOT USDC</span><span class="num" data-wallet-ov-hl-spot>—</span></div>
+        <div class="kv"><span class="k">STOCK PERPS · XYZ EQUITY</span><span class="num" data-wallet-hip3>—</span></div>
+        <div class="kv"><span class="k">PREDICTIONS · POLYGON</span><span class="num" data-wallet-bucket="predictions">—</span></div>
+        <div class="kv"><span class="k">MEMES · SOLANA</span><span class="num" data-wallet-bucket="memes">—</span></div>
+        <div class="kv"><span class="k">XSTOCKS · SOLANA</span><span class="num" data-wallet-bucket="stocks-spot">—</span></div>
+        <div class="kv" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line,rgba(128,128,128,.2))"><span class="k">APP CASH LEDGER</span><span class="num" data-wallet-ledger>—</span></div>
+        <p class="sub" data-wallet-degraded hidden style="font-size:11px;color:var(--warn,#c90);margin:8px 0 0">Some venue reads failed — figures may be stale.</p>
+        <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
+          <button class="pillbtn" data-go="s32">MOVE MONEY</button>
+          <button class="pillbtn" data-open="hlClassSheet">SPOT ⇄ PERP</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <p class="eyebrow" style="margin-bottom:4px">BASE USDC</p>
+        <p class="sub" style="font-size:13px">Your non-custodial embedded wallet address.</p>
+        <div class="kv" style="margin-top:8px"><span class="k">ADDRESS</span><span class="num" id="walletBaseAddr" style="overflow-wrap:anywhere">Unavailable</span></div>
+        <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap"><button class="pillbtn" id="copyWalletBase" disabled>COPY ADDRESS</button><a class="pillbtn" id="walletBasescan" href="#" target="_blank" rel="noreferrer" hidden>VIEW ON BASESCAN</a><a class="pillbtn" href="https://www.coinbase.com/" target="_blank" rel="noreferrer">FUND FROM COINBASE</a></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div class="kv"><span class="k">SOLANA</span><span class="num" data-wallet-solana style="overflow-wrap:anywhere">Unavailable</span></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <p class="eyebrow" style="margin-bottom:4px">HYPERLIQUID SPOT USDC</p>
+        <div class="kv"><span class="k">BALANCE</span><span class="num" data-wallet-hl-spot-bal>$0.00</span></div>
+        <div class="kv"><span class="k">ADDRESS</span><span class="num" data-wallet-hl-spot-addr style="overflow-wrap:anywhere">Unavailable</span></div>
+      </div>
+      <details class="adv"><summary>Advanced</summary><div class="advb">Base and Hyperliquid Spot use the same EVM address. Hyperliquid EVM native balance can be zero while Hyperliquid Spot USDC is funded.</div></details>
+    </div>
+  </section>
+
+  <!-- ════ 32 TRANSFER BETWEEN BUCKETS (Sprint 19 — cross-chain CCTP/Mayan) ════ -->
+  <section class="scr" id="s32" data-screen-label="32 Transfer between buckets" data-tab="pay">
+    <div class="appbar"><button class="backb" data-go="s08" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Move money</span></div>
+    <div class="body">
+      <p class="sub" style="font-size:13px;color:var(--muted);margin:4px 0 14px;line-height:1.45">Move USDC between buckets. CCTP for EVM↔EVM, Mayan for Solana legs. Settles in 60–120s.</p>
+
+      <p class="eyebrow" style="margin:8px 0 6px">FROM</p>
+      <div class="card" style="padding:4px 14px" id="xferFromList">
+        <div class="lrow on" data-xfer-from="cash" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><span class="t">Cash</span><br/><span class="s">BASE · USDC</span></span><span class="num" data-xfer-bal="cash">—</span><span class="chev">›</span></div>
+        <div class="lrow" data-xfer-from="perps" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><span class="t">Perps</span><br/><span class="s" data-xfer-sub="perps">ARBITRUM · USDC</span></span><span class="num" data-xfer-bal="perps">—</span><span class="chev">›</span></div>
+        <div class="lrow" data-xfer-from="predictions" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><span class="t">Predictions</span><br/><span class="s">POLYGON · USDC</span></span><span class="num" data-xfer-bal="predictions">—</span><span class="chev">›</span></div>
+        <div class="lrow" data-xfer-from="memes" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><span class="t">Memes</span><br/><span class="s">SOLANA · USDC</span></span><span class="num" data-xfer-bal="memes">—</span><span class="chev">›</span></div>
+        <div class="lrow" data-xfer-from="stocks-spot" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><span class="t">xStocks</span><br/><span class="s">SOLANA · USDC</span></span><span class="num" data-xfer-bal="stocks-spot">—</span><span class="chev">›</span></div>
+      </div>
+
+      <p class="eyebrow" style="margin:18px 0 6px">TO</p>
+      <div class="card" style="padding:4px 14px" id="xferToList">
+        <div class="lrow" data-xfer-to="cash" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><span class="t">Cash</span><br/><span class="s">BASE · USDC</span></span><span class="chev">›</span></div>
+        <div class="lrow on" data-xfer-to="perps" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><span class="t">Perps</span><br/><span class="s" data-xfer-sub="perps">ARBITRUM · USDC</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-xfer-to="predictions" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><span class="t">Predictions</span><br/><span class="s">POLYGON · USDC</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-xfer-to="memes" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><span class="t">Memes</span><br/><span class="s">SOLANA · USDC</span></span><span class="chev">›</span></div>
+        <div class="lrow" data-xfer-to="stocks-spot" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><span class="t">xStocks</span><br/><span class="s">SOLANA · USDC</span></span><span class="chev">›</span></div>
+      </div>
+
+      <p class="eyebrow" style="margin:18px 0 6px">AMOUNT</p>
+      <div class="card">
+        <div class="row" style="gap:8px;align-items:center">
+          <input id="xferAmount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" style="flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums">
+          <span class="sub" style="font-size:14px;color:var(--muted)">USDC</span>
+          <button class="pillbtn" id="xferMaxBtn" style="margin-left:8px">MAX</button>
+        </div>
+        <div class="row" style="justify-content:space-between;margin-top:10px;font-size:12px;color:var(--muted)">
+          <span>Available · <span data-xfer-from-bal>$0.00</span></span>
+          <span>Rail · <span id="xferRailLabel">—</span></span>
+          <span>ETA · <span id="xferEta">—</span></span>
+        </div>
+      </div>
+
+      <div style="margin-top:18px">
+        <button class="btn" id="xferSubmitBtn" disabled>Move money</button>
+      </div>
+
+      <div id="xferProgress" style="display:none;margin-top:18px">
+        <p class="eyebrow" style="margin:8px 0 6px">TRANSFER</p>
+        <div class="card">
+          <div class="row" style="justify-content:space-between"><span class="t" id="xferStatusLabel">created</span><span class="num" id="xferIdLabel" style="font-size:11px;color:var(--muted)">—</span></div>
+          <div class="kv" style="margin-top:8px"><span class="k">SRC TX</span><span class="num" id="xferSrcTx" style="font-size:11px;overflow-wrap:anywhere">—</span></div>
+          <div class="kv"><span class="k">DST TX</span><span class="num" id="xferDstTx" style="font-size:11px;overflow-wrap:anywhere">—</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 27 MARKETS ════ -->
+  <section class="scr" id="s27" data-screen-label="27 Trade" data-tab="trade">
+    <div class="appbar"><span class="ttl">Trade</span><span class="spacer"></span><region-pill id="marketsRegion"></region-pill><button class="iconb" id="tradeRefreshBtn" aria-label="Refresh markets"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2-2A6 6 0 0 0 6 12"/><path d="M20 12a8 8 0 0 1-14 5l-2 2v-6h6l-2 2A6 6 0 0 0 18 12"/></svg></button></div>
+    <div class="body">
+      <div class="row" style="justify-content:flex-end;margin-bottom:10px"><button class="pillbtn" id="tradeWalletChip" data-go="s31" hidden>Wallet <span data-wallet-short>Unavailable</span></button></div>
+      <div class="seg trade-venue-seg" role="tablist" aria-label="Trade venue">
+        <button class="seg-btn on" role="tab" aria-selected="true" data-trade-venue="perps">Perps</button>
+        <button class="seg-btn" role="tab" aria-selected="false" data-trade-venue="spot">Spot</button>
+        <button class="seg-btn" role="tab" aria-selected="false" data-trade-venue="stocks">Stocks</button>
+        <button class="seg-btn" role="tab" aria-selected="false" data-trade-venue="memes">Memes</button>
+        <button class="seg-btn" role="tab" aria-selected="false" data-trade-venue="predictions">Predictions</button>
+        <button class="seg-btn" role="tab" aria-selected="false" data-trade-venue="cards">Cards</button>
+      </div>
+      <div id="tradePerps" data-trade-panel="perps">
+        <div class="card" style="padding:4px 14px;margin-top:12px" id="hlMarketsList">
+          <div class="lrow"><span class="grow"><span class="t">Loading markets…</span><br/><span class="s">api.hyperliquid.xyz/info</span></span></div>
+        </div>
+        <p class="eyebrow" id="hlPositionsLabel" style="margin:18px 0 6px" hidden>YOUR OPEN POSITIONS</p>
+        <div class="card" id="hlPositionsList" style="padding:4px 14px" hidden></div>
+      </div>
+      <div id="tradeSpot" data-trade-panel="spot" hidden>
+        <div class="card" style="padding:4px 14px;margin-top:12px" id="hlSpotMarketsList">
+          <div class="lrow"><span class="grow"><span class="t">Loading spot markets…</span><br/><span class="s">api.hyperliquid.xyz/info</span></span></div>
+        </div>
+      </div>
+      <div id="tradeStocks" data-trade-panel="stocks" hidden>
+        <p class="eyebrow" style="margin:12px 0 6px">STOCKS · PERP (trade.xyz HIP-3, up to 50× leverage)</p>
+        <div class="card" style="padding:4px 14px" id="stocksPerpMarketsList">
+          <div class="lrow"><span class="grow"><span class="t">Loading stocks…</span><br/><span class="s">trade.xyz · HIP-3 builder DEX</span></span></div>
+        </div>
+        <p class="eyebrow" style="margin:18px 0 6px">STOCKS · SPOT (Backed Finance xStocks on Solana)</p>
+        <div class="card" style="padding:4px 14px" id="xStocksSpotMarketsList">
+          <div class="lrow"><span class="grow"><span class="t">Loading xStocks…</span><br/><span class="s">Token-2022 via Jupiter</span></span></div>
+        </div>
+      </div>
+      <div id="tradeMemes" data-trade-panel="memes" hidden>
+        <p class="eyebrow" style="margin:12px 0 6px">HYPERLIQUID MEMES · PERP</p>
+        <div class="card" style="padding:4px 14px" id="hlMemesMarketsList">
+          <div class="lrow"><span class="grow"><span class="t">Loading meme markets…</span><br/><span class="s">api.hyperliquid.xyz/info</span></span></div>
+        </div>
+        <p class="eyebrow" style="margin:18px 0 6px">SOLANA MEMES · SPOT</p>
+        <div class="card" style="padding:4px 14px" id="jupMemesMarketsList">
+          <div class="lrow"><span class="grow"><span class="t">Loading Solana memes…</span><br/><span class="s">jup.ag/tokens/v2</span></span></div>
+        </div>
+      </div>
+      <div id="tradePredictions" data-trade-panel="predictions" hidden>
+        <!-- Lane C — Polymarket top traders (live leaderboard) + one-tap Copy.
+             Hidden until the leaderboard hydrates; quiet on provider failure. -->
+        <div class="pm-traders" id="pmTopTraders" hidden>
+          <div class="pm-traders-head">
+            <span class="eyebrow" style="margin:0">TOP TRADERS · POLYMARKET</span>
+          </div>
+          <div class="pm-traders-strip" id="pmTradersStrip" role="list" aria-label="Top Polymarket traders"></div>
+        </div>
+        <!-- Polymarket category filter: All / Politics / Sports / Crypto / AI / Pop culture / Economy.
+             Active pill re-fetches /events?tag_slug=… and rerenders. -->
+        <div class="pm-cat-filter" role="tablist" aria-label="Prediction category" id="pmCatFilter">
+          <button class="pm-cat on" role="tab" aria-selected="true" data-pm-cat="" type="button">All</button>
+          <button class="pm-cat" role="tab" aria-selected="false" data-pm-cat="politics" type="button">Politics</button>
+          <button class="pm-cat" role="tab" aria-selected="false" data-pm-cat="sports" type="button">Sports</button>
+          <button class="pm-cat" role="tab" aria-selected="false" data-pm-cat="crypto" type="button">Crypto</button>
+          <button class="pm-cat" role="tab" aria-selected="false" data-pm-cat="ai" type="button">AI</button>
+          <button class="pm-cat" role="tab" aria-selected="false" data-pm-cat="pop-culture" type="button">Pop culture</button>
+          <button class="pm-cat" role="tab" aria-selected="false" data-pm-cat="economy" type="button">Economy</button>
+        </div>
+        <div id="pmMarketsList" class="pm-events-list">
+          <div class="detail-empty">Loading markets…</div>
+        </div>
+      </div>
+      <div id="tradeCards" data-trade-panel="cards" hidden>
+        <p class="eyebrow" style="margin:12px 0 6px">COLLECTOR CRYPT · TOKENIZED CARDS</p>
+        <div class="row" id="cardsCollectionsRow" style="gap:8px;flex-wrap:wrap;margin:0 0 10px" hidden></div>
+        <div class="card cards-market-card" style="padding:4px 14px" id="cardsMarketsList">
+          <div class="lrow"><span class="grow"><span class="t">Loading cards…</span><br/><span class="s">Collector Crypt marketplace</span></span></div>
+        </div>
+        <p class="eyebrow" id="cardsPositionsLabel" style="margin:18px 0 6px" hidden>YOUR CARDS</p>
+        <div class="card cards-market-card" id="cardsPositionsList" style="padding:4px 14px" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 33 CARDS · COLLECTOR CRYPT ════ -->
+  <section class="scr" id="s33" data-screen-label="33 Cards" data-tab="trade">
+    <div class="appbar"><button class="backb" id="cardsBackBtn" data-go="s27" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Cards</span><span class="spacer"></span><span class="tag live">CC</span></div>
+    <div class="body">
+      <p class="eyebrow" style="margin:6px 0 8px">COLLECTOR CRYPT</p>
+      <div class="card cards-detail-card" id="cardsDetailCard">
+        <div class="cards-detail-hero">
+          <span class="cards-detail-img"><img id="cardsDetailImg" alt="" hidden/><span id="cardsDetailFallback">CC</span></span>
+          <span class="grow">
+            <span class="t" id="cardsDetailTitle" style="font-weight:700">Select a card</span><br/>
+            <span class="s" id="cardsDetailMeta">Live marketplace listings</span>
+          </span>
+          <span class="num" id="cardsDetailPrice">$0.00</span>
+        </div>
+        <div class="kv" style="margin-top:12px"><span class="k">NFT</span><span class="num" id="cardsDetailAddress" style="overflow-wrap:anywhere">-</span></div>
+        <div class="kv"><span class="k">OWNER</span><span class="num" id="cardsDetailOwner" style="overflow-wrap:anywhere">-</span></div>
+        <div style="margin-top:14px"><button class="btn" id="cardsDetailBuy" disabled>Buy card</button></div>
+        <p class="sub" id="cardsDetailStatus" style="font-size:12px;margin-top:8px">Pick a listing below.</p>
+      </div>
+      <p class="eyebrow" style="margin:18px 0 6px">LISTINGS</p>
+      <div class="card cards-market-card" style="padding:4px 14px" id="cardsScreenList">
+        <div class="lrow"><span class="grow"><span class="t">Loading cards...</span><br/><span class="s">Collector Crypt marketplace</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 27D HYPERLIQUID MARKET DETAIL · TradingView chart + Long/Short ════ -->
+  <section class="scr" id="s27d" data-screen-label="Market detail" data-tab="trade">
+    <div class="appbar">
+      <button class="backb" data-go="s27" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span class="ttl" id="detailTtl">Market</span>
+    </div>
+    <div class="body detail-body">
+      <!-- Identity + price hero: logo leads the price, symbol/name/lev chip
+           sit alongside. Logo "before the price" per the user's correction. -->
+      <div class="detail-hero">
+        <span class="detail-hero-logo" aria-hidden="true"><img id="detailLogoImg" alt="" hidden/><span id="detailLogoFallback">B</span></span>
+        <div class="detail-hero-main">
+          <div class="detail-hero-id">
+            <span class="detail-hero-sym" id="detailSym">BTC</span>
+            <span class="detail-hero-lev" id="detailLevChip">40x</span>
+          </div>
+          <span class="detail-hero-name" id="detailName">Bitcoin perpetual</span>
+        </div>
+      </div>
+      <div class="detail-price-row">
+        <div class="big" id="detailPrice">$0.00</div>
+        <div class="chg" id="detailChange">+0.00%</div>
+      </div>
+
+      <!-- Compact stats strip: Vol · OI · Funding. H/L overlay onto chart. -->
+      <div class="detail-stat-strip">
+        <span class="stat"><span class="k">VOL</span><span class="v" id="detailVol">—</span></span>
+        <span class="dot">·</span>
+        <span class="stat"><span class="k">OI</span><span class="v" id="detailOi">—</span></span>
+        <span class="dot">·</span>
+        <span class="stat"><span class="k">FUND</span><span class="v" id="detailFunding">—</span></span>
+      </div>
+
+      <!-- Custom timeframe pills above the chart — the TV widget's own
+           toolbar is hidden so the chart stays clean. -->
+      <div class="detail-tf" role="tablist" aria-label="Chart interval">
+        <button class="tf" data-tv-interval="1" type="button">1m</button>
+        <button class="tf" data-tv-interval="5" type="button">5m</button>
+        <button class="tf on" data-tv-interval="15" type="button" aria-selected="true">15m</button>
+        <button class="tf" data-tv-interval="60" type="button">1h</button>
+        <button class="tf" data-tv-interval="240" type="button">4h</button>
+        <button class="tf" data-tv-interval="D" type="button">D</button>
+        <button class="tf" data-chart-ind="ema20" type="button" title="20-period EMA overlay">EMA</button>
+        <button class="tf" data-chart-ind="vwap" type="button" title="Session VWAP overlay">VWAP</button>
+      </div>
+
+      <!-- TradingView Advanced Chart Widget mounts here as an iframe.
+           Full-bleed, no toolbar, no legend, no volume study. H/L chip
+           overlays the chart corner so the user can read 24h range without
+           leaving the price area. -->
+      <div class="detail-tv" id="detailTvChart">
+        <div class="detail-tv-skel" id="detailTvSkel">Loading chart…</div>
+      <div class="detail-tv-hl" aria-hidden="true">
+        <span class="hl-row hl-high"><span class="k">H</span><span class="v" id="detailHigh">—</span></span>
+        <span class="hl-row hl-low"><span class="k">L</span><span class="v" id="detailLow">—</span></span>
+        <span class="hl-row"><span class="k">SRC</span><span class="v" id="detailChartSource">—</span></span>
+      </div>
+      </div>
+
+      <div class="detail-tabs" role="tablist" aria-label="Market detail">
+        <button class="dtab on" role="tab" aria-selected="true" data-detail-tab="positions" type="button">Positions</button>
+        <button class="dtab" role="tab" aria-selected="false" data-detail-tab="info" type="button">Info</button>
+        <button class="dtab" role="tab" aria-selected="false" data-detail-tab="trades" type="button">Trades</button>
+        <button class="dtab" role="tab" aria-selected="false" data-detail-tab="orderbook" type="button">Order book</button>
+      </div>
+
+      <div class="detail-tab-body" data-detail-panel="positions">
+        <div class="detail-empty" id="detailPositionsEmpty">Sign in to see your positions.</div>
+      </div>
+      <div class="detail-tab-body" data-detail-panel="info" hidden>
+        <div class="detail-info-grid">
+          <div class="kv-row"><span class="k">24h volume</span><span class="v" id="detailInfoVol">—</span></div>
+          <div class="kv-row"><span class="k">Open interest</span><span class="v" id="detailInfoOi">—</span></div>
+          <div class="kv-row"><span class="k">Funding</span><span class="v" id="detailInfoFunding">—</span></div>
+          <div class="kv-row"><span class="k">Max leverage</span><span class="v" id="detailInfoMaxLev">—</span></div>
+        </div>
+      </div>
+      <div class="detail-tab-body" data-detail-panel="trades" hidden>
+        <div class="detail-trades-head"><span>Price</span><span>Size</span><span>Time</span></div>
+        <div class="detail-trades-list" id="detailTradesList">
+          <div class="detail-empty">Loading trades…</div>
+        </div>
+      </div>
+      <div class="detail-tab-body" data-detail-panel="orderbook" hidden>
+        <div class="detail-ob-head"><span>Bid price</span><span class="ob-mid">Size</span><span class="ob-ask">Ask price</span></div>
+        <div class="detail-ob-list" id="detailObList">
+          <div class="detail-empty">Loading order book…</div>
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        <button class="btn-trade btn-trade-long" id="detailLong" type="button">Long</button>
+        <button class="btn-trade btn-trade-short" id="detailShort" type="button">Short</button>
+      </div>
+      <button class="btn-secondary" id="detailOpenNeoTerminal" type="button" hidden style="margin-top:8px;width:100%">Open advanced terminal</button>
+    </div>
+  </section>
+
+  <!-- ════ 28 SYSTEM / DOCS … transparency hub ════ -->
+  <section class="scr" id="s28" data-screen-label="28 System" data-tab="more">
+    <div class="appbar"><button class="backb" data-go="s26" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">System</span><span class="spacer"></span><span class="tag" id="sysHealthTag">LOADING</span></div>
+    <div class="body">
+      <p class="eyebrow" style="margin:6px 0 10px">DATA SOURCE TRANSPARENCY</p>
+      <h1 class="h-big" style="font-size:24px;letter-spacing:-.02em">Where every number comes from.</h1>
+      <p class="sub" style="font-size:13.5px;margin-top:6px">Real-time vendor health, refreshed every 60 seconds. Every financial value in MAZE links back to one of these.</p>
+      <div style="margin-top:18px">
+        <nexa-state-bar id="sysStateBar" live="0" docs-only="0" missing-keys="0" total="0"></nexa-state-bar>
+      </div>
+      <p class="eyebrow" style="margin:22px 0 8px">FILTER</p>
+      <div class="sys-filter-row" role="group" aria-label="Filter providers by status">
+        <button class="sys-filter on" data-sfilter="all" aria-pressed="true">All <span class="cnt" id="cntAll">0</span></button>
+        <button class="sys-filter" data-sfilter="live" aria-pressed="false">Live <span class="cnt" id="cntLive">0</span></button>
+        <button class="sys-filter" data-sfilter="docs-only" aria-pressed="false">Docs only <span class="cnt" id="cntDocs">0</span></button>
+        <button class="sys-filter" data-sfilter="missing-keys" aria-pressed="false">Missing keys <span class="cnt" id="cntMiss">0</span></button>
+      </div>
+      <div class="sys-cat-row" id="sysCatRow" aria-label="Filter by category"></div>
+      <p class="eyebrow" style="margin:22px 0 10px">INTEGRATIONS</p>
+      <div class="sys-provider-grid" id="sysProviderGrid">
+        <div class="card" style="text-align:center;padding:28px 18px;grid-column:1/-1">
+          <p class="sub" style="font-family:var(--mono);font-size:12px;color:var(--meta);letter-spacing:.08em">LOADING PROVIDER REGISTRY…</p>
+        </div>
+      </div>
+      <div class="seg" role="tablist" aria-label="System detail sections" style="margin-top:24px">
+        <button class="on" data-sseg="providers" role="tab" id="sysTabProviders" aria-controls="sysProviders" aria-selected="true" tabindex="0">REGISTRY</button>
+        <button data-sseg="routes" role="tab" id="sysTabRoutes" aria-controls="sysRoutes" aria-selected="false" tabindex="-1">DATA SOURCES</button>
+        <button data-sseg="missing" role="tab" id="sysTabMissing" aria-controls="sysMissing" aria-selected="false" tabindex="-1">DOCS GAPS</button>
+      </div>
+      <div id="sysProviders" role="tabpanel" aria-labelledby="sysTabProviders">
+        <div class="card" style="padding:4px 14px" id="sysProvidersList">
+          <div class="lrow"><span class="grow"><span class="t">Loading providers…</span><br/><span class="s">FETCH IN PROGRESS</span></span></div>
+        </div>
+      </div>
+      <div id="sysRoutes" role="tabpanel" aria-labelledby="sysTabRoutes" hidden>
+        <p class="sub" style="font-size:11px;margin:0 0 8px;font-family:var(--mono);color:var(--meta);letter-spacing:.08em">EACH ROW: ROUTE → PROVIDER → FRESHNESS</p>
+        <div class="card" style="padding:4px 14px" id="sysSourcesList">
+          <div class="lrow"><span class="grow"><span class="t">Loading data sources…</span><br/><span class="s">FETCH IN PROGRESS</span></span></div>
+        </div>
+      </div>
+      <div id="sysMissing" role="tabpanel" aria-labelledby="sysTabMissing" hidden>
+        <p class="sub" style="font-size:11px;margin:0 0 8px;font-family:var(--mono);color:var(--meta);letter-spacing:.08em">PROVIDERS WITHOUT OFFICIAL PUBLIC DOCS. TRADING GATED UNTIL DOCS LAND.</p>
+        <div class="card" style="padding:4px 14px" id="sysMissingList">
+          <div class="lrow"><span class="grow"><span class="t">No gaps surfaced yet</span><br/><span class="s">RESOLVED ON BOOT</span></span></div>
+        </div>
+      </div>
+      <div style="margin-top:18px;display:flex;justify-content:center">
+        <a class="pillbtn" href="/developers.html" target="_blank" rel="noopener" style="text-decoration:none">OPEN PUBLIC DOCS ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 29 ACTIVITY (primary tab) ════ -->
+  <section class="scr" id="s29" data-screen-label="29 Activity" data-tab="activity">
+    <div class="appbar"><span class="ttl">Activity</span><span class="spacer"></span><button class="iconb" id="activityRefreshBtn" aria-label="Refresh activity"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2-2A6 6 0 0 0 6 12"/><path d="M20 12a8 8 0 0 1-14 5l-2 2v-6h6l-2 2A6 6 0 0 0 18 12"/></svg></button></div>
+    <div class="body">
+      <div class="seg activity-filter-seg" role="tablist" aria-label="Activity filter">
+        <button class="seg-btn on" role="tab" aria-selected="true" data-act-filter="all">All</button>
+        <button class="seg-btn" role="tab" aria-selected="false" data-act-filter="money">Money</button>
+        <button class="seg-btn" role="tab" aria-selected="false" data-act-filter="trade">Trades</button>
+        <button class="seg-btn" role="tab" aria-selected="false" data-act-filter="agent">Agents</button>
+      </div>
+      <div id="activitySkel" hidden>
+        <div class="skel" style="height:64px;margin-bottom:10px"></div>
+        <div class="skel" style="height:64px;margin-bottom:10px"></div>
+        <div class="skel" style="height:64px"></div>
+      </div>
+      <div id="activityEmpty" class="card" hidden style="margin-top:14px;text-align:center;padding:28px 18px">
+        <div class="globe-slot" style="height:120px"><canvas data-globe data-dots="380" data-speed="0.0001" data-r="0.46" data-boost="1.3"></canvas></div>
+        <h3 style="font-size:15px;margin-top:10px">Nothing here yet</h3>
+        <p class="sub" style="font-size:13px" id="activityEmptySub">Your transactions, trades, and agent activity all land here the second they happen.</p>
+        <div style="margin-top:14px"><button class="btn sm acc" data-go="s09" id="activityEmptyCta" style="margin-inline:auto">Add money</button></div>
+      </div>
+      <div class="home-card tx-card" id="activityCard" style="margin-top:14px" hidden>
+        <div id="actListFull"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- tab bar + overlays -->
+  <nav class="tabbar" id="tabbar" aria-label="App navigation">
+    <button class="tb" data-tabgo="home" data-go="s08" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 11 12 4l8 7v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/></svg>Home</button>
+    <button class="tb" data-tabgo="trade" data-go="s27" aria-label="Trade"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M3 17 9 11l4 4 8-8"/><path d="M14 4h7v7"/></svg>Trade</button>
+    <button class="tb" data-tabgo="pay" data-go="s25" aria-label="Pay"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M7 17 17 7M9 7h8v8"/></svg>Pay</button>
+    <button class="tb" data-tabgo="earn" data-go="s14" aria-label="Earn"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M5 19V9M10 19V5M15 19v-7M20 19V8"/></svg>Earn</button>
+    <button class="tb" data-tabgo="activity" data-go="s29" aria-label="Activity"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 12h4l2-5 4 10 2-5h4"/></svg>Activity</button>
+  </nav>
+  <div class="home-ind"></div>
+  <div class="top-loadbar" id="topLoadbar" aria-hidden="true"><i></i></div>
+
+  <div class="net-banner" id="netBanner" role="status" aria-live="polite" hidden>You are offline. Showing your last loaded data.</div>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <div class="ovl" id="profileSheet">
+    <div class="scrim" data-close="profileSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Profile">
+      <div class="grab"></div>
+      <div class="row"><span class="avatarb">M</span><span class="grow"><span class="t" style="font-weight:600">Mirko</span><br/><span class="s">VERIFIED ✓ · MEMBER 001</span></span><span class="tag ok">PASSKEYS ON</span></div>
+      <div class="card" style="margin-top:14px;padding:6px 16px">
+        <div class="lrow"><span class="grow"><span class="t">Appearance</span><br/><span class="s" id="themeLbl" data-theme-lbl>LIGHT</span></span><button class="sw" id="themeSw" data-theme-sw role="switch" aria-checked="false" aria-label="Dark mode"></button></div>
+        <div class="lrow" data-go="s19" role="button" tabindex="0" aria-label="Open Agents settings" style="cursor:pointer"><span class="grow"><span class="t">Agents</span><br/><span class="s">BUDGETS · POLICIES · KILL SWITCH</span></span><span class="chev">›</span></div>
+        <div class="lrow" id="devKeysRow" data-act="dev-keys" role="button" tabindex="0" hidden style="cursor:pointer"><span class="grow"><span class="t">Developers</span><br/><span class="s">API KEYS · TEST &amp; LIVE</span></span><span class="chev">›</span></div>
+        <div class="lrow"><span class="grow"><span class="t">Devices</span><br/><span class="s">2 APPROVED</span></span><span class="chev">›</span></div>
+        <div class="lrow"><span class="grow"><span class="t">Audit log</span><br/><span class="s">EVERY ACTION · EXPORTABLE</span></span><span class="chev">›</span></div>
+      </div>
+      <div style="margin-top:14px;display:grid;gap:8px"><button class="btn ghost" data-act="sign-out" hidden>Sign out</button><button class="btn ghost" data-close="profileSheet">Close</button></div>
+    </div>
+  </div>
+
+  <div class="ovl" id="emailPreview">
+    <div class="scrim" data-close="emailPreview"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Claim email preview">
+      <div class="grab"></div>
+      <p class="eyebrow">WHAT BOB SEES</p>
+      <div class="card" style="background:var(--bg)">
+        <div class="row" style="gap:8px"><svg class="m-mark sm" aria-hidden="true"><use href="#m-emblem"/></svg><b class="mono" style="letter-spacing:.24em;font-size:12px">MAZE</b></div>
+        <h3 style="font-size:17px;margin-top:12px">Mirko sent you <span class="num" id="pvAmt">$20.00</span></h3>
+        <p class="sub" style="font-size:13px">It's waiting for you. Open your account in 2 minutes and the money is yours instantly.</p>
+        <div style="margin-top:14px"><button class="btn sm acc" data-toast="That button is for Bob 😄">Claim your money</button></div>
+        <p class="sub" style="font-size:10.5px;margin-top:12px;font-family:var(--mono);color:var(--meta)">UNCLAIMED FUNDS RETURN TO SENDER AFTER 30 DAYS</p>
+      </div>
+      <div style="margin-top:14px"><button class="btn ghost" data-close="emailPreview">Close preview</button></div>
+    </div>
+  </div>
+
+  <!-- Hyperliquid order sheet (half-screen so the chart shows behind). -->
+  <div class="ovl" id="hlOrderSheet">
+    <div class="scrim" data-close="hlOrderSheet"></div>
+    <div class="sheet half-sheet trade-sheet" role="dialog" aria-modal="true" aria-label="Hyperliquid trade" data-side="long">
+      <div class="grab"></div>
+      <div class="trade-sheet-head">
+        <span class="order-logo" id="hlOrderLogo" aria-hidden="true"><img id="hlOrderLogoImg" alt="" hidden/><span class="order-logo-fallback" id="hlOrderLogoFallback">B</span></span>
+        <span class="trade-head-main">
+          <span class="symbol" id="hlOrderSym">BTC-PERP</span>
+          <span class="price-row"><span class="price" id="hlOrderPrice">$0.00</span><span class="market-chip" id="hlOrderChange">24h · n/a</span></span>
+        </span>
+      </div>
+
+      <!-- Big colored side toggle: green LONG / red SHORT. Drives sheet accent. -->
+      <div class="side-toggle" role="tablist" aria-label="Side">
+        <button class="side-btn side-long on" data-hlside="long" role="tab" aria-selected="true">Long</button>
+        <button class="side-btn side-short" data-hlside="short" role="tab" aria-selected="false">Short</button>
+      </div>
+
+      <!-- Order-type pills. Stop + TWAP are perps-only (hidden per venue by
+           openHyperliquidOrder); Scale is a frontend construct (N spaced GTC
+           limits) available wherever GTC limits are. -->
+      <div class="type-toggle" role="tablist" aria-label="Order type">
+        <button class="on" data-hltype="market" role="tab" aria-selected="true">Market</button>
+        <button data-hltype="limit" role="tab" aria-selected="false">Limit</button>
+        <button data-hltype="stop" role="tab" aria-selected="false">Stop</button>
+        <button data-hltype="twap" role="tab" aria-selected="false">TWAP</button>
+        <button data-hltype="scale" role="tab" aria-selected="false">Scale</button>
+      </div>
+
+      <div class="field"><label for="hlQty">Size (USD)</label>
+        <div class="row" style="gap:8px;align-items:center">
+          <input class="inp num" id="hlQty" inputmode="decimal" placeholder="100" style="flex:1"/>
+          <button class="pillbtn" id="hlQtyMaxBtn" type="button">MAX</button>
+        </div>
+        <div class="row" style="gap:6px;margin-top:6px">
+          <button class="pillbtn" data-hlqty-pct="25" type="button">25%</button>
+          <button class="pillbtn" data-hlqty-pct="50" type="button">50%</button>
+          <button class="pillbtn" data-hlqty-pct="75" type="button">75%</button>
+          <button class="pillbtn" data-hlqty-pct="100" type="button">100%</button>
+        </div>
+        <p class="sub" id="hlAvailLbl" style="font-size:11px;margin:4px 0 0;font-family:var(--mono);color:var(--meta)">AVAILABLE · —</p>
+      </div>
+      <div class="field" id="hlLimitField" hidden><label for="hlLimitPrice">Limit price (USD)</label>
+        <div class="row" style="gap:8px;align-items:center">
+          <input class="inp num" id="hlLimitPrice" inputmode="decimal" placeholder="0.00" style="flex:1"/>
+          <button class="pillbtn" id="hlLimitMidBtn" type="button">MID</button>
+        </div>
+      </div>
+      <!-- Stop-limit: trigger price + direction; the limit price field above
+           is shown too. Direction maps to HL's tpsl relative to side. -->
+      <div class="field" id="hlStopField" hidden><label for="hlTriggerPrice">Trigger price (USD)</label>
+        <div class="row" style="gap:8px;align-items:center">
+          <input class="inp num" id="hlTriggerPrice" inputmode="decimal" placeholder="0.00" style="flex:1"/>
+          <button class="pillbtn on" data-hlstopdir="above" type="button" title="Trigger when mark rises to the price">ABOVE</button>
+          <button class="pillbtn" data-hlstopdir="below" type="button" title="Trigger when mark falls to the price">BELOW</button>
+        </div>
+      </div>
+
+      <!-- TWAP: venue-native, 30s sub-orders with 3% slippage cap each. -->
+      <div class="field" id="hlTwapField" hidden><label for="hlTwapMinutes">TWAP duration (minutes, 5–1440)</label>
+        <div class="row" style="gap:8px;align-items:center">
+          <input class="inp num" id="hlTwapMinutes" inputmode="numeric" value="30" style="flex:1"/>
+          <button class="pillbtn" id="hlTwapRandomBtn" type="button" title="Randomize sub-order timing">RANDOMIZE</button>
+        </div>
+      </div>
+
+      <!-- Scale: N evenly spaced GTC limit orders across [lower, upper]. -->
+      <div class="field" id="hlScaleField" hidden><label>Scale · orders × price band</label>
+        <div class="row" style="gap:8px;align-items:center">
+          <input class="inp num" id="hlScaleCount" inputmode="numeric" value="5" title="Order count (2–20)" style="width:64px"/>
+          <input class="inp num" id="hlScaleLower" inputmode="decimal" placeholder="Lower" style="flex:1"/>
+          <input class="inp num" id="hlScaleUpper" inputmode="decimal" placeholder="Upper" style="flex:1"/>
+        </div>
+        <p class="sub" id="hlScaleHint" style="font-size:11px;margin:4px 0 0;font-family:var(--mono);color:var(--meta)">SIZE SPLITS EVENLY · EACH ORDER MIN $10</p>
+      </div>
+
+      <!-- Time-in-force: GTC rests on the book at your price; ALO is post-only
+           (maker, cancels if it would cross); IOC fills what it can and
+           cancels the rest. Hidden for market orders (always IOC). -->
+      <div class="field" id="hlTifField" hidden><label>Time in force</label>
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <button class="pillbtn on" data-hltif="Gtc" type="button">GTC · REST</button>
+          <button class="pillbtn" data-hltif="Alo" type="button">POST ONLY</button>
+          <button class="pillbtn" data-hltif="Ioc" type="button">IOC</button>
+        </div>
+      </div>
+
+      <!-- Perps-only extras: attached TP/SL legs (normalTpsl grouping server-side)
+           and reduce-only. Hidden for spot / HIP-3 by openHyperliquidOrder. -->
+      <div class="field" id="hlAdvField">
+        <div class="row" style="gap:8px;align-items:center">
+          <input class="inp num" id="hlTpPrice" inputmode="decimal" placeholder="TP price (optional)" style="flex:1"/>
+          <input class="inp num" id="hlSlPrice" inputmode="decimal" placeholder="SL price (optional)" style="flex:1"/>
+          <button class="pillbtn" id="hlReduceOnlyBtn" type="button" title="Order can only reduce your position">RO</button>
+        </div>
+      </div>
+
+      <!-- Leverage slider with step ticks. Numeric value updates live, max
+           chip in the label, tick marks at the common stops. -->
+      <div class="field lev-field">
+        <div class="lev-head">
+          <label for="hlLevSlider">Leverage <span class="lev-val" id="hlLevVal">3×</span></label>
+          <span class="lev-max">Max <span id="hlLevMax">40×</span></span>
+        </div>
+        <input type="range" class="lev-slider" id="hlLevSlider" min="1" max="40" step="1" value="3" aria-label="Leverage"/>
+        <datalist id="hlLevTicks"></datalist>
+        <div class="lev-ticks" id="hlLevTicksRow" aria-hidden="true"></div>
+      </div>
+
+      <div class="kv-bare"><span class="k">Notional</span><span class="num" id="hlNotional">$300.00</span></div>
+      <div class="kv-bare" id="hlLiqRow"><span class="k">Est. liq. price</span><span class="num" id="hlLiqEst">—</span></div>
+
+      <button class="btn-trade" id="hlPlaceOrderBtn">Long BTC</button>
+    </div>
+  </div>
+
+  <!-- Polymarket order sheet (half-screen, YES/NO colored like long/short). -->
+  <div class="ovl" id="pmOrderSheet">
+    <div class="scrim" data-close="pmOrderSheet"></div>
+    <div class="sheet half-sheet trade-sheet" role="dialog" aria-modal="true" aria-label="Polymarket trade" data-side="long">
+      <div class="grab"></div>
+      <div class="trade-sheet-head">
+        <span class="order-logo" id="pmOrderLogo" aria-hidden="true"><img id="pmOrderLogoImg" alt="" hidden/><span class="order-logo-fallback" id="pmOrderLogoFallback">P</span></span>
+        <span class="trade-head-main">
+          <span class="symbol" id="pmOrderPrice">YES 50%</span>
+          <span class="price-row"><span class="market-chip" id="pmOrderCategory">Polymarket</span></span>
+        </span>
+      </div>
+      <p id="pmOrderQuestion" style="font-size:14px;font-weight:500;line-height:1.4;margin:8px 0 0">Loading event…</p>
+
+      <div class="side-toggle" id="pmOutcomeSeg" role="tablist" aria-label="Outcome">
+        <button class="side-btn side-long on" data-pmoutcome="YES" role="tab" aria-selected="true">Yes</button>
+        <button class="side-btn side-short" data-pmoutcome="NO" role="tab" aria-selected="false">No</button>
+      </div>
+
+      <div class="field">
+        <label for="pmPrice">Price · <span id="pmPriceVal" class="num">50¢</span></label>
+        <input type="range" id="pmPrice" min="1" max="99" step="1" value="50" aria-label="Price cents"/>
+      </div>
+      <div class="field"><label for="pmQty">Size (USD)</label><input class="inp num" id="pmQty" inputmode="decimal" value="25"/></div>
+
+      <div class="kv-bare"><span class="k">Shares</span><span class="num" id="pmShares">50</span></div>
+      <div class="kv-bare"><span class="k">Max payout</span><span class="num" id="pmPayout" style="color:var(--success)">$50.00</span></div>
+
+      <button class="btn-trade" id="pmPlaceOrderBtn">Buy YES</button>
+      <button class="btn-secondary" id="pmOpenNeoTerminal" type="button" hidden style="margin-top:8px;width:100%">Open advanced terminal</button>
+    </div>
+  </div>
+
+  <!-- Jupiter swap sheet (half-screen). One sheet handles both meme buys
+       (USDC → meme mint) and meme sells (meme mint → USDC). xStock spot
+       (Backed Finance Token-2022) uses the SAME sheet with a different
+       output mint. Quote is debounced; submit posts to /markets/jupiter/swap. -->
+  <div class="ovl" id="jupSwapSheet">
+    <div class="scrim" data-close="jupSwapSheet"></div>
+    <div class="sheet half-sheet trade-sheet" role="dialog" aria-modal="true" aria-label="Jupiter swap" data-side="long">
+      <div class="grab"></div>
+      <div class="trade-sheet-head">
+        <span class="order-logo" id="jupOrderLogo" aria-hidden="true"><img id="jupOrderLogoImg" alt="" hidden/><span class="order-logo-fallback" id="jupOrderLogoFallback">J</span></span>
+        <span class="trade-head-main">
+          <span class="symbol" id="jupOrderSym">TOKEN</span>
+          <span class="price-row"><span class="price" id="jupOrderPrice">$0.00</span><span class="market-chip" id="jupOrderChange">24h · n/a</span></span>
+        </span>
+      </div>
+
+      <!-- Buy / Sell — colored like Long/Short. Buy spends USDC; Sell flips
+           the route so output is USDC. -->
+      <div class="side-toggle" role="tablist" aria-label="Side">
+        <button class="side-btn side-long on" data-jupside="buy" role="tab" aria-selected="true">Buy</button>
+        <button class="side-btn side-short" data-jupside="sell" role="tab" aria-selected="false">Sell</button>
+      </div>
+
+      <div class="field"><label for="jupQty">Size (USD)</label><input class="inp num" id="jupQty" inputmode="decimal" value="25"/></div>
+
+      <!-- Slippage: 50bps (0.5%) is the Jupiter default; users can tighten. -->
+      <div class="field">
+        <label for="jupSlippage">Slippage · <span id="jupSlippageVal" class="num">50 bps</span></label>
+        <input type="range" id="jupSlippage" min="10" max="300" step="10" value="50" aria-label="Slippage basis points"/>
+      </div>
+
+      <div class="kv-bare"><span class="k">You receive</span><span class="num" id="jupReceiveOut">—</span></div>
+      <div class="kv-bare"><span class="k">Price impact</span><span class="num" id="jupPriceImpact">—</span></div>
+      <div class="kv-bare"><span class="k">Route</span><span class="num" id="jupRouteLabel" style="font-size:11px">—</span></div>
+
+      <button class="btn-trade" id="jupPlaceSwapBtn">Buy</button>
+    </div>
+  </div>
+
+  <!-- Phase C … shared review sheet used by swap/withdraw/bridge-withdraw before signing. -->
+  <div class="ovl" id="reviewSheet">
+    <div class="scrim" data-close="reviewSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Review">
+      <div class="grab"></div>
+      <p class="eyebrow" id="reviewEyebrow">REVIEW</p>
+      <p class="bignum" id="reviewAmount" style="font-size:32px;margin:4px 0 6px">…</p>
+      <p class="sub" id="reviewSubline" style="font-size:12.5px;margin:0 0 14px"></p>
+      <div class="card" style="padding:6px 14px" id="reviewRows"></div>
+      <div class="row" style="margin-top:8px;justify-content:flex-end" id="reviewBadgeWrap" hidden>
+        <nexa-source-badge id="reviewBadge" source="unavailable" provider="…" hidden></nexa-source-badge>
+      </div>
+      <div class="row" style="gap:10px;margin-top:16px">
+        <button class="btn ghost" data-close="reviewSheet" style="flex:1">Edit</button>
+        <button class="btn acc" id="reviewConfirmBtn" style="flex:1.4">Confirm</button>
+      </div>
+      <p class="sub" style="font-size:11px;font-family:var(--mono);color:var(--meta);margin-top:10px;text-align:center" id="reviewFinePrint"></p>
+    </div>
+  </div>
+
+  <div class="ovl" id="wdSheet">
+    <div class="scrim" data-close="wdSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Withdraw from Earn">
+      <div class="grab"></div>
+      <p class="eyebrow">WITHDRAW FROM EARN</p>
+      <div class="amount-disp" style="font-size:40px;text-align:center">$<span id="wdV">500</span></div>
+      <div style="margin-top:14px;padding-inline:4px"><input type="range" id="wdRange" min="50" max="3200" step="50" value="500" aria-label="Withdraw amount"/></div>
+      <div style="margin-top:14px"><button class="btn" id="wdGo">Withdraw · usually instant</button></div>
+    </div>
+  </div>
+
+  <!-- Sprint 10 Item B … Bridge offramp: pick a destination, withdraw to bank -->
+  <div class="ovl" id="bridgeWdSheet">
+    <div class="scrim" data-close="bridgeWdSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Withdraw to bank">
+      <div class="grab"></div>
+      <p class="eyebrow">WITHDRAW TO BANK</p>
+      <p class="eyebrow" style="margin:14px 0 4px">DESTINATIONS</p>
+      <div class="card" id="payoutList" style="padding:4px 14px">
+        <p class="sub" id="payoutEmpty" style="font-size:12px;font-family:var(--mono);color:var(--meta);padding:8px 0">NO METHODS YET · ADD ONE BELOW</p>
+      </div>
+      <div class="row" style="margin-top:10px;justify-content:flex-end"><button class="pillbtn" id="payoutAddBtn">+ ADD METHOD</button></div>
+      <div class="card" id="payoutAddForm" hidden style="margin-top:10px">
+        <p class="eyebrow" style="margin-bottom:6px">NEW PAYOUT METHOD</p>
+        <div class="row" style="flex-wrap:wrap;gap:8px">
+          <button class="pillbtn onx" data-paytype="ach">US ACH</button>
+          <button class="pillbtn" data-paytype="sepa">EU SEPA</button>
+          <button class="pillbtn" data-paytype="wire">WIRE</button>
+          <button class="pillbtn" data-paytype="crypto">CRYPTO</button>
+        </div>
+        <div class="field" style="margin-top:12px"><label for="payoutLabel">Label</label><input class="inp" id="payoutLabel" placeholder="Chase checking" value="Main checking"/></div>
+        <div class="field"><label for="payoutAcct">Account number / IBAN / address</label><input class="inp" id="payoutAcct" placeholder="000123456789"/></div>
+        <div class="field" id="payoutRoutingField"><label for="payoutRouting">Routing number</label><input class="inp" id="payoutRouting" placeholder="021000089"/></div>
+        <div class="row" style="gap:8px"><button class="btn sm ghost" id="payoutCancel" style="flex:1">Cancel</button><button class="btn sm" id="payoutCreate" style="flex:1">Register</button></div>
+      </div>
+      <p class="eyebrow" style="margin:14px 0 4px">AMOUNT</p>
+      <div class="amount-disp" style="font-size:40px;text-align:center">$<span id="bwV">100</span></div>
+      <div style="margin-top:6px;padding-inline:4px"><input type="range" id="bwRange" min="10" max="4820" step="10" value="100" aria-label="Withdraw to bank amount"/></div>
+      <p class="sub" id="bwHint" style="font-size:11px;margin-top:6px;text-align:center;font-family:var(--mono);color:var(--meta)">FROM YOUR SPENDING BALANCE</p>
+      <div style="margin-top:14px"><button class="btn acc" id="bwGo">Withdraw <span id="bwGoLbl">$100</span></button></div>
+    </div>
+  </div>
+
+  <!-- Hyperliquid spot ⇄ perp class transfer (usdClassTransfer). Backend +
+       route existed since Sprint 16; this sheet is the first manual UI for it.
+       Instant, feeless, internal to Hyperliquid — the fix for "funds sit in
+       spot while the perp order fails insufficient". -->
+  <div class="ovl" id="hlClassSheet">
+    <div class="scrim" data-close="hlClassSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Move between Hyperliquid spot and perps">
+      <div class="grab"></div>
+      <p class="eyebrow">HYPERLIQUID · SPOT ⇄ PERP</p>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="pillbtn onx" data-hlclass-dir="toPerp">SPOT → PERP</button>
+        <button class="pillbtn" data-hlclass-dir="toSpot">PERP → SPOT</button>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-top:12px;font-size:12px;color:var(--muted)">
+        <span>Spot USDC · <span data-hlclass-spot-bal>—</span></span>
+        <span>Perp withdrawable · <span data-hlclass-perp-bal>—</span></span>
+      </div>
+      <div class="field" style="margin-top:12px"><label for="hlClassAmount">Amount USDC</label>
+        <div class="row" style="gap:8px;align-items:center">
+          <input class="inp" id="hlClassAmount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" style="flex:1"/>
+          <button class="pillbtn" id="hlClassMaxBtn">MAX</button>
+        </div>
+      </div>
+      <p class="sub" id="hlClassHint" style="font-size:11px;margin-top:6px;font-family:var(--mono);color:var(--meta)">INSTANT · NO FEE · INTERNAL TO HYPERLIQUID</p>
+      <div style="margin-top:14px"><button class="btn" id="hlClassGo" disabled>Move</button></div>
+    </div>
+  </div>
+
+  <!-- Sprint 10 Item F … Submit a clip to a campaign -->
+  <div class="ovl" id="campSubmitSheet">
+    <div class="scrim" data-close="campSubmitSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Submit clip to campaign">
+      <div class="grab"></div>
+      <p class="eyebrow" id="campSubmitEyebrow">SUBMIT TO CAMPAIGN</p>
+      <h3 id="campSubmitTitle" style="font-size:17px;margin:6px 0 2px">Campaign title</h3>
+      <p class="sub" id="campSubmitBrand" style="font-size:12.5px">Brand</p>
+      <div class="field" style="margin-top:12px"><label for="campClipUrl">Clip URL</label><input class="inp" id="campClipUrl" placeholder="https://tiktok.com/@you/video/..." value=""/></div>
+      <div class="field"><label>Platform</label>
+        <div class="row" style="flex-wrap:wrap;gap:8px">
+          <button class="pillbtn onx" data-campplat="tiktok">TIKTOK</button>
+          <button class="pillbtn" data-campplat="instagram">INSTAGRAM</button>
+          <button class="pillbtn" data-campplat="youtube">YOUTUBE</button>
+          <button class="pillbtn" data-campplat="x">X</button>
+        </div>
+      </div>
+      <div class="field"><label for="campViews">Views (claimed)</label><input class="inp num" id="campViews" inputmode="numeric" value="1000"/></div>
+      <div style="margin-top:12px"><button class="btn acc" id="campSubmitGo">Submit clip</button></div>
+    </div>
+  </div>
+
+  <div class="ovl" id="limitSheet">
+    <div class="scrim" data-close="limitSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Per-day limit">
+      <div class="grab"></div>
+      <p class="eyebrow">PER-DAY SPENDING CAP</p>
+      <div class="amount-disp" style="font-size:40px;text-align:center">$<span id="limV">500</span></div>
+      <div style="margin-top:14px;padding-inline:4px"><input type="range" id="limRange" min="100" max="2000" step="50" value="500" aria-label="Daily limit"/></div>
+      <p class="sub" style="font-size:11px;margin-top:10px;text-align:center;font-family:var(--mono);color:var(--meta)">CARD DECLINES ABOVE THIS · CHANGES APPLY INSTANTLY</p>
+      <div style="margin-top:14px"><button class="btn" id="limSave">Save limit</button></div>
+    </div>
+  </div>
+
+  <div class="ovl" id="merchSheet">
+    <div class="scrim" data-close="merchSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Merchant rules">
+      <div class="grab"></div>
+      <p class="eyebrow">MERCHANT RULES</p>
+      <div class="card" style="padding:6px 16px;margin-top:6px">
+        <div class="lrow"><span class="grow"><span class="t">Groceries &amp; retail</span></span><button class="sw" role="switch" aria-checked="true" data-swtoggle aria-label="Groceries and retail"></button></div>
+        <div class="lrow"><span class="grow"><span class="t">Subscriptions</span></span><button class="sw" role="switch" aria-checked="true" data-swtoggle aria-label="Subscriptions"></button></div>
+        <div class="lrow"><span class="grow"><span class="t">ATM withdrawals</span></span><button class="sw" role="switch" aria-checked="true" data-swtoggle aria-label="ATM withdrawals"></button></div>
+        <div class="lrow"><span class="grow"><span class="t">Gambling</span><br/><span class="s">BLOCKED BY DEFAULT</span></span><button class="sw" role="switch" aria-checked="false" data-swtoggle aria-label="Gambling"></button></div>
+      </div>
+      <div style="margin-top:14px"><button class="btn" id="merchDone">Save rules</button></div>
+    </div>
+  </div>
+
+  <div class="ovl" id="opsSheet">
+    <div class="scrim" data-close="opsSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Review OpsAgent-02">
+      <div class="grab"></div>
+      <div class="row"><span class="agent-av">O2</span><span class="grow"><span class="t" style="font-weight:600">OpsAgent-02</span><br/><span class="s">REQUESTS A NEW PERMISSION</span></span><span class="tag warnx">REVIEW</span></div>
+      <div class="card" style="margin-top:14px">
+        <div class="kv"><span class="k">WANTS</span><b>Vendor payments rail</b></div>
+        <div class="kv"><span class="k">ITS CAP</span><span class="num">$25.00 / day</span></div>
+        <div class="kv"><span class="k">REASON</span><b>Pays approved suppliers for you</b></div>
+        <div class="kv"><span class="k">YOUR CONTROL</span><b>Revoke anytime · all logged</b></div>
+      </div>
+      <div class="row" style="margin-top:16px;gap:10px">
+        <button class="btn ghost" id="opsDeny" style="flex:1">Deny</button>
+        <button class="btn acc" id="opsApprove" style="flex:1">Approve rule</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ovl" id="offerSheet">
+    <div class="scrim" data-close="offerSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Create a checkout link">
+      <div class="grab"></div>
+      <p class="eyebrow">NEW CHECKOUT LINK</p>
+      <div class="field" style="margin-top:14px"><label for="offer-title">What are you selling?</label><input class="inp" id="offer-title" placeholder="Priority queue" /></div>
+      <div class="field"><label for="offer-amount">Price (USD)</label><input class="inp num" id="offer-amount" inputmode="decimal" placeholder="9.99" /></div>
+      <div style="margin-top:16px"><button class="btn acc" data-act="offer-create">Create checkout link</button></div>
+      <div class="card" id="offerResult" hidden style="margin-top:14px">
+        <p class="eyebrow" style="margin-bottom:6px">YOUR CHECKOUT LINK</p>
+        <div class="row"><a class="mono" id="offerLink" data-offer-link data-offer-id="" href="#" target="_blank" rel="noopener" style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent)">…</a><button class="pillbtn" id="offerCopy" data-copy="">COPY</button></div>
+        <p class="sub" style="font-size:11.5px;margin-top:8px;font-family:var(--mono);color:var(--meta)">SHARE IT ANYWHERE · BUYERS PAY WITH A CARD</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ovl" id="keysSheet">
+    <div class="scrim" data-close="keysSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Developer API keys">
+      <div class="grab"></div>
+      <h2 class="h-big" style="margin:0">API keys</h2>
+      <p class="sub" style="font-size:13px">Test keys are sandbox-only.</p>
+      <div class="row" style="margin-top:14px;gap:10px">
+        <button class="btn ghost" style="flex:1" data-act="key-create-test">Create test key</button>
+        <button class="btn acc" style="flex:1" data-act="key-create-live">Create live key</button>
+      </div>
+      <div class="card key-secret" data-key-secret hidden style="margin-top:14px">
+        <p class="eyebrow" style="margin-bottom:6px">YOUR NEW SECRET KEY</p>
+        <div class="row"><code class="mono" data-key-secret-value style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent)">…</code><button class="pillbtn" data-key-secret-copy data-copy="">COPY</button></div>
+        <p class="sub key-secret-warn" style="font-size:11.5px;margin-top:8px;font-family:var(--mono);color:var(--warn)">SAVE THIS NOW · IT WON'T BE SHOWN AGAIN</p>
+      </div>
+      <p class="eyebrow" style="margin-top:18px">YOUR KEYS</p>
+      <div class="key-list" data-keys-list><p class="sub key-empty" style="font-size:12px;font-family:var(--mono);color:var(--meta)">NO KEYS YET</p></div>
+    </div>
+  </div>
+
+  <div class="ovl" id="mcpSheet">
+    <div class="scrim" data-close="mcpSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Connect agents">
+      <div class="grab"></div>
+      <h2 class="h-big" style="margin:0">Connect agents</h2>
+      <p class="sub">Paste this config into Claude, Codex, or any MCP client.</p>
+      <pre class="cfg" id="mcpSheetCfg" style="margin-top:12px">{
+  "mcpServers": {
+    "maze": {
+      "url": "https://maze.aiso.tools/api/mcp",
+      "key": "&lt;your key below&gt;"
+    }
+  }
+}</pre>
+      <div class="row" style="margin-top:10px"><button class="pillbtn" id="mcpSheetCopy" data-copy='{"mcpServers":{"maze":{"url":"https://maze.aiso.tools/api/mcp","key":"<paste-your-agent-key>"}}}'>COPY CONFIG</button></div>
+      <div class="card" style="margin-top:14px">
+        <div class="row"><span class="grow"><span class="t" style="font-weight:600">API key</span><br/><span class="s num" id="mcpSheetApiKey">agent_key_••••_••••</span></span><button class="pillbtn" id="mcpSheetKeyReveal">REVEAL</button></div>
+      </div>
+      <p class="eyebrow" style="margin:16px 0 6px">TOOLS</p>
+      <div class="card" style="padding:4px 14px" id="mcpSheetToolList">
+        <div class="lrow"><span class="grow"><span class="t">Loading…</span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ovl" id="kycSheet">
+    <div class="scrim" data-close="kycSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Verify identity">
+      <div class="grab"></div>
+      <h2 class="h-big" style="margin:0">Verify it is you</h2>
+      <p class="sub">Add a photo ID to use bank rails.</p>
+      <div class="card" style="margin-top:14px" id="kycSheetCard">
+        <div class="lrow"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9.5" cy="11" r="2"/><path d="M14 9.5h4M14 13h4M6 17c.8-1.6 2-2.4 3.5-2.4S12.2 15.4 13 17"/></svg></span><span class="grow"><span class="t">Photo ID</span><br/><span class="s" id="kycSheet1s">TAP VERIFY TO SCAN</span></span><span class="tag" id="kycSheet1t">PENDING</span></div>
+        <div class="lrow"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="9" r="3.4"/><path d="M5.5 19.5c1.5-3.2 3.7-4.8 6.5-4.8s5 1.6 6.5 4.8"/></svg></span><span class="grow"><span class="t">Quick selfie</span><br/><span class="s" id="kycSheet2s">FOLLOWS AUTOMATICALLY</span></span><span class="tag" id="kycSheet2t">PENDING</span></div>
+      </div>
+      <div style="margin-top:14px;display:grid;gap:10px">
+        <button class="btn acc" id="kycSheetGo">Verify me</button>
+        <button class="btn ghost" data-close="kycSheet">Not now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ovl" id="earnSheet">
+    <div class="scrim" data-close="earnSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Earn on idle balance">
+      <div class="grab"></div>
+      <h2 class="h-big" style="margin:0">Earn on idle balance.</h2>
+      <div class="card" style="margin-top:14px">
+        <div class="row"><span class="grow"><span class="t" style="font-weight:600">Auto-earn</span></span><button class="sw green" id="earnSheetOpt" role="switch" aria-checked="false" aria-label="Auto-earn on idle balance"></button></div>
+      </div>
+      <div style="margin-top:14px"><button class="btn" data-close="earnSheet">Done</button></div>
+    </div>
+  </div>
+
+  <div class="ovl" id="bioSheet">
+    <div class="scrim" data-close="bioSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Lock with Face ID">
+      <div class="grab"></div>
+      <h2 class="h-big" style="margin:0">Lock MAZE with Face ID</h2>
+      <p class="sub">Add a quick check before sends and card changes.</p>
+      <div style="margin-top:14px;display:grid;gap:10px">
+        <button class="btn acc" id="bioEnroll">Turn on Face ID</button>
+        <button class="btn ghost" data-close="bioSheet">Not now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="faceid" id="faceid"><div class="fbox"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2M9 10v1M15 10v1M9.5 15c.7.7 1.6 1 2.5 1s1.8-.3 2.5-1"/></svg><p class="mono" style="font-size:11px;letter-spacing:.14em">FACE ID</p></div></div>
+
+</div>
+
+<script type="module" src="/src/app-main.ts"></script>
+<script>
+;(function appHtmlEnhancements() {
+  // Capture-phase click handler — runs BEFORE any other listener and reroutes
+  // every onboarding hop to Home in one step.
+
+  // If the user lands on an onboarding screen via hash (e.g. someone bookmarks #s05),
+  // also bounce them to s08.
+
+
+  // ── MAZE Add Money rail picker (time-to-arrive list) ───────────────────
+  var demoCryptoAddresses = {
+    solana: '9yDdmq1vcM8cikKE11nmTCkgsJS7VxgV3x3f9SMszNFu',
+    base: '0x4f2e8c1d9a1c7b2e5f4d8a3b9c1e2d7f6a5b4c3d',
+    ethereum: '0x4f2e8c1d9a1c7b2e5f4d8a3b9c1e2d7f6a5b4c3d'
+  };
+  function qrSrc(text) {
+    return 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=' + encodeURIComponent(text);
+  }
+  function refreshCryptoCard(net) {
+    var detail = document.getElementById('addRailDetail');
+    if (!detail) return;
+    var addrEl = detail.querySelector('#addCryptoAddr');
+    var qrEl = detail.querySelector('#addCryptoQr');
+    var copyBtn = detail.querySelector('#copyBaseAddr');
+    if (addrEl) addrEl.textContent = 'Loading address...';
+    if (qrEl) {
+      qrEl.removeAttribute('src');
+      qrEl.style.display = 'none';
+    }
+    if (copyBtn) {
+      copyBtn.disabled = true;
+      copyBtn.removeAttribute('data-copy');
+    }
+    detail.querySelectorAll('[data-addnet]').forEach(function(b) {
+      b.classList.toggle('onx', b.getAttribute('data-addnet') === net);
+    });
+  }
+  function selectRail(rail) {
+    var detail = document.getElementById('addRailDetail');
+    if (!detail) return;
+    var tpl = document.getElementById('addRailTpl-' + rail);
+    if (!tpl) return;
+    detail.innerHTML = '';
+    detail.appendChild(tpl.content.cloneNode(true));
+    document.dispatchEvent(new CustomEvent('nexa:addrail-rendered', { detail: { rail: rail } }));
+    document.querySelectorAll('[data-addrail]').forEach(function(r) {
+      r.classList.toggle('on', r.getAttribute('data-addrail') === rail);
+    });
+    if (rail === 'crypto') refreshCryptoCard('base');
+  }
+  document.addEventListener('click', function(e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var rail = t.closest('[data-addrail]');
+    if (rail) {
+      e.preventDefault();
+      selectRail(rail.getAttribute('data-addrail'));
+      return;
+    }
+    var nb = t.closest('[data-addnet]');
+    if (nb) {
+      e.preventDefault();
+      refreshCryptoCard(nb.getAttribute('data-addnet'));
+      return;
+    }
+  });
+  // ── Receive screen: fill the QR + address with a demo Base USDC address when no wallet yet ──
+  var DEMO_BASE_ADDR = '0x4f2e8c1d9a1c7b2e5f4d8a3b9c1e2d7f6a5b4c3d';
+  function fillReceiveDemo() {
+    return;
+    var qr = document.getElementById('receiveQr');
+    var empty = document.getElementById('receiveQrEmpty');
+    var addrEl = document.getElementById('receiveBaseAddr');
+    var copyBase = document.getElementById('copyReceiveBase');
+    var shareHandle = document.getElementById('copyReceiveHandle');
+    var copyBank = document.getElementById('copyReceiveBank');
+    if (qr && qr.hidden) {
+      qr.src = qrSrc(DEMO_BASE_ADDR);
+      qr.hidden = false;
+      if (empty) empty.hidden = true;
+    }
+    if (addrEl && /unavailable/i.test(addrEl.textContent || '')) {
+      addrEl.textContent = DEMO_BASE_ADDR;
+    }
+    if (copyBase) {
+      copyBase.disabled = false;
+      copyBase.setAttribute('data-copy', DEMO_BASE_ADDR);
+    }
+    if (shareHandle) {
+      shareHandle.disabled = false;
+      shareHandle.setAttribute('data-copy', 'https://maze.to/@mirko');
+    }
+    if (copyBank) copyBank.disabled = false;
+  }
+  function maybeFillReceive() {
+    var s30 = document.getElementById('s30');
+    if (s30 && s30.classList.contains('on')) fillReceiveDemo();
+  }
+  document.addEventListener('DOMContentLoaded', maybeFillReceive);
+  window.addEventListener('hashchange', function() { setTimeout(maybeFillReceive, 30); });
+  var moReceive = new MutationObserver(maybeFillReceive);
+  document.addEventListener('DOMContentLoaded', function() {
+    var s30 = document.getElementById('s30');
+    if (s30) moReceive.observe(s30, { attributes: true, attributeFilter: ['class'] });
+  });
+
+  // ── Send Person mode: detect IBAN-shaped input and surface a "send to bank" row ──
+  function looksLikeIban(v) {
+    var raw = (v || '').replace(/\s+/g, '').toUpperCase();
+    return /^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(raw);
+  }
+  function syncRecipBankRow() {
+    var inp = document.getElementById('recipInp');
+    if (!inp) return;
+    var v = inp.value.trim();
+    var isIban = looksLikeIban(v);
+    var typed = document.getElementById('recipTyped');
+    if (typed) {
+      typed.hidden = !v;
+      if (v) {
+        typed.setAttribute('data-recip', v);
+        var t = typed.querySelector('#recipTypedT');
+        var s = typed.querySelector('.s');
+        if (t) t.textContent = isIban ? 'Bank transfer to ' + v.slice(0, 4) + '…' + v.slice(-4) : 'Send to ' + v;
+        if (s) s.textContent = isIban ? 'SEPA / WIRE · 1-3 BUSINESS DAYS' : 'FROM YOUR INPUT';
+        var av = typed.querySelector('.agent-av');
+        if (av) av.textContent = isIban ? '🏛' : '→';
+      }
+    }
+    // Hide the claim-link card when input looks like a bank, since IBAN sends are direct
+    var note = document.getElementById('claimNote');
+    if (note) note.hidden = isIban || !v.includes('@');
+  }
+  document.addEventListener('input', function(e) {
+    if (e.target && e.target.id === 'recipInp') syncRecipBankRow();
+  });
+  // Also update the placeholder so users know IBAN is supported
+  document.addEventListener('DOMContentLoaded', function() {
+    var inp = document.getElementById('recipInp');
+    if (inp) inp.setAttribute('placeholder', 'Name, email, phone, @handle, or IBAN');
+  });
+
+  // ── Deposit screen (s15) numpad + 25/50/75/MAX quick fills ────────────
+  var depStr = '';
+  function depBalance() {
+    // Read user's balance from the home balance element; fall back to 0
+    var b = (document.getElementById('balEl') || {}).textContent || '$0';
+    var n = parseFloat(b.replace(/[^0-9.]/g, ''));
+    return isFinite(n) ? n : 0;
+  }
+  function depRender() {
+    var whole = document.getElementById('depAmtWhole');
+    var cents = document.getElementById('depAmtCents');
+    var balMini = document.getElementById('depBalMini');
+    var elig = document.getElementById('depEligible');
+    var p = depStr.split('.');
+    if (whole) whole.textContent = p[0] || '0';
+    if (cents) cents.textContent = p.length > 1 ? '.' + (p[1] || '') : '';
+    var bal = depBalance();
+    if (balMini) balMini.textContent = '$' + bal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    if (elig) elig.hidden = bal > 0;
+    var amt = parseFloat(depStr) || 0;
+    var range = document.getElementById('depRange');
+    var value = document.getElementById('depV');
+    if (range) {
+      range.max = String(Math.max(1600, amt));
+      range.value = String(amt);
+    }
+    if (value) value.textContent = amt.toLocaleString('en-US');
+    var go = document.getElementById('depGo');
+    if (go) go.disabled = !(amt > 0 && amt <= bal);
+  }
+  document.addEventListener('click', function(e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var k = t.closest('#depKpad button[data-depk]');
+    if (k) {
+      e.preventDefault();
+      var v = k.getAttribute('data-depk');
+      if (v === 'bs') depStr = depStr.slice(0, -1);
+      else if (v === '.') { if (!depStr.includes('.')) depStr = (depStr || '0') + '.'; }
+      else {
+        var nx = depStr + v;
+        if (/^\d{0,7}(\.\d{0,2})?$/.test(nx)) depStr = nx;
+      }
+      depRender();
+      return;
+    }
+    var qf = t.closest('[data-depfill]');
+    if (qf) {
+      e.preventDefault();
+      var pct = parseFloat(qf.getAttribute('data-depfill')) || 0;
+      var amt2 = Math.floor(depBalance() * pct * 100) / 100;
+      depStr = amt2 > 0 ? amt2.toFixed(2).replace(/\.00$/, '') : '';
+      depRender();
+      return;
+    }
+  });
+  // Re-render whenever s15 becomes visible, in case balance changed
+  function maybeRenderDeposit() {
+    var s15 = document.getElementById('s15');
+    if (s15 && s15.classList.contains('on')) { depStr = ''; depRender(); }
+  }
+  document.addEventListener('DOMContentLoaded', maybeRenderDeposit);
+  window.addEventListener('hashchange', function() { setTimeout(maybeRenderDeposit, 30); });
+  var moDep = new MutationObserver(maybeRenderDeposit);
+  document.addEventListener('DOMContentLoaded', function() {
+    var s15 = document.getElementById('s15');
+    if (s15) moDep.observe(s15, { attributes: true, attributeFilter: ['class'] });
+  });
+
+  // ── Force-enable Send Continue once amount > 0 (let user explore the flow even at $0 balance) ──
+  function syncSendButtons() {
+    var disp = document.querySelector('#amtDisp');
+    if (!disp) return;
+    var amt = parseFloat((disp.textContent || '$0').replace(/[^0-9.]/g, '')) || 0;
+    var amtGo = document.getElementById('amtGo');
+    if (amtGo && amt > 0) amtGo.disabled = false;
+  }
+  document.addEventListener('click', function(e) {
+    var k = e.target && e.target.closest ? e.target.closest('#kpad button') : null;
+    if (k) setTimeout(syncSendButtons, 0);
+  });
+
+  // ── Send screen mode toggle (Person / Wallet) ──────────────────────────
+  function setSendMode(mode) {
+    document.querySelectorAll('[data-sendmode]').forEach(function(b) {
+      b.classList.toggle('onx', b.getAttribute('data-sendmode') === mode);
+    });
+    var amtGo = document.getElementById('amtGo');
+    if (amtGo) {
+      amtGo.setAttribute('data-sendmode-target', mode);
+      var cta = amtGo.querySelector('[data-sendmode-cta]');
+      if (cta) cta.textContent = mode === 'wallet' ? 'Paste address' : 'Choose contact';
+    }
+  }
+  // Intercept amtGo so it routes to the wallet step when mode is 'wallet'
+  document.addEventListener('click', function(e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var sm = t.closest('[data-sendmode]');
+    if (sm) {
+      e.preventDefault();
+      setSendMode(sm.getAttribute('data-sendmode'));
+      return;
+    }
+    var snet = t.closest('[data-sendnet]');
+    if (snet) {
+      e.preventDefault();
+      document.querySelectorAll('[data-sendnet]').forEach(function(b) {
+        b.classList.toggle('onx', b === snet);
+      });
+      var net = snet.getAttribute('data-sendnet');
+      var hint = document.getElementById('sendWalletHint');
+      var addrInp = document.getElementById('sendWalletAddr');
+      if (hint) hint.textContent = net === 'solana'
+        ? 'SOLANA NETWORK · CONFIRMS IN ~30 SEC · NO FEES'
+        : net === 'base'
+        ? 'BASE NETWORK · CONFIRMS IN ~30 SEC · NO FEES'
+        : 'ETHEREUM MAINNET · CONFIRMS IN ~2 MIN · GAS APPLIES';
+      if (addrInp) addrInp.setAttribute('placeholder', net === 'solana' ? 'Paste a Solana address (Base58)' : 'Paste an EVM address (0x…)');
+      return;
+    }
+    // amtGo intercept: if mode is wallet, show wallet step instead of contact step
+    var ag = t.closest('#amtGo');
+    if (ag && !ag.disabled) {
+      var mode = ag.getAttribute('data-sendmode-target') || 'person';
+      if (mode === 'wallet') {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        var amt = (document.querySelector('#amtDisp span') || {}).textContent || '0';
+        var cents = (document.getElementById('amtCents') || {}).textContent || '';
+        var amtTxt = '$' + amt + cents;
+        var echo = document.getElementById('amtEcho2W');
+        if (echo) echo.textContent = amtTxt;
+        var step1 = document.getElementById('sendStep1');
+        var step2W = document.getElementById('sendStep2Wallet');
+        if (step1) step1.hidden = true;
+        if (step2W) step2W.hidden = false;
+        return;
+      }
+    }
+    // sendWalletAddr input enables Continue button
+    var sw = t.closest('#sendWalletGo');
+    if (sw && !sw.disabled) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      alert('External wallet sends from this shortcut are not live yet. Use Transfer for live bucket moves.');
+      return;
+      var addrInp2 = document.getElementById('sendWalletAddr');
+      var addr = addrInp2 ? addrInp2.value.trim() : '';
+      if (!addr) return;
+      // Hand off to the confirm screen using the existing data-recip pathway
+      var cfTo = document.getElementById('cfTo');
+      var cfAmt = document.getElementById('cfAmt');
+      var cfAmt2 = document.getElementById('cfAmt2');
+      if (cfTo) cfTo.textContent = addr.length > 18 ? addr.slice(0, 8) + '…' + addr.slice(-6) : addr;
+      var amtEcho = document.getElementById('amtEcho2W');
+      var amtTxt2 = amtEcho ? amtEcho.textContent : '$0.00';
+      if (cfAmt) cfAmt.textContent = amtTxt2;
+      if (cfAmt2) cfAmt2.textContent = amtTxt2;
+      var cfBody = document.getElementById('cfBody');
+      var cfDone = document.getElementById('cfDone');
+      if (cfBody) cfBody.hidden = false;
+      if (cfDone) cfDone.hidden = true;
+      location.hash = '#s11';
+      return;
+    }
+  }, true);
+  // Watch the wallet address field to enable Continue
+  document.addEventListener('input', function(e) {
+    var t = e.target;
+    if (t && t.id === 'sendWalletAddr') {
+      var sw2 = document.getElementById('sendWalletGo');
+      if (sw2) sw2.disabled = !t.value.trim();
+    }
+  });
+
+  // Open Crypto by default whenever s09 becomes visible (first paint OR hash navigation).
+  function maybeDefaultRail() {
+    var s09 = document.getElementById('s09');
+    if (!s09 || !s09.classList.contains('on')) return;
+    var detail = document.getElementById('addRailDetail');
+    if (detail && !detail.firstElementChild) selectRail('crypto');
+  }
+  document.addEventListener('DOMContentLoaded', maybeDefaultRail);
+  window.addEventListener('hashchange', function() { setTimeout(maybeDefaultRail, 30); });
+  // Catch the case where s09 becomes .on later via data-go (the .on class is added at click time).
+  var mo = new MutationObserver(maybeDefaultRail);
+  document.addEventListener('DOMContentLoaded', function() {
+    var s09 = document.getElementById('s09');
+    if (s09) mo.observe(s09, { attributes: true, attributeFilter: ['class'] });
+  });
+})();
+</script>
+
+<!-- s32 Move-between-buckets wiring (Sprint 19) — talks to /balances + /transfers/internal + /transfers/:id. -->
+<script>
+(function(){
+  'use strict';
+  var s32 = document.getElementById('s32');
+  if (!s32) return;
+  var BUCKETS = ['cash','perps','predictions','memes','stocks-spot'];
+  var balances = { cash:0, perps:0, predictions:0, memes:0, 'stocks-spot':0 };
+  var sel = { from:'cash', to:'perps' };
+  var live = { transferId:null, pollTimer:null };
+  function transferIdempotencyKey() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') return 'xfer-' + window.crypto.randomUUID();
+    return 'xfer-' + Date.now();
+  }
+  function apiHeaders(extra) {
+    var headers = extra || {};
+    try {
+      var token = sessionStorage.getItem('nexa.session');
+      if (token) headers['authorization'] = 'Bearer ' + token;
+    } catch (e) { /* private mode */ }
+    return headers;
+  }
+
+  function fmtUsd(n) {
+    if (!Number.isFinite(n)) return '—';
+    return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function pickRail(from, to) {
+    if (from === to) return ['internal', '~2s'];
+    if (from === 'memes' || to === 'memes' || from === 'stocks-spot' || to === 'stocks-spot') return ['mayan', '~8s'];
+    return ['cctp', to === 'perps' ? '~110s' : '~90s'];
+  }
+  function updateRailEta() {
+    var pair = pickRail(sel.from, sel.to);
+    var rl = document.getElementById('xferRailLabel');
+    var et = document.getElementById('xferEta');
+    if (rl) rl.textContent = pair[0];
+    if (et) et.textContent = pair[1];
+  }
+  function paintBalances() {
+    BUCKETS.forEach(function(b){
+      var cell = s32.querySelector('[data-xfer-bal="' + b + '"]');
+      if (cell) cell.textContent = fmtUsd(balances[b]);
+    });
+    var fromBal = s32.querySelector('[data-xfer-from-bal]');
+    if (fromBal) fromBal.textContent = fmtUsd(balances[sel.from] || 0);
+    refreshSubmitState();
+  }
+  function paintSel() {
+    s32.querySelectorAll('[data-xfer-from]').forEach(function(el){
+      el.classList.toggle('on', el.getAttribute('data-xfer-from') === sel.from);
+    });
+    s32.querySelectorAll('[data-xfer-to]').forEach(function(el){
+      el.classList.toggle('on', el.getAttribute('data-xfer-to') === sel.to);
+    });
+    paintBalances();
+    updateRailEta();
+  }
+  // Server-mirrored minimums (routes/transfers.ts): deposits to Perps below
+  // the HL Bridge2 $5 floor are PERMANENTLY LOST on-chain, so the UI must
+  // block, not just relay the 400. Perps-source withdrawals pay a flat $1 HL
+  // fee and need $2 minimum.
+  var HL_MIN_DEPOSIT_USD = 5;
+  var HL_MIN_WITHDRAW_USD = 2;
+  var HL_WITHDRAW_FEE_USD = 1;
+  function refreshSubmitState() {
+    var btn = document.getElementById('xferSubmitBtn');
+    var input = document.getElementById('xferAmount');
+    if (!btn || !input) return;
+    var v = parseFloat(input.value);
+    var blocked = null;
+    if (sel.from === sel.to) blocked = 'Pick different buckets';
+    else if (!(Number.isFinite(v) && v > 0)) blocked = 'Move money';
+    else if (v > (balances[sel.from] || 0)) blocked = 'Insufficient balance';
+    else if (sel.to === 'perps' && v < HL_MIN_DEPOSIT_USD) blocked = 'Min $' + HL_MIN_DEPOSIT_USD + ' to Perps';
+    else if (sel.from === 'perps' && v < HL_MIN_WITHDRAW_USD) blocked = 'Min $' + HL_MIN_WITHDRAW_USD + ' from Perps';
+    btn.disabled = blocked !== null;
+    btn.textContent = blocked !== null && blocked !== 'Move money' ? blocked : (Number.isFinite(v) && v > 0 ? 'Move ' + fmtUsd(v) : 'Move money');
+  }
+  async function fetchBalances() {
+    try {
+      var r = await fetch('/api/balances', { credentials: 'include', headers: apiHeaders({}) });
+      if (!r.ok) return;
+      var j = await r.json();
+      if (j && j.buckets) {
+        BUCKETS.forEach(function(b){
+          var v = j.buckets[b] && j.buckets[b].usd;
+          if (Number.isFinite(v)) balances[b] = v;
+        });
+        var hlSpot = j.byChain && Number(j.byChain.hyperliquidSpot);
+        s32.querySelectorAll('[data-xfer-sub="perps"]').forEach(function(el){
+          el.textContent = Number.isFinite(hlSpot) && hlSpot > 0 ? 'ARBITRUM + HL SPOT · USDC' : 'ARBITRUM · USDC';
+        });
+        paintBalances();
+      }
+    } catch (e) { /* silent — surfaces as 0 balance */ }
+  }
+  function setProgress(transfer) {
+    var box = document.getElementById('xferProgress');
+    if (!box) return;
+    box.style.display = '';
+    var st = document.getElementById('xferStatusLabel');
+    var id = document.getElementById('xferIdLabel');
+    var src = document.getElementById('xferSrcTx');
+    var dst = document.getElementById('xferDstTx');
+    if (st) st.textContent = transfer.status || 'created';
+    if (id) id.textContent = transfer.id || '—';
+    if (src) src.textContent = transfer.srcTxHash || '—';
+    if (dst) dst.textContent = transfer.dstTxHash || '—';
+  }
+  async function pollTransfer(id) {
+    try {
+      var r = await fetch('/api/transfers/' + encodeURIComponent(id), { credentials: 'include', headers: apiHeaders({}) });
+      if (!r.ok) return;
+      var j = await r.json();
+      if (j && j.transfer) {
+        setProgress(j.transfer);
+        if (j.transfer.status === 'complete' || j.transfer.status === 'failed') {
+          if (live.pollTimer) { clearInterval(live.pollTimer); live.pollTimer = null; }
+          // Refresh balances post-settlement so the From-row reflects the move.
+          setTimeout(fetchBalances, 1500);
+        }
+      }
+    } catch (e) { /* swallow; next tick retries */ }
+  }
+  async function submitTransfer() {
+    var input = document.getElementById('xferAmount');
+    var v = parseFloat(input && input.value);
+    if (!Number.isFinite(v) || v <= 0) return;
+    var btn = document.getElementById('xferSubmitBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+    try {
+      var r = await fetch('/api/transfers/internal', {
+        method: 'POST',
+        credentials: 'include',
+        headers: apiHeaders({
+          'content-type': 'application/json',
+          'Idempotency-Key': transferIdempotencyKey()
+        }),
+        body: JSON.stringify({ fromBucket: sel.from, toBucket: sel.to, amountUsd: v })
+      });
+      var j = await r.json();
+      if (!r.ok || !j.ok) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Move money'; }
+        // error.message carries the machine code (e.g. insufficient_source_balance).
+        var errDetail = (j && j.error && (j.error.message || j.error.code)) || r.status;
+        var avail = j && j.error && j.error.details && j.error.details.availableUsd;
+        alert('Transfer failed: ' + errDetail + (Number.isFinite(avail) ? ' (available ' + fmtUsd(avail) + ')' : ''));
+        return;
+      }
+      live.transferId = j.transferId;
+      setProgress({ id: j.transferId, status: j.status });
+      if (live.pollTimer) clearInterval(live.pollTimer);
+      live.pollTimer = setInterval(function(){ pollTransfer(j.transferId); }, 3000);
+      pollTransfer(j.transferId);
+    } catch (e) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Move money'; }
+      alert('Network error: ' + (e && e.message ? e.message : e));
+    }
+  }
+
+  // Bucket picker click handlers
+  s32.addEventListener('click', function(e){
+    var fromEl = e.target.closest && e.target.closest('[data-xfer-from]');
+    if (fromEl) { sel.from = fromEl.getAttribute('data-xfer-from'); paintSel(); return; }
+    var toEl = e.target.closest && e.target.closest('[data-xfer-to]');
+    if (toEl) { sel.to = toEl.getAttribute('data-xfer-to'); paintSel(); return; }
+  });
+
+  var amt = document.getElementById('xferAmount');
+  if (amt) amt.addEventListener('input', refreshSubmitState);
+  var max = document.getElementById('xferMaxBtn');
+  if (max) max.addEventListener('click', function(){
+    if (!amt) return;
+    // Perps-source: HL withdraw3 deducts a flat $1 — net it out so MAX
+    // never produces a transfer the worker can't fund.
+    var raw = (balances[sel.from] || 0) - (sel.from === 'perps' ? HL_WITHDRAW_FEE_USD : 0);
+    amt.value = String(Math.max(0, Math.floor(raw * 100) / 100));
+    refreshSubmitState();
+  });
+  var submit = document.getElementById('xferSubmitBtn');
+  if (submit) submit.addEventListener('click', submitTransfer);
+
+  // Fetch balances whenever s32 becomes visible (via MutationObserver on .on class).
+  var mo = new MutationObserver(function(){
+    if (s32.classList.contains('on')) fetchBalances();
+  });
+  document.addEventListener('DOMContentLoaded', function(){
+    mo.observe(s32, { attributes: true, attributeFilter: ['class'] });
+    paintSel();
+    if (s32.classList.contains('on')) fetchBalances();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+/* ═══ NEXA vendor portal — additions on top of app.css.
+   app.css carries the whole visual vocabulary (.card .lrow .kv .tag .pillbtn
+   .seg .sw .bignum .adv .ovl/.sheet .toasts). This file adds only what the
+   x402 merchant surface needs and the app never had. ═══ */
+
+/* ── x402 payment-flow strip (design-system §x402 Contract Detail) ── */
+.flow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+}
+.flow b {
+  font-size: 9.5px;
+  letter-spacing: .08em;
+  font-weight: 600;
+  color: var(--muted);
+  border: 1px solid var(--border-md);
+  border-radius: var(--pill);
+  padding: 4px 9px;
+  white-space: nowrap;
+}
+.flow i {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--meta);
+}
+.flow b.f402 {
+  color: var(--x402-required);
+  border-color: color-mix(in oklab, var(--x402-required) 50%, transparent);
+}
+.flow b.fok {
+  color: var(--x402-paid);
+  border-color: color-mix(in oklab, var(--x402-paid) 45%, transparent);
+}
+
+/* ── expandable receipt rows — same look as app s22, classed not inline ── */
+details.rcpt {
+  display: block;
+  padding: 0;
+}
+.rcpt summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 2px;
+  min-height: 52px;
+}
+.rcpt summary::-webkit-details-marker {
+  display: none;
+}
+.rcpt > .advb {
+  padding: 0 2px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+/* ── readonly inputs (settlement wallet) read as fixed values ── */
+.inp[readonly] {
+  color: var(--muted);
+  background: var(--bg);
+}

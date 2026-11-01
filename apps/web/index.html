@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MAZE · dev index</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23FF6A1A'/%3E%3Cg fill='%23F5F6FA'%3E%3Crect x='14' y='14' width='8' height='36'/%3E%3Crect x='28' y='22' width='8' height='28'/%3E%3Crect x='42' y='14' width='8' height='36'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/src/fonts.css" />
+<link rel="stylesheet" href="/src/tokens.css" />
+<link rel="stylesheet" href="/src/tokens.semantic.css" />
+<link rel="stylesheet" href="/src/base.css" />
+<style>
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 32px 24px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-family: var(--mono);
+    font-size: 26px;
+    margin-bottom: 8px;
+  }
+  .meta {
+    font-family: var(--mono);
+    color: var(--meta);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 20px;
+    box-shadow: var(--sh-soft);
+    margin-bottom: 16px;
+  }
+  .card h2 {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    color: var(--muted);
+  }
+  .log {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 12px;
+    margin-top: 12px;
+    min-height: 80px;
+    white-space: pre-wrap;
+  }
+  .links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .08em;
+    padding: 8px 14px;
+    border: 1px solid var(--border-md);
+    border-radius: var(--pill);
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .links a:hover {
+    background: var(--fg);
+    color: var(--bg);
+  }
+</style>
+</head>
+<body>
+<h1>MAZE · dev index</h1>
+<div class="meta">Phase A spike · shadow-DOM event delegation</div>
+
+<div class="card">
+  <h2>Surfaces</h2>
+  <div class="links">
+    <a href="/app.html">app.html →</a>
+    <a href="/landing.html">landing.html →</a>
+    <a href="/portal.html">portal.html →</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Spike — clicking a button inside &lt;nexa-quick-actions&gt; should fire router.navigate()</h2>
+  <p style="font-size:13.5px;color:var(--muted);margin-bottom:16px">
+    The buttons live inside an <em>open</em> shadow root. The router's click listener is on
+    <code>document</code>. If <code>composedPath()</code> reveals the inner button's
+    <code>data-go</code> attribute, the spike passes and the architecture is sound.
+  </p>
+  <nexa-quick-actions
+    data-test-id="qa-spike"
+    data-send="s10"
+    data-request="s12"
+    data-add="s09"
+    data-swap="s16"
+  ></nexa-quick-actions>
+  <div class="log" id="router-log" data-test-id="router-log">waiting for clicks…</div>
+</div>
+
+<script type="module">
+  import { start, subscribe } from '/src/lib/router.ts';
+  import '/src/components/nexa-quick-actions.ts';
+
+  const log = document.getElementById('router-log');
+  const lines = [];
+  function push(msg) {
+    lines.push(`[${new Date().toISOString().slice(11, 19)}] ${msg}`);
+    log.textContent = lines.slice(-8).join('\n');
+  }
+
+  subscribe((to, from) => {
+    push(`nav: ${from ?? '·'} → ${to}`);
+  });
+
+  const initial = start();
+  push(`router started at ${initial}`);
+</script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+/* ═══ MAZE hosted checkout — standalone buyer page.
+   Uses the shared primitive + semantic tokens (tokens.css / tokens.semantic.css).
+   Mobile-first, trustworthy, theme-consistent with the app. No app-shell chrome.
+
+   Dark mode: .co-stage owns color:var(--fg) and the page background so the
+   dark token cascade (set via [data-theme="dark"]) actually lands. No
+   decorative top stripe — definition comes from the card surface + hairline. ═══ */
+
+.co-stage {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--fg);
+  display: flex;
+  flex-direction: column;
+}
+
+.co-wrap {
+  flex: 1;
+  width: 100%;
+  max-width: 460px;
+  margin-inline: auto;
+  padding: clamp(20px, 6vw, 48px) 18px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* ── card ── */
+.co-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-card);
+  padding: clamp(22px, 6vw, 34px);
+}
+
+.co-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 22px;
+}
+.co-wordmark {
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: var(--ls-caps-wide);
+  font-size: 15px;
+}
+
+/* ── offer ── */
+.co-eyebrow {
+  font-family: var(--mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--ls-caps);
+  color: var(--meta);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.co-title {
+  font-family: var(--mono);
+  font-size: clamp(20px, 5.5vw, 25px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.co-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.co-price {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(34px, 11vw, 46px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 14px;
+  line-height: 1;
+}
+
+.co-desc {
+  color: var(--muted);
+  font-size: var(--fs-body);
+  margin-top: 12px;
+  white-space: pre-line;
+}
+
+.co-sub {
+  color: var(--muted);
+  font-size: var(--fs-body);
+  margin-top: 8px;
+}
+
+/* ── form ── */
+.co-form {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.co-row {
+  display: flex;
+  gap: 12px;
+}
+.co-row .co-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.co-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.co-field label {
+  font-family: var(--mono);
+  font-size: var(--fs-meta);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--meta);
+}
+.co-optional {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--meta);
+  font-family: var(--sans);
+}
+
+.co-inp {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-md);
+  padding: 13px 14px;
+  font-size: var(--fs-input);
+  color: var(--fg);
+  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.co-inp::placeholder {
+  color: var(--meta);
+}
+.co-inp:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ── pay button ── */
+.co-pay {
+  margin-top: 6px;
+  width: 100%;
+  background: var(--accent);
+  color: var(--accent-on);
+  border-radius: var(--pill);
+  padding: 15px 20px;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  border: 1px solid transparent;
+  transition: filter 0.15s var(--ease), opacity 0.15s var(--ease);
+}
+.co-pay:hover {
+  filter: brightness(1.05);
+}
+.co-pay:active {
+  filter: brightness(0.96);
+}
+.co-pay:disabled,
+.co-pay-busy {
+  opacity: 0.62;
+  cursor: default;
+  filter: none;
+}
+
+.co-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--meta);
+  text-align: center;
+}
+.co-trust svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--success);
+  flex: none;
+}
+
+.co-pay-error {
+  margin-top: 4px;
+  text-align: center;
+  font-size: var(--fs-body-sm);
+  color: var(--danger);
+}
+
+/* Sprint 10 Item G — MAZE balance pay panel. */
+.co-balance-panel {
+  background: var(--surface-2);
+  border: 1px solid var(--border-md);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.co-balance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.co-balance-label {
+  font-family: var(--mono);
+  font-size: var(--fs-meta);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--meta);
+}
+.co-balance-now {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--fg);
+}
+.co-balance-after .co-balance-next {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--meta);
+}
+.co-balance-after.co-balance-short .co-balance-next {
+  color: var(--danger);
+}
+#coTopupLink {
+  color: var(--accent);
+  text-decoration: none;
+}
+#coTopupLink:hover {
+  text-decoration: underline;
+}
+
+/* ── error state ── */
+.co-error-title {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* ── success ── */
+.co-success {
+  text-align: center;
+}
+.co-success .co-title {
+  margin-top: 16px;
+}
+.co-check {
+  width: 56px;
+  height: 56px;
+  margin: 6px auto 0;
+  border-radius: var(--pill);
+  display: grid;
+  place-items: center;
+  background: var(--gain-soft);
+  color: var(--success);
+}
+.co-check svg {
+  width: 30px;
+  height: 30px;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+html:not(.rm) .co-check {
+  animation: co-pop 0.4s var(--ease) both;
+}
+@keyframes co-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.co-fulfillment {
+  margin-top: 20px;
+}
+.co-fulfill-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: var(--accent);
+  color: var(--accent-on);
+  border-radius: var(--pill);
+  padding: 14px 20px;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: filter 0.15s var(--ease);
+}
+.co-fulfill-link:hover {
+  filter: brightness(1.05);
+}
+.co-fulfill-msg {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px;
+  font-size: var(--fs-body);
+  color: var(--fg);
+  white-space: pre-line;
+}
+
+/* ── skeleton ── */
+.co-skel {
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+html:not(.rm) .co-skel {
+  animation: co-pulse 1.2s ease-in-out infinite;
+}
+@keyframes co-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.co-skel-title { height: 28px; width: 70%; margin-top: 4px; }
+.co-skel-price { height: 44px; width: 45%; margin-top: 16px; }
+.co-skel-line { height: 120px; width: 100%; margin-top: 18px; }
+
+/* ── footer ── */
+.co-footer {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--meta);
+}
+.co-footer b {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ── Stack upgrades Phase 4: alternative payment methods (card, bank wire) ── */
+.co-alt-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 18px;
+}
+.co-alt-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--meta);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.co-alt-divider::before,
+.co-alt-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.co-alt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.co-pay-alt {
+  background: var(--surface-2);
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+.co-pay-alt:hover {
+  filter: brightness(1.04);
+}
+.co-alt-fold {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.co-alt-fold > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.co-alt-fold > summary::-webkit-details-marker { display: none; }
+.co-alt-sub {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--meta);
+}
+.co-bank-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+.co-bank-instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.co-bank-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.co-bank-key {
+  color: var(--meta);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 10.5px;
+}
+.co-bank-val {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* Sprint 16 — settlement attribution on the success state */
+.co-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px auto 0;
+  padding: 6px 14px;
+  border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.co-source-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: co-source-pulse 1.6s ease-in-out infinite;
+}
+@keyframes co-source-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.35); opacity: .55; }
+}
+html.rm .co-source-dot { animation: none; }

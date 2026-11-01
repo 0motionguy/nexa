@@ -1,0 +1,34 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    "apps/api": {
+      "entry": [
+        "src/migrate.ts",
+        "src/workers/scheduler.ts"
+      ],
+      "project": ["src/**/*.ts"]
+    },
+    "apps/web": {
+      "entry": [
+        "src/app-main.ts",
+        "src/developers-main.ts",
+        "src/landing-main.ts",
+        "src/portal-main.ts",
+        "src/checkout-main.ts",
+        "scripts/fetch-fonts.mjs",
+        "scripts/gen-icons.mjs"
+      ],
+      "project": ["src/**/*.ts", "scripts/**/*.mjs"]
+    },
+    "packages/shared-zod": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"]
+    }
+  },
+  "ignoreDependencies": [
+    "@marinade.finance/marinade-ts-sdk",
+    "@mayanfinance/swap-sdk",
+    "pino-pretty",
+    "pino-sentry-transport"
+  ]
+}

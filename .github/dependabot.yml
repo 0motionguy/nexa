@@ -1,0 +1,64 @@
+version: 2
+
+updates:
+  # Root pnpm workspace — apps/api, apps/web, apps/mcp, packages/*
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 10
+    versioning-strategy: increase-if-necessary
+    labels:
+      - dependencies
+    commit-message:
+      prefix: deps
+    groups:
+      # Routine production minor/patch bumps land in one PR per week.
+      production-minor-patch:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+      development-minor-patch:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Wallet / crypto / signing libraries — never auto-merge these.
+      # Major bumps to these MUST be reviewed by a human (and tested on
+      # testnet/devnet before mainnet rollout).
+      - dependency-name: "@privy-io/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@polymarket/clob-client-v2"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ethers"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "viem"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@solana/web3.js"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@nktkas/hyperliquid"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions workflow updates (CI image bumps, etc.)
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:45"
+      timezone: Etc/UTC
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: ci
+
+# NEO web/native app — separate git repo at /d/dev/Neo Bank/neo/ with its
+# own pnpm-lock.yaml. It currently has no remote so Dependabot cannot
+# see it from here. When that repo gets pushed, add an equivalent
+# .github/dependabot.yml inside it.

@@ -1,0 +1,241 @@
+# NEXA services — append these service blocks to
+# /opt/toolbox/infra/compose/docker-compose.yml (services:) on the VPS and
+# mirror in C:\dev\toolbox. Networks `edge` and `data` already exist there.
+#
+# `data` membership lets neobank-api reach toolbox-postgres-1 + toolbox-redis-1
+# directly via hostnames `postgres` / `redis`. Without data, the api degrades
+# to in-memory (NEOBANK_DEMO_MODE=1 path).
+#
+# Images are built on the VPS from the synced source tarball (first deploy)
+# and tagged with the GHCR names so a later GHCR-push workflow drops in
+# without compose edits.
+#
+# Boot order (Sprint 10): neobank-migrate (one-shot) -> neobank-api +
+# neobank-scheduler (long-running). The api waits on migrate completing
+# successfully; the scheduler waits on the same so it never starts before
+# the schema is current. See nexa/RUNBOOK.md for the operator bring-up.
+#
+# Secrets contract: /opt/neobank/secrets/maze.env holds every vendor key
+# (BRIDGE_API_KEY, SUMSUB_APP_TOKEN, SENTRY_DSN, METRICS_TOKEN, ADMIN_TOKEN,
+# ...). The env_file: directive below loads them into the api + scheduler +
+# migrate containers. See nexa/.env.example for the canonical list and
+# nexa/RUNBOOK.md "Vendor key flip" for the rotation procedure.
+
+services:
+  # One-shot schema migration. Runs `node dist/migrate.js` (idempotent — the
+  # entrypoint script in the image already calls this before booting the api,
+  # but the standalone gate here lets the scheduler depend on completion too).
+  neobank-migrate:
+    image: ghcr.io/0motionguy/neobank-api:${NEOBANK_TAG:-latest}
+    restart: "no"
+    command: ["node", "dist/migrate.js"]
+    working_dir: /app/apps/api
+    env_file:
+      - /opt/neobank/secrets/maze.env
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DEMO_MODE: ${NEOBANK_DEMO_MODE:-1}
+      ALLOW_DEMO_IN_PRODUCTION: ${NEOBANK_ALLOW_DEMO_IN_PRODUCTION:-0}
+      JWT_SECRET: ${NEOBANK_JWT_SECRET:?required}
+      NEXA_AGENT_KEYS: ${NEOBANK_AGENT_KEYS:?required}
+      # Sprint 17 F064: target the same `maze` DB the api uses (line 73),
+      # not the shared `toolbox` DB. Hardcoding to /toolbox previously caused
+      # migrations to land on a database the api never reads from.
+      DATABASE_URL: ${MAZE_DATABASE_URL:-}
+      # W1 fail-closed env contract (env.ts): production + DEMO_MODE=0 refuses
+      # to boot without REDIS_URL. The migration itself never touches Redis —
+      # this only satisfies the contract; same logical DB as the scheduler.
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/2
+    networks: [data]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  neobank-api:
+    image: ghcr.io/0motionguy/neobank-api:${NEOBANK_TAG:-latest}
+    build:
+      context: /opt/neobank/src
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    env_file:
+      - /opt/neobank/secrets/maze.env
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Scale plan 1.2 (2026-07-02) — 200 MB heap was the projected hard wall
+      # at ~1k concurrent WS clients (Node baseline + caches + per-client send
+      # queues). Host has 64 GB; give the money app real headroom.
+      NODE_OPTIONS: "--max-old-space-size=1200"
+      API_PORT: "8090"
+      DEMO_MODE: ${NEOBANK_DEMO_MODE:-1}
+      ALLOW_DEMO_IN_PRODUCTION: ${NEOBANK_ALLOW_DEMO_IN_PRODUCTION:-0}
+      JWT_SECRET: ${NEOBANK_JWT_SECRET:?required}
+      NEXA_AGENT_KEYS: ${NEOBANK_AGENT_KEYS:?required}
+      PAY_LINK_BASE_URL: ${NEOBANK_PAY_LINK_BASE_URL:-https://maze.to/pay}
+      # ── persistence ──
+      # Sprint 15 (2026-06-17): dedicated maze database, not toolbox shared.
+      # /opt/toolbox/.env: MAZE_DATABASE_URL=postgresql://toolbox:PASS@postgres:5432/maze
+      # The old shared `toolbox` database hit a drizzle migration drift; the
+      # `maze` database is purpose-created and migrates fresh.
+      # REDIS_URL is the toolbox shared instance with our own logical DB.
+      DATABASE_URL: ${MAZE_DATABASE_URL:-}
+      REDIS_URL: ${REDIS_URL:-}
+      # ── auth (optional — falls back to demo OTP if missing) ──
+      PRIVY_APP_ID: ${PRIVY_APP_ID:-}
+      PRIVY_APP_SECRET: ${PRIVY_APP_SECRET:-}
+      PRIVY_VERIFICATION_KEY: ${PRIVY_VERIFICATION_KEY:-}
+      # ── markets (product decision, not a secret — lives in compose so it
+      #    survives env-file drift; Solana RPC comes from maze.env) ──
+      JUPITER_SWAPS_ENABLED: "1"
+      # ── email (optional — falls back to stdout) ──
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-MAZE <hello@nexa.aiso.tools>}
+      # ── chain (optional — gates DeFi + x402 settlement) ──
+      BASE_RPC_URL: ${BASE_RPC_URL:-${CHAINSTACK_BASE_RPC_URL:-}}
+      GNOSIS_RPC_URL: ${GNOSIS_RPC_URL:-https://rpc.gnosischain.com}
+      X402_FACILITATOR_URL: ${X402_FACILITATOR_URL:-https://x402.coinbase.com}
+      LIFI_API_KEY: ${LIFI_API_KEY:-}
+      # ── observability (Sprint 10 δ; values loaded from env_file or here) ──
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-0.1}
+      # Scale plan 1.6 (2026-07-02) — default ON: the endpoint is Bearer-token
+      # gated AND edge-blocked at Caddy; running blind was the bigger risk
+      # (saturation invisible until users feel it).
+      METRICS_ENABLED: ${METRICS_ENABLED:-1}
+      # Realtime market fan-out hub. The deployment env owns the rollout flag;
+      # without explicit pass-through Docker Compose drops the value from .env.
+      REALTIME_HUB_V1: ${REALTIME_HUB_V1:-0}
+      REALTIME_MAX_TOPICS_PER_CLIENT: ${REALTIME_MAX_TOPICS_PER_CLIENT:-200}
+      REALTIME_MAX_MSGS_PER_SEC: ${REALTIME_MAX_MSGS_PER_SEC:-50}
+      REALTIME_MAX_CLIENTS: ${REALTIME_MAX_CLIENTS:-1500}
+      # Sub-budgets + keepalive (readiness audit 2026-07-16). Forwarded per
+      # Codex review 2026-07-16: without explicit pass-through Compose drops
+      # these from /opt/toolbox/.env, so operator overrides (and
+      # REALTIME_KEEPALIVE_MS=0) would silently never reach the container.
+      # Defaults mirror apps/api/src/lib/env.ts.
+      REALTIME_MAX_CONNS_PER_USER: ${REALTIME_MAX_CONNS_PER_USER:-8}
+      REALTIME_MAX_CONNS_PER_IP: ${REALTIME_MAX_CONNS_PER_IP:-64}
+      REALTIME_KEEPALIVE_MS: ${REALTIME_KEEPALIVE_MS:-30000}
+      # ── admin sweeps (Sprint 10 ε; required Bearer for /admin/* routes) ──
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+      # ── Sprint 15 alternative providers (Stripe Crypto Onramp + Monerium) ──
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      MONERIUM_API_KEY: ${MONERIUM_API_KEY:-}
+      MONERIUM_API_SECRET: ${MONERIUM_API_SECRET:-}
+      MONERIUM_API_BASE: ${MONERIUM_API_BASE:-}
+      # ── other vendor flips (set when keys arrive; auto-forwarded from /opt/toolbox/.env) ──
+      BRIDGE_API_KEY: ${BRIDGE_API_KEY:-}
+      BRIDGE_WEBHOOK_SECRET: ${BRIDGE_WEBHOOK_SECRET:-}
+      SOCKET_API_KEY: ${SOCKET_API_KEY:-}
+      SUMSUB_APP_TOKEN: ${SUMSUB_APP_TOKEN:-}
+      SUMSUB_SECRET_KEY: ${SUMSUB_SECRET_KEY:-}
+      GNOSIS_PAY_API_KEY: ${GNOSIS_PAY_API_KEY:-}
+      SPONGE_API_KEY: ${SPONGE_API_KEY:-}
+      ALCHEMY_API_KEY: ${ALCHEMY_API_KEY:-}
+      ALCHEMY_GAS_POLICY_ID: ${ALCHEMY_GAS_POLICY_ID:-}
+      HL_BUILDER_ADDRESS: ${HL_BUILDER_ADDRESS:-}
+      HYPERLIQUID_BUILDER_FEE_TENTHS_BP: ${HYPERLIQUID_BUILDER_FEE_TENTHS_BP:-}
+      HYPERLIQUID_REFERRAL_CODE: ${HYPERLIQUID_REFERRAL_CODE:-}
+      POLY_API_KEY: ${POLY_API_KEY:-}
+      POLYMARKET_BUILDER_API_SECRET: ${POLYMARKET_BUILDER_API_SECRET:-}
+      POLYMARKET_BUILDER_API_PASSPHRASE: ${POLYMARKET_BUILDER_API_PASSPHRASE:-}
+      POLYMARKET_BUILDER_ADDRESS: ${POLYMARKET_BUILDER_ADDRESS:-}
+      POLYMARKET_BUILDER_FEE_BPS: ${POLYMARKET_BUILDER_FEE_BPS:-}
+      POLYMARKET_BUILDER_CODE: ${POLYMARKET_BUILDER_CODE:-}
+      PRIVY_WEBHOOK_SECRET: ${PRIVY_WEBHOOK_SECRET:-}
+      WEB_ORIGIN: https://app.maze.bank
+      PORTAL_ORIGIN: https://dev.maze.bank
+    networks: [edge, data]
+    # Scale plan 1.2 — pairs with --max-old-space-size=1200 above (container
+    # ceiling > heap ceiling so V8 GC, buffers, and WS frames have room).
+    mem_limit: 1536m
+    healthcheck:
+      # W2-A: probe the fail-closed readiness endpoint — /healthz stays 200 in
+      # states /health/ready refuses (it predates the honest-health contract).
+      test: ["CMD-SHELL", 'wget -qO- http://127.0.0.1:8090/health/ready | grep -q ''"ok":true''']
+      interval: 15s
+      timeout: 3s
+      retries: 6
+    depends_on:
+      neobank-migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Standalone scheduler. Same image, different command. Runs the BullMQ
+  # Repeat jobs (claim-sweeper, subscription-renewer) without competing with
+  # the api's HTTP request budget. `restart: on-failure` so a flaky Redis
+  # boot loop surfaces as exits + retries instead of silent zombie state.
+  neobank-scheduler:
+    image: ghcr.io/0motionguy/neobank-api:${NEOBANK_TAG:-latest}
+    restart: on-failure
+    command: ["node", "dist/workers/scheduler.js"]
+    working_dir: /app/apps/api
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    env_file:
+      - /opt/neobank/secrets/maze.env
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      NODE_OPTIONS: "--max-old-space-size=150"
+      DEMO_MODE: ${NEOBANK_DEMO_MODE:-1}
+      ALLOW_DEMO_IN_PRODUCTION: ${NEOBANK_ALLOW_DEMO_IN_PRODUCTION:-0}
+      JWT_SECRET: ${NEOBANK_JWT_SECRET:?required}
+      NEXA_AGENT_KEYS: ${NEOBANK_AGENT_KEYS:?required}
+      # Sprint 17 F064: scheduler must operate on the same `maze` DB the api
+      # mutates (neobank-api line 73). Hardcoding to /toolbox previously caused
+      # BullMQ cron sweeps to scan the wrong database while user-facing writes
+      # landed elsewhere — silent data divergence.
+      DATABASE_URL: ${MAZE_DATABASE_URL:-}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/2
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-0.1}
+    networks: [data]
+    mem_limit: 192m
+    healthcheck:
+      disable: true
+    depends_on:
+      neobank-migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  neobank-web:
+    image: ghcr.io/0motionguy/neobank-web:${NEOBANK_TAG:-latest}
+    build:
+      context: /opt/neobank/src
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_NEXA_API_BASE: ${NEOBANK_PUBLIC_API_URL:-https://api.maze.bank}
+        VITE_MAZE_PAY_BASE_URL: ${NEOBANK_PAY_LINK_BASE_URL:-https://maze.to/pay}
+        VITE_REALTIME_HUB_ENABLED: ${REALTIME_HUB_V1:-0}
+        VITE_PRIVY_APP_ID: ${PRIVY_APP_ID:-}
+        VITE_PRIVY_CLIENT_ID: ${PRIVY_CLIENT_ID:-}
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    networks: [edge]
+    mem_limit: 64m
+    healthcheck:
+      test: ["CMD-SHELL", 'wget -qO- http://127.0.0.1/healthz | grep -q ''"ok":true''']
+      interval: 15s
+      timeout: 3s
+      retries: 6

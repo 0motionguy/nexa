@@ -1,0 +1,62 @@
+/* ═══ NEXA tokens — semantic layer.
+   Codex's design-system doc names domain-specific tokens
+   (--agent-active, --x402-live, --defi-yield) — they are ALIASES of the
+   primitive tokens in tokens.css. Adding a new semantic name here is cheap;
+   adding a new primitive in tokens.css is a brand change. ═══ */
+:root {
+  /* text-on-accent — used by .geo-pin; referenced in app-v2.html but never
+     defined there (prototype bug). White passes contrast on #FF6A1A chips. */
+  --accent-on: #FFFFFF;
+
+  /* agent states (design-system §Color Tokens > Agent states) */
+  --agent-active: var(--accent);
+  --agent-paused: var(--meta);
+  --agent-review: var(--warn);
+  --agent-blocked: var(--danger);
+
+  /* defi states */
+  --defi-yield: var(--success);
+  --defi-risk: var(--warn);
+  --defi-locked: var(--meta);
+
+  /* x402 states */
+  --x402-live: var(--accent);
+  --x402-paid: var(--success);
+  --x402-required: var(--warn);
+  --x402-failed: var(--danger);
+
+  /* market data (read-only in v1) */
+  --market-up: var(--success);
+  --market-down: var(--danger);
+  --market-neutral: var(--meta);
+
+  /* spacing scale (design-system §Layout) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  /* type ramp — derived from app-v2 in-place values */
+  --fs-eyebrow: 10px;
+  --fs-meta: 11px;
+  --fs-body-sm: 12.5px;
+  --fs-body: 13.5px;
+  --fs-input: 15px;
+  --fs-h3: 17px;
+  --fs-h2: 26px;
+  --fs-balance: 40px;
+  --fs-amount-pad: 52px;
+
+  /* letter-spacing for monospace labels */
+  --ls-caps: .14em;
+  --ls-caps-wide: .2em;
+
+  /* Sandbox / non-live source indicator. Used by the provenance design
+     pattern (yield ramp segments, provider cards, market rows) for any
+     source running against a sandbox environment. Distinct from --accent
+     (live) and --danger (error). */
+  --sandbox: #5a9ff0;
+}

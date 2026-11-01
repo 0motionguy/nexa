@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>MAZE · API reference</title>
+<meta name="description" content="The MAZE developer API — sell digital goods for dollars with one API call, a no-code payment link, or agent tools." />
+<meta name="theme-color" content="#F5F6FA" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0A0A0C" media="(prefers-color-scheme: dark)" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23FF6A1A'/%3E%3Cg fill='%23F5F6FA'%3E%3Crect x='14' y='14' width='8' height='36'/%3E%3Crect x='28' y='22' width='8' height='28'/%3E%3Crect x='42' y='14' width='8' height='36'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/src/fonts.css" />
+<link rel="stylesheet" href="/src/tokens.css" />
+<link rel="stylesheet" href="/src/tokens.semantic.css" />
+<link rel="stylesheet" href="/src/base.css" />
+<link rel="stylesheet" href="/src/developers.css" />
+<script>
+/* Motion gate — design contract: motion ON by default; ?motion=off opts out. */
+(function () {
+  var q = (location.search.match(/[?&]motion=(\w+)/) || [])[1];
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (q === 'off' || (!q && reduce)) document.documentElement.classList.add('rm');
+})();
+/* Theme — honor the choice persisted by app-main.ts so a dark toggle on
+   /app.html carries over to the docs opened in the same browser. */
+(function () {
+  try {
+    var stored = localStorage.getItem('maze.theme');
+    var choice = stored === 'light' || stored === 'dark'
+      ? stored
+      : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-boot-theme', choice);
+  } catch (e) { /* private mode */ }
+})();
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="m-emblem" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="12" fill="var(--m-square, #FF6A1A)"/>
+      <g fill="var(--m-bars, #F5F6FA)">
+        <rect x="14" y="14" width="8" height="36"/>
+        <rect x="28" y="22" width="8" height="28"/>
+        <rect x="42" y="14" width="8" height="36"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="stage dev-stage" id="stage" data-theme="light">
+
+  <header class="dev-topbar">
+    <a class="dev-brand" href="/" aria-label="MAZE home">
+      <svg class="m-mark md" aria-hidden="true"><use href="#m-emblem"/></svg>
+      <span class="dev-wordmark">MAZE</span>
+    </a>
+    <span class="dev-badge">API reference</span>
+    <span class="dev-topbar-spacer"></span>
+    <a class="dev-topbar-link" href="#three-doors">Three ways in</a>
+  </header>
+
+  <div class="dev-shell">
+
+    <!-- ───────── side nav (scroll-spy) ───────── -->
+    <nav class="dev-nav" aria-label="API reference sections">
+      <div class="dev-nav-group">
+        <p class="dev-nav-title">Get started</p>
+        <ul>
+          <li><a href="#providers">Provider ecosystem</a></li>
+          <li><a href="#sourced">Sourced values</a></li>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#three-doors">The three doors</a></li>
+          <li><a href="#authentication">Authentication</a></li>
+          <li><a href="#idempotency">Idempotency</a></li>
+        </ul>
+      </div>
+      <div class="dev-nav-group">
+        <p class="dev-nav-title">Core resources</p>
+        <ul>
+          <li><a href="#offers">Offers</a></li>
+          <li><a href="#payments">Payments</a></li>
+          <li><a href="#balance">Balance</a></li>
+        </ul>
+      </div>
+      <div class="dev-nav-group">
+        <p class="dev-nav-title">Teams &amp; payouts</p>
+        <ul>
+          <li><a href="#sub-accounts">Sub-accounts</a></li>
+          <li><a href="#payouts">Payouts</a></li>
+          <li><a href="#split-revenue">Splitting a sale</a></li>
+        </ul>
+      </div>
+      <div class="dev-nav-group">
+        <p class="dev-nav-title">Recurring &amp; agents</p>
+        <ul>
+          <li><a href="#subscriptions">Subscriptions</a></li>
+          <li><a href="#mcp">MCP / agent tools</a></li>
+        </ul>
+      </div>
+      <div class="dev-nav-group">
+        <p class="dev-nav-title">Events</p>
+        <ul>
+          <li><a href="#webhooks">Webhooks</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- ───────── content ───────── -->
+    <main class="dev-content">
+
+      <div class="dev-hero">
+        <p class="dev-eyebrow">MAZE DEVELOPER PLATFORM</p>
+        <h1 class="dev-h1">Get paid in dollars, in one call.</h1>
+        <p class="dev-lead">
+          MAZE turns any digital product or service into a checkout you can sell. Create an
+          offer, share the link, and money lands in your balance. The same offers power a
+          no-code payment link, a single REST call, and tools your AI agents can use directly.
+        </p>
+      </div>
+
+      <!-- ── Provider ecosystem ── -->
+      <section class="dev-section" id="providers">
+        <p class="dev-eyebrow">PROVIDER ECOSYSTEM</p>
+        <h2 class="dev-h2">Eighteen integrations, all named.</h2>
+        <p>Every financial value that flows through the MAZE API carries a <code>SourcedValue</code> envelope — provider, route, freshness, docs link. Below is the live registry. The full machine-readable copy is at <code>GET /v1/system/providers</code>.</p>
+        <div class="dev-provider-grid" id="devProviderGrid"></div>
+        <p class="dev-provider-foot"><a class="dev-link" href="/app.html#s28">Open the live registry ↗</a></p>
+      </section>
+
+      <!-- ── Sourced values ── -->
+      <section class="dev-section" id="sourced">
+        <h2 class="dev-h2">Sourced values</h2>
+        <p>Anywhere the API returns a number that came from a third-party provider — an APY, a swap quote, a market price, a freshly-issued IBAN — the response includes a <code>sourced</code> field. The shape is:</p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">SourcedValueMeta</div>
+<pre><code>{
+  "source":     "live" | "sandbox" | "cached-live" | "provider-demo" | "unavailable" | "error",
+  "provider":   "Morpho",
+  "fetchedAt":  "2026-06-17T15:42:18Z",
+  "ttlSeconds": 30,
+  "docsUrl":    "https://docs.morpho.org",
+  "errorCode":  null,
+  "errorMessage": null
+}</code></pre>
+        </div>
+        <p>The MAZE frontend renders this as a <code>&lt;nexa-source-badge&gt;</code> next to the value. Your integration can do the same, or hide the badge and only surface it on hover.</p>
+      </section>
+
+      <!-- ── Overview ── -->
+      <section class="dev-section" id="overview">
+        <h2 class="dev-h2">Overview</h2>
+        <p>
+          The MAZE API is organised around <strong>offers</strong> (a thing you sell for a price)
+          and <strong>payments</strong> (a completed purchase of an offer). Create an offer and you
+          get back a hosted <code>checkoutUrl</code> — sharing that link <em>is</em> the whole
+          integration. Everything else (listing payments, reading your balance, reacting to events)
+          builds on those two resources.
+        </p>
+
+        <h3 class="dev-h3">Base URL</h3>
+        <p>All endpoints are versioned under <code>/v1</code>.</p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Base URL</div>
+<pre><code>https://api.maze.to/v1
+
+# local development
+http://localhost:8090/v1</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Responses</h3>
+        <ul class="dev-list">
+          <li>A successful create or fetch returns the <strong>bare resource</strong> — no envelope.</li>
+          <li>Collections return <code>{ "object": "list", "data": [ … ] }</code>.</li>
+          <li>Errors return <code>{ "error": { "type", "message" } }</code> with a matching HTTP status.</li>
+          <li>Money is always US dollars; amounts in responses are strings like <code>"9.99"</code>.</li>
+        </ul>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Error · 404</div>
+<pre><code>{
+  "error": {
+    "type": "invalid_request_error",
+    "message": "No such offer."
+  }
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ── The three doors ── -->
+      <section class="dev-section" id="three-doors">
+        <h2 class="dev-h2">The three doors</h2>
+        <p>Pick whichever fits. They all sell the same offers and settle to the same balance.</p>
+        <div class="dev-doors">
+          <div class="dev-door">
+            <span class="dev-door-n">01</span>
+            <h3>No-code link</h3>
+            <p>Create an offer in the MAZE app, copy its payment link, and drop it anywhere — a bio, an email, a button. No code at all.</p>
+          </div>
+          <div class="dev-door">
+            <span class="dev-door-n">02</span>
+            <h3>One API call</h3>
+            <p>POST one offer from your backend and share the <code>checkoutUrl</code> it returns. The rest of this page documents that path.</p>
+          </div>
+          <div class="dev-door">
+            <span class="dev-door-n">03</span>
+            <h3>Agent tools</h3>
+            <p>The same operations are exposed as MCP tools, so an AI agent can create offers and check payments on your behalf.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Authentication ── -->
+      <section class="dev-section" id="authentication">
+        <h2 class="dev-h2">Authentication</h2>
+        <p>
+          Authenticate every request with your secret API key in the <code>Authorization</code>
+          header as a bearer token. Create keys in the <strong>Developers</strong> section of the
+          MAZE app — the raw secret is shown <strong>once</strong> at creation, so store it somewhere
+          safe.
+        </p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Authorization header</div>
+<pre><code>Authorization: Bearer sk_live_…</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Live vs. test mode</h3>
+        <p>
+          Each key carries its mode in its prefix. <code>sk_live_…</code> moves real money;
+          <code>sk_test_…</code> runs in sandbox mode against an isolated ledger with fake money, so
+          you can build and replay the full flow without a single real charge. A test key only ever
+          sees test offers, test payments, and the test balance.
+        </p>
+        <table class="dev-params">
+          <thead><tr><th>Prefix</th><th>Mode</th><th>Money</th></tr></thead>
+          <tbody>
+            <tr><td>sk_live_…</td><td class="dev-type">live</td><td>Real dollars, real settlement</td></tr>
+            <tr><td>sk_test_…</td><td class="dev-type">sandbox</td><td>Fake money, isolated ledger</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ── Idempotency ── -->
+      <section class="dev-section" id="idempotency">
+        <h2 class="dev-h2">Idempotency</h2>
+        <p>
+          To make a write safe to retry, send an <code>Idempotency-Key</code> header on your POST.
+          If the same key arrives twice, MAZE returns the <strong>original</strong> resource instead
+          of creating a duplicate — so a dropped connection or an automatic retry never charges or
+          creates anything twice. Use a fresh unique value (a UUID is ideal) per logical operation.
+        </p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Idempotency header</div>
+<pre><code>Idempotency-Key: 7f3b2c1a-9e44-4d2a-8b51-2a0d6c9e1f30</code></pre>
+        </div>
+      </section>
+
+      <!-- ── Offers ── -->
+      <section class="dev-section" id="offers">
+        <h2 class="dev-h2">Offers</h2>
+        <p>
+          An offer is something you sell for a fixed price — a template, a guide, an unlock, a
+          consult. Create one and MAZE returns a hosted <code>checkoutUrl</code>; share it and you
+          are done.
+        </p>
+
+        <h3 class="dev-h3">Create an offer</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method">POST</span>
+          <span class="dev-path">/v1/offers</span>
+        </div>
+        <table class="dev-params">
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>title<span class="dev-req">required</span></td><td class="dev-type">string</td><td>What the buyer sees at checkout.</td></tr>
+            <tr><td>amountUsd<span class="dev-req">required</span></td><td class="dev-type">number</td><td>Price in US dollars, e.g. <code>9.99</code>.</td></tr>
+            <tr><td>description</td><td class="dev-type">string</td><td>Optional detail shown under the title.</td></tr>
+            <tr><td>type</td><td class="dev-type">enum</td><td><code>one_time</code> (default) or <code>subscription</code>.</td></tr>
+            <tr><td>fulfillmentKind</td><td class="dev-type">enum</td><td><code>url</code>, <code>message</code>, or <code>none</code> (default).</td></tr>
+            <tr><td>fulfillmentValue</td><td class="dev-type">string</td><td>The link or message delivered to the buyer after they pay.</td></tr>
+          </tbody>
+        </table>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Request · curl</div>
+<pre><code>curl https://api.maze.to/v1/offers \
+  -H "Authorization: Bearer sk_live_…" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 7f3b2c1a-9e44-4d2a-8b51-2a0d6c9e1f30" \
+  -d '{
+    "title": "Pro Notion template",
+    "amountUsd": 9.99,
+    "description": "A productivity OS for founders.",
+    "type": "one_time",
+    "fulfillmentKind": "url",
+    "fulfillmentValue": "https://example.com/download/pro-template"
+  }'</code></pre>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 201</div>
+<pre><code>{
+  "id": "5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11",
+  "title": "Pro Notion template",
+  "description": "A productivity OS for founders.",
+  "imageUrl": null,
+  "amountUsd": 9.99,
+  "currency": "USD",
+  "type": "one_time",
+  "fulfillmentKind": "url",
+  "fulfillmentValue": "https://example.com/download/pro-template",
+  "active": true,
+  "livemode": true,
+  "checkoutUrl": "https://maze.to/o/5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11",
+  "createdAt": "2026-06-13T09:24:11.000Z"
+}</code></pre>
+        </div>
+        <p>
+          The buyer opens <code>checkoutUrl</code>, pays with a card, and immediately receives the
+          fulfillment. That link is the entire integration — no front end of your own required.
+        </p>
+
+        <div class="dev-callout">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9.2 12.2l2 2 3.6-4"/></svg>
+          <p><strong>Sell real digital goods for dollars.</strong> Offers are priced in fiat (<code>"9.99"</code>) for things people genuinely buy — templates, courses, downloads, access. Buyer-facing copy stays in dollars; this is not for in-game currency or items.</p>
+        </div>
+
+        <h3 class="dev-h3">List offers</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/offers</span>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 200</div>
+<pre><code>{
+  "object": "list",
+  "data": [
+    {
+      "id": "5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11",
+      "title": "Pro Notion template",
+      "amountUsd": 9.99,
+      "currency": "USD",
+      "active": true,
+      "livemode": true,
+      "checkoutUrl": "https://maze.to/o/5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11",
+      "createdAt": "2026-06-13T09:24:11.000Z"
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Retrieve an offer</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/offers/:id</span>
+        </div>
+        <p>Returns the full offer resource, or a <code>404</code> error if no such offer exists for your key.</p>
+
+        <h3 class="dev-h3">Update an offer</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method patch">PATCH</span>
+          <span class="dev-path">/v1/offers/:id</span>
+        </div>
+        <p>Send only the fields you want to change. Pass <code>active: false</code> to pause a checkout without deleting it.</p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Request · curl</div>
+<pre><code>curl -X PATCH https://api.maze.to/v1/offers/5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11 \
+  -H "Authorization: Bearer sk_live_…" \
+  -H "Content-Type: application/json" \
+  -d '{ "amountUsd": 12.99, "active": false }'</code></pre>
+        </div>
+      </section>
+
+      <!-- ── Payments ── -->
+      <section class="dev-section" id="payments">
+        <h2 class="dev-h2">Payments</h2>
+        <p>A payment records a completed purchase of one of your offers. Payments are read-only over the API — they are created when a buyer pays at checkout.</p>
+
+        <h3 class="dev-h3">List payments</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/payments</span>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 200</div>
+<pre><code>{
+  "object": "list",
+  "data": [
+    {
+      "id": "a91c4d70-6e2b-4c8f-90a1-1f5b2e3d4c6a",
+      "offerId": "5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11",
+      "offerTitle": "Pro Notion template",
+      "amountUsd": 9.99,
+      "currency": "USD",
+      "buyerEmail": "buyer@example.com",
+      "method": "card",
+      "status": "paid",
+      "fulfillmentSent": true,
+      "livemode": true,
+      "createdAt": "2026-06-13T10:02:55.000Z"
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Retrieve a payment</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/payments/:id</span>
+        </div>
+        <p>Status is one of <code>pending</code>, <code>paid</code>, <code>failed</code>, or <code>refunded</code>.</p>
+      </section>
+
+      <!-- ── Balance ── -->
+      <section class="dev-section" id="balance">
+        <h2 class="dev-h2">Balance</h2>
+        <p>Read what you have available and what is currently earning. The shape reflects the mode of the key you present.</p>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/balance</span>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 200</div>
+<pre><code>{
+  "livemode": true,
+  "available": { "amount": "4820.40", "currency": "USD" },
+  "earning":   { "amount": "3200.00", "currency": "USD" }
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ── Sub-accounts ── -->
+      <section class="dev-section" id="sub-accounts">
+        <h2 class="dev-h2">Sub-accounts</h2>
+        <p>
+          A sub-account is a separate balance under your single verified identity. Pass your KYC
+          <strong>once</strong>, then open a sub-account per business, brand, or client you run — each
+          keeps its own books while settling under the same key. Use them to separate proceeds, or as
+          the destination when you <a class="dev-inline" href="#split-revenue">split a sale</a>.
+        </p>
+
+        <h3 class="dev-h3">Create a sub-account</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method">POST</span>
+          <span class="dev-path">/v1/sub-accounts</span>
+        </div>
+        <table class="dev-params">
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>name<span class="dev-req">required</span></td><td class="dev-type">string</td><td>A label for the business or brand this balance belongs to.</td></tr>
+          </tbody>
+        </table>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Request · curl</div>
+<pre><code>curl https://api.maze.to/v1/sub-accounts \
+  -H "Authorization: Bearer sk_live_…" \
+  -H "Content-Type: application/json" \
+  -d '{ "name": "Side Studio" }'</code></pre>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 201</div>
+<pre><code>{
+  "id": "acct_8f21c0d4e7b3",
+  "name": "Side Studio",
+  "balUsd": "0.00",
+  "sandboxBalUsd": "0.00",
+  "createdAt": "2026-06-13T09:24:11.000Z"
+}</code></pre>
+        </div>
+        <p>
+          Each sub-account tracks both balances side by side: <code>balUsd</code> is its live money and
+          <code>sandboxBalUsd</code> is its isolated test money, so a test key and a live key share the
+          same sub-account without ever touching each other's funds.
+        </p>
+
+        <h3 class="dev-h3">List sub-accounts</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/sub-accounts</span>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 200</div>
+<pre><code>{
+  "object": "list",
+  "data": [
+    {
+      "id": "acct_8f21c0d4e7b3",
+      "name": "Side Studio",
+      "balUsd": "0.00",
+      "sandboxBalUsd": "0.00",
+      "createdAt": "2026-06-13T09:24:11.000Z"
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Retrieve a sub-account</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/sub-accounts/:id</span>
+        </div>
+        <p>Returns the full sub-account resource, or a <code>404</code> error if no such sub-account exists for your key.</p>
+      </section>
+
+      <!-- ── Payouts ── -->
+      <section class="dev-section" id="payouts">
+        <h2 class="dev-h2">Payouts</h2>
+        <p>
+          A payout sends money out of your balance to a developer, collaborator, or contractor. Each
+          payout <strong>debits the balance of the key you present</strong> and, on success, fires a
+          <a class="dev-inline" href="#webhooks"><code>payout.completed</code></a> webhook. If the
+          amount exceeds your available balance, the call is rejected and no money moves.
+        </p>
+
+        <h3 class="dev-h3">Create a payout</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method">POST</span>
+          <span class="dev-path">/v1/payouts</span>
+        </div>
+        <table class="dev-params">
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>amountUsd<span class="dev-req">required</span></td><td class="dev-type">number</td><td>How much to send, in US dollars, e.g. <code>50</code>.</td></tr>
+            <tr><td>destination<span class="dev-req">required</span></td><td class="dev-type">string</td><td>Who gets paid — an email or connected account handle.</td></tr>
+            <tr><td>method</td><td class="dev-type">enum</td><td>How to send it; defaults to your account's standard rail.</td></tr>
+            <tr><td>note</td><td class="dev-type">string</td><td>Optional memo kept on the payout for your records.</td></tr>
+          </tbody>
+        </table>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Request · curl</div>
+<pre><code>curl https://api.maze.to/v1/payouts \
+  -H "Authorization: Bearer sk_live_…" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 1c9d2e3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f" \
+  -d '{
+    "amountUsd": 50,
+    "destination": "dev@example.com",
+    "note": "Weekly retainer"
+  }'</code></pre>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 201</div>
+<pre><code>{
+  "id": "po_4b7e1a9c2d6f",
+  "amountUsd": "50.00",
+  "currency": "USD",
+  "destination": "dev@example.com",
+  "method": "standard",
+  "status": "paid",
+  "livemode": true,
+  "createdAt": "2026-06-13T11:15:02.000Z"
+}</code></pre>
+        </div>
+        <p>
+          The payout settles, your balance drops by <code>amountUsd</code>, and a
+          <code>payout.completed</code> event lands on your webhook endpoint.
+        </p>
+
+        <h3 class="dev-h3">Insufficient funds</h3>
+        <p>
+          If the payout is larger than your available balance, MAZE returns <code>402</code> and
+          changes nothing — no partial send, no negative balance.
+        </p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Error · 402</div>
+<pre><code>{
+  "error": {
+    "type": "insufficient_funds",
+    "message": "Payout exceeds available balance."
+  }
+}</code></pre>
+        </div>
+
+        <h3 class="dev-h3">List payouts</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/payouts</span>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 200</div>
+<pre><code>{
+  "object": "list",
+  "data": [
+    {
+      "id": "po_4b7e1a9c2d6f",
+      "amountUsd": "50.00",
+      "currency": "USD",
+      "destination": "dev@example.com",
+      "method": "standard",
+      "status": "paid",
+      "livemode": true,
+      "createdAt": "2026-06-13T11:15:02.000Z"
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Retrieve a payout</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/payouts/:id</span>
+        </div>
+        <p>Returns the full payout resource, or a <code>404</code> error if no such payout exists for your key.</p>
+      </section>
+
+      <!-- ── Splitting a sale ── -->
+      <section class="dev-section" id="split-revenue">
+        <h2 class="dev-h2">Splitting a sale</h2>
+        <p>
+          When you create an <a class="dev-inline" href="#offers">offer</a>, you can route its proceeds
+          to a <a class="dev-inline" href="#sub-accounts">sub-account</a> and carve off a cut for
+          collaborators in the same call. Two optional fields on <code>POST /v1/offers</code> control it.
+        </p>
+        <table class="dev-params">
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>subAccountId</td><td class="dev-type">string</td><td>Route the base proceeds to this sub-account's balance instead of your main one.</td></tr>
+            <tr><td>splits</td><td class="dev-type">array</td><td>Cuts to take off the top before the remainder lands in the base. Percentages must sum to <code>100</code> or less.</td></tr>
+          </tbody>
+        </table>
+        <p>Each entry in <code>splits</code> names a recipient and a percentage of the sale:</p>
+        <table class="dev-params">
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>subAccountId</td><td class="dev-type">string</td><td>Credit this sub-account's balance with the cut. Use this <em>or</em> <code>email</code>.</td></tr>
+            <tr><td>email</td><td class="dev-type">string</td><td>Send the cut as an automatic payout to this address. Use this <em>or</em> <code>subAccountId</code>.</td></tr>
+            <tr><td>percent<span class="dev-req">required</span></td><td class="dev-type">number</td><td>The recipient's share of the sale, e.g. <code>25</code>.</td></tr>
+          </tbody>
+        </table>
+        <p>
+          A <code>subAccountId</code> split <strong>credits a balance</strong>; an <code>email</code>
+          split <strong>becomes an automatic payout</strong> — so every email split also fires its own
+          <a class="dev-inline" href="#webhooks"><code>payout.completed</code></a> webhook. Whatever the
+          splits do not claim, the remainder, settles to the base (your main balance, or
+          <code>subAccountId</code> if you set one).
+        </p>
+
+        <h3 class="dev-h3">Worked example — pay a clipper 25%</h3>
+        <p>
+          Sell a <code>$20</code> offer and hand a quarter to the clipper who drove the sale. The
+          clipper is paid <code>$5</code> automatically and you keep <code>$15</code>.
+        </p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Request · curl</div>
+<pre><code>curl https://api.maze.to/v1/offers \
+  -H "Authorization: Bearer sk_live_…" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Founder OS course",
+    "amountUsd": 20,
+    "splits": [
+      { "email": "clipper@x.com", "percent": 25 }
+    ]
+  }'</code></pre>
+        </div>
+        <p>When a buyer pays the <code>$20</code> at checkout, the money lands like this:</p>
+        <table class="dev-params">
+          <thead><tr><th>Recipient</th><th>Share</th><th>How</th></tr></thead>
+          <tbody>
+            <tr><td>clipper@x.com</td><td>$5.00</td><td>Automatic payout · fires <code>payout.completed</code></td></tr>
+            <tr><td>You (base)</td><td>$15.00</td><td>Remainder, settled to your balance</td></tr>
+          </tbody>
+        </table>
+
+        <div class="dev-callout">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9.2 12.2l2 2 3.6-4"/></svg>
+          <p><strong>Splits move real dollars for real work.</strong> The buyer pays a fiat price (<code>"$20"</code>) for a genuine digital good or service, and each cut is a dollar payout to a real collaborator. This is never for in-game items or virtual currency.</p>
+        </div>
+      </section>
+
+      <!-- ── Subscriptions ── -->
+      <section class="dev-section" id="subscriptions">
+        <h2 class="dev-h2">Subscriptions</h2>
+        <p>
+          A subscription is recurring revenue from a single offer. You never create one directly —
+          set <code>type: "subscription"</code> on an <a class="dev-inline" href="#offers">offer</a>,
+          and the first time a buyer pays that offer's checkout, MAZE creates the subscription for
+          you. That first payment response carries the new subscription inline, so you learn its
+          <code>id</code> the moment money first moves.
+        </p>
+        <table class="dev-params">
+          <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>id</td><td class="dev-type">string</td><td>The subscription identifier.</td></tr>
+            <tr><td>offerId</td><td class="dev-type">string</td><td>The subscription offer the buyer purchased.</td></tr>
+            <tr><td>offerTitle</td><td class="dev-type">string</td><td>The offer's title at the time of purchase.</td></tr>
+            <tr><td>buyerEmail</td><td class="dev-type">string</td><td>Who is subscribed.</td></tr>
+            <tr><td>amountUsd</td><td class="dev-type">number</td><td>The recurring charge, in US dollars.</td></tr>
+            <tr><td>currency</td><td class="dev-type">string</td><td>Always <code>USD</code>.</td></tr>
+            <tr><td>status</td><td class="dev-type">enum</td><td><code>active</code>, <code>canceled</code>, or <code>past_due</code>.</td></tr>
+            <tr><td>currentPeriodEnd</td><td class="dev-type">string</td><td>When the current billing cycle ends and the next renewal is due.</td></tr>
+            <tr><td>livemode</td><td class="dev-type">boolean</td><td>Whether this is real money or sandbox money.</td></tr>
+            <tr><td>createdAt</td><td class="dev-type">string</td><td>When the subscription began.</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="dev-h3">List subscriptions</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/subscriptions</span>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 200</div>
+<pre><code>{
+  "object": "list",
+  "data": [
+    {
+      "id": "sub_2e7a1c9d4b6f",
+      "offerId": "5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11",
+      "offerTitle": "Founder OS membership",
+      "buyerEmail": "buyer@example.com",
+      "amountUsd": 50.00,
+      "currency": "USD",
+      "status": "active",
+      "currentPeriodEnd": "2026-07-13T10:02:55.000Z",
+      "livemode": true,
+      "createdAt": "2026-06-13T10:02:55.000Z"
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Retrieve a subscription</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method get">GET</span>
+          <span class="dev-path">/v1/subscriptions/:id</span>
+        </div>
+        <p>Returns the bare subscription resource, or a <code>404</code> error if no such subscription exists for your key.</p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 200</div>
+<pre><code>{
+  "id": "sub_2e7a1c9d4b6f",
+  "offerId": "5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11",
+  "offerTitle": "Founder OS membership",
+  "buyerEmail": "buyer@example.com",
+  "amountUsd": 50.00,
+  "currency": "USD",
+  "status": "active",
+  "currentPeriodEnd": "2026-07-13T10:02:55.000Z",
+  "livemode": true,
+  "createdAt": "2026-06-13T10:02:55.000Z"
+}</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Renew a subscription</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method">POST</span>
+          <span class="dev-path">/v1/subscriptions/:id/renew</span>
+        </div>
+        <p>
+          Advance the subscription by one billing cycle. MAZE credits the seller with
+          <code>amountUsd</code>, pushes <code>currentPeriodEnd</code> forward by a period, and fires a
+          <a class="dev-inline" href="#webhooks"><code>subscription.renewed</code></a> webhook. This is
+          how you simulate the next charge in sandbox, or advance a cycle on demand. A
+          <code>canceled</code> subscription cannot renew — the call returns <code>409</code>.
+        </p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Request · curl</div>
+<pre><code>curl -X POST https://api.maze.to/v1/subscriptions/sub_2e7a1c9d4b6f/renew \
+  -H "Authorization: Bearer sk_live_…"</code></pre>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 200</div>
+<pre><code>{
+  "id": "sub_2e7a1c9d4b6f",
+  "offerId": "5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11",
+  "offerTitle": "Founder OS membership",
+  "buyerEmail": "buyer@example.com",
+  "amountUsd": 50.00,
+  "currency": "USD",
+  "status": "active",
+  "currentPeriodEnd": "2026-08-13T10:02:55.000Z",
+  "livemode": true,
+  "createdAt": "2026-06-13T10:02:55.000Z"
+}</code></pre>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Error · 409</div>
+<pre><code>{
+  "error": {
+    "type": "invalid_request_error",
+    "message": "Subscription is canceled and cannot be renewed."
+  }
+}</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Cancel a subscription</h3>
+        <div class="dev-endpoint">
+          <span class="dev-method">POST</span>
+          <span class="dev-path">/v1/subscriptions/:id/cancel</span>
+        </div>
+        <p>
+          Stop a subscription from renewing. Its <code>status</code> becomes <code>canceled</code> and a
+          <a class="dev-inline" href="#webhooks"><code>subscription.canceled</code></a> webhook fires.
+        </p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Request · curl</div>
+<pre><code>curl -X POST https://api.maze.to/v1/subscriptions/sub_2e7a1c9d4b6f/cancel \
+  -H "Authorization: Bearer sk_live_…"</code></pre>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · 200</div>
+<pre><code>{
+  "id": "sub_2e7a1c9d4b6f",
+  "offerId": "5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11",
+  "offerTitle": "Founder OS membership",
+  "buyerEmail": "buyer@example.com",
+  "amountUsd": 50.00,
+  "currency": "USD",
+  "status": "canceled",
+  "currentPeriodEnd": "2026-07-13T10:02:55.000Z",
+  "livemode": true,
+  "createdAt": "2026-06-13T10:02:55.000Z"
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ── MCP / agent tools ── -->
+      <section class="dev-section" id="mcp">
+        <h2 class="dev-h2">MCP / agent tools</h2>
+        <p>
+          The third door. MAZE exposes its facilitator over the
+          <strong>Model Context Protocol</strong> (Streamable HTTP, <code>POST /mcp</code>), so an AI
+          agent can run the whole business — create the thing you sell, watch the sales land, and pay
+          the crew — without a line of glue code. Same offers, same balance, same money as the
+          no-code link and the REST call; just reached through tools the agent already knows how to use.
+        </p>
+
+        <h3 class="dev-h3">Connecting</h3>
+        <p>
+          Point your MCP client at <code>/mcp</code> and pass the agent's MAZE key. Present it in the
+          <code>X-Nexa-Key</code> header, or as a bearer token in <code>Authorization</code> — either
+          works. The key scopes the agent to exactly the offers, payments, and balance it is allowed
+          to touch.
+        </p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Endpoint</div>
+<pre><code>POST https://api.maze.to/mcp
+
+# auth — either header works
+X-Nexa-Key: sk_live_…
+Authorization: Bearer sk_live_…</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Facilitator tools</h3>
+        <p>These run the money-making side of the business — sell, watch, and pay out.</p>
+        <table class="dev-params">
+          <thead><tr><th>Tool</th><th>Arguments</th><th>Returns</th></tr></thead>
+          <tbody>
+            <tr><td>create_offer</td><td class="dev-type">title, amountUsd, type?, fulfillmentKind?, fulfillmentValue?, splits?</td><td>The shareable checkout link for the new offer.</td></tr>
+            <tr><td>get_payments</td><td class="dev-type">limit?</td><td>The most recent sales.</td></tr>
+            <tr><td>create_payout</td><td class="dev-type">destination, amountUsd, note?</td><td>Pays a collaborator out of your balance.</td></tr>
+            <tr><td>split_revenue</td><td class="dev-type">amountUsd, rules: [{ to, percent }]</td><td>Pays a crew their cut instantly.</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="dev-h3">Agent-wallet tools</h3>
+        <p>
+          Alongside the facilitator, the pre-existing agent-wallet tools are available on the same
+          connection — <code>get_balance</code>, <code>list_agents</code>, <code>pay_endpoint</code>,
+          and the rest — so an agent can read its funds and pay other agents in the same session.
+        </p>
+
+        <h3 class="dev-h3">Calling a tool</h3>
+        <p>
+          Tools are invoked with a standard JSON-RPC <code>tools/call</code> request. Here an agent
+          spins up a subscription offer and gets back a link it can post anywhere:
+        </p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Request · curl</div>
+<pre><code>curl https://api.maze.to/mcp \
+  -H "X-Nexa-Key: sk_live_…" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "create_offer",
+      "arguments": {
+        "title": "Founder OS membership",
+        "amountUsd": 50,
+        "type": "subscription",
+        "fulfillmentKind": "url",
+        "fulfillmentValue": "https://example.com/members"
+      }
+    }
+  }'</code></pre>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Response · JSON-RPC result</div>
+<pre><code>{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "https://maze.to/o/5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11"
+      }
+    ]
+  }
+}</code></pre>
+        </div>
+
+        <div class="dev-callout">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9.2 12.2l2 2 3.6-4"/></svg>
+          <p><strong>Three doors, one balance.</strong> A no-code link, a single API call, or an agent over MCP — pick whichever fits and they all sell the same offers in dollars and settle to the same place. The MCP door just hands the keys to the agent.</p>
+        </div>
+      </section>
+
+      <!-- ── Webhooks ── -->
+      <section class="dev-section" id="webhooks">
+        <h2 class="dev-h2">Webhooks</h2>
+        <p>
+          Register an endpoint URL and MAZE will POST a signed event to it whenever something
+          happens to one of your payments — so your system reacts the moment money moves, without
+          polling. Registration returns a signing secret (<code>whsec_…</code>) <strong>once</strong>;
+          store it to verify deliveries.
+        </p>
+
+        <h3 class="dev-h3">Events</h3>
+        <table class="dev-params">
+          <thead><tr><th>Event</th><th>When</th></tr></thead>
+          <tbody>
+            <tr><td>payment.paid</td><td>A buyer successfully paid for an offer.</td></tr>
+            <tr><td>payment.failed</td><td>A payment attempt was declined.</td></tr>
+            <tr><td>payment.refunded</td><td>A completed payment was refunded.</td></tr>
+            <tr><td>payout.completed</td><td>A payout settled — sent directly, or as an email split on a sale.</td></tr>
+            <tr><td>subscription.renewed</td><td>A <a class="dev-inline" href="#subscriptions">subscription</a> advanced a billing cycle and credited the seller.</td></tr>
+            <tr><td>subscription.canceled</td><td>A subscription was canceled and will not renew again.</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="dev-h3">Event payload</h3>
+        <div class="dev-pre">
+          <div class="dev-pre-label">POST body</div>
+<pre><code>{
+  "id": "evt_3a7c1e9b2d4f",
+  "type": "payment.paid",
+  "created": "2026-06-13T10:02:55.000Z",
+  "data": {
+    "id": "a91c4d70-6e2b-4c8f-90a1-1f5b2e3d4c6a",
+    "offerId": "5b1f0c8e-2d4a-4f6b-9c1d-7a3e8b2f0d11",
+    "offerTitle": "Pro Notion template",
+    "amountUsd": 9.99,
+    "currency": "USD",
+    "status": "paid",
+    "livemode": true
+  }
+}</code></pre>
+        </div>
+
+        <h3 class="dev-h3">Verifying the signature</h3>
+        <p>
+          Each delivery carries a <code>MAZE-Signature</code> header of the form
+          <code>t=&lt;unix&gt;,v1=&lt;hex&gt;</code>. The signature is an <strong>HMAC-SHA256</strong>,
+          keyed with your endpoint's <code>whsec_…</code> secret, computed over the string
+          <code>`${t}.${rawBody}`</code> — the timestamp, a literal dot, then the exact raw request
+          body. Recompute it and compare; reject the request if it does not match (and optionally if
+          <code>t</code> is too old).
+        </p>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Signature header</div>
+<pre><code>MAZE-Signature: t=1749808975,v1=4e2f…c0a1</code></pre>
+        </div>
+        <div class="dev-pre">
+          <div class="dev-pre-label">Verify · Node</div>
+<pre><code>import { createHmac, timingSafeEqual } from 'node:crypto';
+
+function verifyMazeSignature(rawBody, header, secret) {
+  const parts = Object.fromEntries(
+    header.split(',').map((kv) =&gt; kv.split('=')),
+  );
+  const expected = createHmac('sha256', secret)
+    .update(`${parts.t}.${rawBody}`)
+    .digest('hex');
+
+  const a = Buffer.from(expected);
+  const b = Buffer.from(parts.v1 ?? '');
+  return a.length === b.length &amp;&amp; timingSafeEqual(a, b);
+}
+
+// Express: use the RAW body, not the parsed JSON.
+app.post('/maze/webhook', express.raw({ type: 'application/json' }), (req, res) =&gt; {
+  const ok = verifyMazeSignature(
+    req.body.toString('utf8'),
+    req.header('MAZE-Signature') ?? '',
+    process.env.MAZE_WEBHOOK_SECRET,
+  );
+  if (!ok) return res.status(400).send('bad signature');
+
+  const event = JSON.parse(req.body.toString('utf8'));
+  if (event.type === 'payment.paid') {
+    // fulfil the order…
+  }
+  res.json({ received: true });
+});</code></pre>
+        </div>
+        <div class="dev-callout">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" aria-hidden="true"><path d="M12 3l7 3v5c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6z"/><path d="M9.2 12.2l2 2 3.6-4"/></svg>
+          <p>Sign over the <strong>raw</strong> request body, exactly as received. Parsing and re-serialising the JSON first will change the bytes and break verification.</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="dev-footer">
+    Powered by <b>MAZE</b> · MAZE is a financial technology company, not a bank.
+  </footer>
+
+</div>
+
+<script>
+/* Theme — apply the choice the inline boot script resolved (shared with /app.html). */
+(function () {
+  var boot = document.documentElement.getAttribute('data-boot-theme');
+  var stage = document.getElementById('stage');
+  if (stage && (boot === 'dark' || boot === 'light')) stage.setAttribute('data-theme', boot);
+})();
+
+/* Scroll-spy — highlight the nav link for the section in view. Pure DOM, no deps.
+   Smooth-scrolls on click and keeps the URL hash in sync. */
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.dev-nav a[href^="#"]'));
+  if (!links.length) return;
+
+  var byId = {};
+  var sections = [];
+  links.forEach(function (a) {
+    var id = a.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (el) { byId[id] = a; sections.push(el); }
+  });
+
+  function setActive(id) {
+    links.forEach(function (a) {
+      a.classList.toggle('is-active', a === byId[id]);
+    });
+  }
+
+  if ('IntersectionObserver' in window) {
+    var visible = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) visible[e.target.id] = e.intersectionRatio;
+        else delete visible[e.target.id];
+      });
+      // pick the section nearest the top that is currently intersecting
+      var best = null;
+      sections.forEach(function (s) {
+        if (visible[s.id] != null) {
+          if (!best || s.getBoundingClientRect().top < best.getBoundingClientRect().top) best = s;
+        }
+      });
+      if (best) setActive(best.id);
+    }, { rootMargin: '-72px 0px -65% 0px', threshold: [0, 0.1, 1] });
+    sections.forEach(function (s) { io.observe(s); });
+  }
+
+  links.forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href').slice(1);
+      var el = document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: document.documentElement.classList.contains('rm') ? 'auto' : 'smooth', block: 'start' });
+      setActive(id);
+      if (history.replaceState) history.replaceState(null, '', '#' + id);
+    });
+  });
+
+  // honor an initial hash
+  if (location.hash && byId[location.hash.slice(1)]) setActive(location.hash.slice(1));
+  else setActive(sections[0] && sections[0].id);
+})();
+</script>
+<script type="module" src="/src/developers-main.ts"></script>
+</body>
+</html>

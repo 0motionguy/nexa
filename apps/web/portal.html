@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>MAZE Vendor Portal · x402 endpoints</title>
+<meta name="description" content="Monetize your APIs with x402. Live request metrics, USDC settlement, agent-aware analytics." />
+<meta name="theme-color" content="#F5F6FA" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0A0A0C" media="(prefers-color-scheme: dark)" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23FF6A1A'/%3E%3Cg fill='%23F5F6FA'%3E%3Crect x='14' y='14' width='8' height='36'/%3E%3Crect x='28' y='22' width='8' height='28'/%3E%3Crect x='42' y='14' width='8' height='36'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/src/fonts.css" />
+<link rel="stylesheet" href="/src/tokens.css" />
+<link rel="stylesheet" href="/src/tokens.semantic.css" />
+<link rel="stylesheet" href="/src/base.css" />
+<link rel="stylesheet" href="/src/app.css" />
+<link rel="stylesheet" href="/src/portal.css" />
+<script>
+/* Motion gate — design contract: motion ON by default; ?motion=off opts out. */
+(function () {
+  var q = (location.search.match(/[?&]motion=(\w+)/) || [])[1];
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (q === 'off' || (!q && reduce)) document.documentElement.classList.add('rm');
+})();
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="m-emblem" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="12" fill="var(--m-square, #FF6A1A)"/>
+      <g fill="var(--m-bars, #F5F6FA)">
+        <rect x="14" y="14" width="8" height="36"/>
+        <rect x="28" y="22" width="8" height="28"/>
+        <rect x="42" y="14" width="8" height="36"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="stage" id="stage" data-theme="light">
+
+  <!-- ════ P01 PORTAL HOME ════ -->
+  <section class="scr" id="p01" data-screen-label="P01 Portal home">
+    <div class="appbar">
+      <span class="ttl"><svg class="m-mark sm" aria-hidden="true"><use href="#m-emblem"/></svg>&nbsp;MAZE&nbsp;·&nbsp;Vendor Portal</span>
+      <span class="tag live">X402</span>
+      <span class="spacer"></span>
+      <a class="pillbtn" href="/app.html">← BACK TO APP</a>
+    </div>
+    <div class="body notab">
+      <p class="sub" style="font-size:11.5px;font-family:var(--mono);color:var(--meta)">REVENUE TODAY</p>
+      <div class="row" style="align-items:baseline;gap:10px"><span class="bignum">$55.20</span><span class="tag ok">USDC · BASE</span></div>
+      <p class="sub" style="font-size:10.5px;margin-top:6px;font-family:var(--mono);color:var(--meta);letter-spacing:.08em"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);vertical-align:1px;margin-right:6px"></span>SETTLED VIA <a href="https://x402.coinbase.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;border-bottom:1px dotted color-mix(in oklab,var(--accent) 60%,transparent)">COINBASE X402</a> &middot; EIP-3009 &middot; BASE MAINNET</p>
+      <div class="card" style="margin-top:14px">
+        <div class="kv"><span class="k">REQUESTS TODAY</span><span class="num">18,402</span></div>
+        <div class="kv"><span class="k">PAID SUCCESS</span><span class="num" style="color:var(--success)">98.7%</span></div>
+        <div class="kv"><span class="k">AVG SETTLEMENT</span><span class="num">1.9s</span></div>
+        <div class="kv"><span class="k">CHAIN</span><b>Base mainnet</b></div>
+      </div>
+      <div class="row" style="margin-top:16px;justify-content:space-between">
+        <p class="eyebrow" style="margin:0">X402 SURFACE</p>
+        <button class="pillbtn" data-go="p02">+ NEW CONTRACT</button>
+      </div>
+      <div class="seg" role="tablist" aria-label="Portal sections" style="margin-top:10px">
+        <button class="on" data-pseg="1" role="tab">ENDPOINTS</button>
+        <button data-pseg="2" role="tab">CONTRACTS</button>
+        <button data-pseg="3" role="tab">LOGS</button>
+        <button data-pseg="4" role="tab">PAYOUTS</button>
+      </div>
+
+      <!-- ENDPOINTS -->
+      <div id="pseg1">
+        <div class="card">
+          <div class="lrow" style="border:0;padding:2px 0">
+            <span class="grow"><span class="t" style="font-weight:600">Clip Analytics</span><br/><span class="s">GET /v1/clip-analytics</span></span>
+            <span class="tag live" id="ep1Tag">LIVE</span>
+          </div>
+          <div class="kv" style="margin-top:6px"><span class="k">PRICE</span><span class="num" id="ep1Price">$0.003 / request · USDC</span></div>
+          <div class="kv"><span class="k">REQUESTS TODAY</span><span class="num">18,402</span></div>
+          <div class="kv"><span class="k">REVENUE TODAY</span><span class="num" style="color:var(--success)">$55.20</span></div>
+          <div class="row" style="margin-top:10px">
+            <button class="pillbtn" data-copy="https://maze.aiso.tools/api/x402/quote?resource=/v1/clip-analytics">COPY QUOTE URL</button>
+            <span class="grow"></span>
+            <span style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--meta)">PAUSE</span>
+            <button class="sw" id="ep1Sw" role="switch" aria-checked="false" aria-label="Pause Clip Analytics"></button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <div class="lrow" style="border:0;padding:2px 0">
+            <span class="grow"><span class="t" style="font-weight:600">Duplicate Check</span><br/><span class="s">GET /v1/duplicate-check</span></span>
+            <span class="tag warnx" id="ep2Tag">TEST</span>
+          </div>
+          <div class="kv" style="margin-top:6px"><span class="k">PRICE</span><span class="num">$0.001 / request · USDC</span></div>
+          <div class="kv"><span class="k">REQUESTS TODAY</span><span class="num">64 · TEST</span></div>
+          <div class="kv"><span class="k">REVENUE TODAY</span><span class="num">$0.00</span></div>
+          <div class="row" style="margin-top:10px">
+            <button class="pillbtn" data-copy="https://maze.aiso.tools/api/x402/quote?resource=/v1/duplicate-check">COPY QUOTE URL</button>
+            <span class="grow"></span>
+            <span style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--meta)">PAUSE</span>
+            <button class="sw" id="ep2Sw" role="switch" aria-checked="false" aria-label="Pause Duplicate Check"></button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <div class="lrow" style="border:0;padding:2px 0">
+            <span class="grow"><span class="t" style="font-weight:600">Premium Dataset</span><br/><span class="s">GET /v1/dataset/company</span></span>
+            <span class="tag warnx">REVIEW</span>
+          </div>
+          <div class="kv" style="margin-top:6px"><span class="k">PRICE</span><span class="num">$0.080 / request · USDC</span></div>
+          <p class="sub" style="font-size:11px;margin-top:8px;font-family:var(--mono);color:var(--meta)">ENDPOINT GOES LIVE AFTER REVIEW · USUALLY UNDER A DAY</p>
+        </div>
+      </div>
+
+      <!-- CONTRACTS -->
+      <div id="pseg2" hidden>
+        <div class="card" style="padding:4px 14px" id="contractList">
+          <div class="lrow" data-go="p03" data-contract="0" style="cursor:pointer"><span class="agent-av hot">CA</span><span class="grow"><span class="t">Clip Analytics</span><br/><span class="s">GET /v1/clip-analytics · $0.003/REQ · USDC</span></span><span class="tag live">LIVE</span></div>
+          <div class="lrow" data-go="p03" data-contract="1" style="cursor:pointer"><span class="agent-av">DC</span><span class="grow"><span class="t">Duplicate Check</span><br/><span class="s">GET /v1/duplicate-check · $0.001/REQ · USDC</span></span><span class="tag warnx">TEST</span></div>
+          <div class="lrow" data-go="p03" data-contract="2" style="cursor:pointer"><span class="agent-av">PD</span><span class="grow"><span class="t">Premium Dataset</span><br/><span class="s">GET /v1/dataset/company · $0.080/REQ · USDC</span></span><span class="tag warnx">REVIEW</span></div>
+        </div>
+        <p class="sub" style="font-size:11px;margin-top:10px;font-family:var(--mono);color:var(--meta)">A CONTRACT IS THE PRICE + RULES FOR ONE ENDPOINT · TAP FOR DETAIL</p>
+      </div>
+
+      <!-- LOGS -->
+      <div id="pseg3" hidden>
+        <div class="card" style="padding:4px 14px">
+          <div class="lrow" data-go="p04" data-event="0" style="cursor:pointer"><span class="agent-av hot">R1</span><span class="grow"><span class="t">ResearchBot-01</span><br/><span class="s">AGENT · /v1/clip-analytics · 200 OK · 0x8c1f…e2d4</span></span><span class="amt pos">+$0.003</span></div>
+          <div class="lrow" data-go="p04" data-event="1" style="cursor:pointer"><span class="agent-av">H</span><span class="grow"><span class="t">Human client</span><br/><span class="s">HUMAN · /v1/clip-analytics · 200 OK · 0x3d92…c8a7</span></span><span class="amt pos">+$0.003</span></div>
+          <div class="lrow" data-go="p04" data-event="2" style="cursor:pointer"><span class="agent-av hot">M3</span><span class="grow"><span class="t">MarketScan-03</span><br/><span class="s">AGENT · /v1/clip-analytics · 200 OK · 0x77b0…41aa</span></span><span class="amt pos">+$0.003</span></div>
+          <div class="lrow" data-go="p04" data-event="3" style="cursor:pointer"><span class="agent-av hot">C1</span><span class="grow"><span class="t">ClipScout-12</span><br/><span class="s">AGENT · /v1/clip-analytics · 402 · PAYMENT REQUIRED</span></span><span class="amt" style="color:var(--meta)">$0.003</span></div>
+        </div>
+        <p class="sub" style="font-size:11px;margin-top:10px;font-family:var(--mono);color:var(--meta)">EVERY REQUEST IS LOGGED · TAP A ROW FOR ITS RECEIPT</p>
+      </div>
+
+      <!-- PAYOUTS -->
+      <div id="pseg4" hidden>
+        <div class="card">
+          <p class="eyebrow" style="margin-bottom:6px">SETTLEMENT WALLET · BASE</p>
+          <div class="row"><code class="mono" style="font-size:13px;font-weight:600">0x4f2e…9a1c</code><span class="grow"></span><button class="pillbtn" data-copy="0x4f2e8C2a91b7D6e3F0a5c4B8d7E6f19A2b3C9a1c">COPY</button></div>
+          <div class="kv" style="margin-top:8px"><span class="k">NEXT PAYOUT</span><b>Today · 18:00 UTC</b></div>
+          <div class="kv"><span class="k">PENDING</span><span class="num">$55.20</span></div>
+          <div class="kv"><span class="k">SCHEDULE</span><b>Daily · automatic</b></div>
+        </div>
+        <p class="eyebrow" style="margin:16px 0 4px">PAYOUT HISTORY</p>
+        <div class="card" style="padding:4px 14px">
+          <div class="lrow"><span class="grow"><span class="t">Payout · settlement complete</span><br/><span class="s">YESTERDAY · 0x91aa…07f3</span></span><span class="amt pos">+$48.91</span></div>
+          <div class="lrow"><span class="grow"><span class="t">Payout · settlement complete</span><br/><span class="s">JUN 10 · 0x5be2…d901</span></span><span class="amt pos">+$61.07</span></div>
+          <div class="lrow"><span class="grow"><span class="t">Payout · settlement complete</span><br/><span class="s">JUN 09 · 0x2c47…8b1e</span></span><span class="amt pos">+$44.16</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ P02 CREATE CONTRACT ════ -->
+  <section class="scr" id="p02" data-screen-label="P02 Create contract">
+    <div class="appbar"><button class="backb" data-go="p01" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">New contract</span></div>
+    <div class="body notab">
+      <div class="field" style="margin-top:4px"><label for="ctName">Contract name</label><input class="inp" id="ctName" value="Clip Metadata API"/></div>
+      <div class="field"><label for="ctPath">Endpoint path</label><input class="inp" id="ctPath" value="/v1/clip-metadata" style="font-family:var(--mono)"/></div>
+      <div class="row" style="gap:10px">
+        <div class="field" style="flex:1"><label>Method</label>
+          <div class="row" style="gap:8px">
+            <button class="pillbtn onx" data-mchip>GET</button>
+            <button class="pillbtn" data-mchip>POST</button>
+          </div>
+        </div>
+        <div class="field" style="flex:1"><label for="ctPrice">Price / request</label><input class="inp num" id="ctPrice" inputmode="decimal" value="0.003"/></div>
+      </div>
+      <div class="field"><label>Currency</label>
+        <div class="row" style="gap:8px">
+          <button class="pillbtn onx" data-cchip>USDC</button>
+          <button class="pillbtn" data-cchip>EURC</button>
+        </div>
+      </div>
+      <div class="row" style="gap:10px">
+        <div class="field" style="flex:1.4"><label for="ctWallet">Settlement wallet</label><input class="inp" id="ctWallet" value="0x4f2e…9a1c" readonly style="font-family:var(--mono)"/></div>
+        <div class="field" style="flex:1"><label for="ctRate">Rate limit / min</label><input class="inp num" id="ctRate" inputmode="numeric" value="120"/></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="row"><span class="grow"><span class="t" style="font-weight:600">Test mode</span><br/><span class="s" style="font-family:var(--mono);font-size:11px;color:var(--meta)">SIMULATED PAYMENTS · NO SETTLEMENT</span></span><button class="sw" id="ctTest" role="switch" aria-checked="false" data-swtoggle aria-label="Test mode"></button></div>
+      </div>
+      <div class="card" style="margin-top:12px;background:var(--accent-soft);border-color:color-mix(in oklab,var(--accent) 35%,transparent)">
+        <p class="sub" style="font-size:12.5px;color:var(--fg)">Agents discover your endpoint automatically. <b>Every request is paid before it runs.</b></p>
+      </div>
+      <div style="margin-top:16px"><button class="btn acc" id="ctCreate">Create contract</button></div>
+      <p class="sub" style="font-size:11px;margin-top:10px;font-family:var(--mono);color:var(--meta)">UNPAID REQUESTS GET 402 PAYMENT REQUIRED · PAID REQUESTS GET 200</p>
+    </div>
+  </section>
+
+  <!-- ════ P03 CONTRACT DETAIL ════ -->
+  <section class="scr" id="p03" data-screen-label="P03 Contract detail">
+    <div class="appbar"><button class="backb" data-go="p01" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl" id="ctdTitle">Clip Analytics</span><span class="spacer"></span><span class="tag live" id="ctdTag">LIVE</span></div>
+    <div class="body notab">
+      <p class="sub" style="font-size:11.5px;font-family:var(--mono);color:var(--meta);margin-top:2px" id="ctdPath">GET /v1/clip-analytics · $0.003 / request · USDC</p>
+      <div class="card" style="margin-top:10px">
+        <div class="kv"><span class="k">REVENUE TODAY</span><span class="num" style="color:var(--success)" id="ctdRev">$55.20</span></div>
+        <div class="kv"><span class="k">REQUESTS</span><span class="num" id="ctdReq">18,402</span></div>
+        <div class="kv"><span class="k">PAID SUCCESS</span><span class="num" id="ctdSucc">98.7%</span></div>
+        <div class="kv"><span class="k">AVG SETTLEMENT</span><span class="num" id="ctdSettle">1.9s</span></div>
+        <div class="kv"><span class="k">TOP AGENT</span><b id="ctdTop">ResearchBot-01</b></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <p class="eyebrow" style="margin-bottom:8px">PAYMENT FLOW</p>
+        <div class="flow"><b>REQUEST</b><i>→</i><b class="f402">402 PAYMENT REQUIRED</b><i>→</i><b>X-PAYMENT</b><i>→</i><b>VERIFY</b><i>→</i><b class="fok">200 + SETTLE</b></div>
+      </div>
+      <p class="eyebrow" style="margin:16px 0 4px" id="ctdLogHead">RECENT PAYMENTS</p>
+      <div class="card" style="padding:6px 14px" id="ctdLog">
+        <details class="lrow rcpt">
+          <summary class="row"><span class="agent-av hot">R1</span><span class="grow"><span class="t">ResearchBot-01 paid $0.003</span><br/><span class="s">AGENT · 200 OK · 12:04:11</span></span><span class="amt pos">+$0.003</span></summary>
+          <div class="advb">RECEIPT · GET /v1/clip-analytics · 402 → X-PAYMENT → verified → 200 OK · $0.003 USDC on Base · ref 0x8c1f…e2d4 · settlement complete · 1.8s</div>
+        </details>
+        <details class="lrow rcpt">
+          <summary class="row"><span class="agent-av">H</span><span class="grow"><span class="t">Human client paid $0.003</span><br/><span class="s">HUMAN · 200 OK · 12:03:47</span></span><span class="amt pos">+$0.003</span></summary>
+          <div class="advb">RECEIPT · GET /v1/clip-analytics · 402 → X-PAYMENT → verified → 200 OK · $0.003 USDC on Base · ref 0x3d92…c8a7 · settlement complete · 2.1s</div>
+        </details>
+        <details class="lrow rcpt">
+          <summary class="row"><span class="agent-av hot">M3</span><span class="grow"><span class="t">MarketScan-03 paid $0.003</span><br/><span class="s">AGENT · 200 OK · 12:03:12</span></span><span class="amt pos">+$0.003</span></summary>
+          <div class="advb">RECEIPT · GET /v1/clip-analytics · 402 → X-PAYMENT → verified → 200 OK · $0.003 USDC on Base · ref 0x77b0…41aa · settlement complete · 1.7s</div>
+        </details>
+        <details class="lrow rcpt">
+          <summary class="row"><span class="agent-av hot">C1</span><span class="grow"><span class="t">ClipScout-12 · payment required</span><br/><span class="s">AGENT · 402 · NOT RETRIED · 12:01:58</span></span><span class="tag warnx">UNPAID</span></summary>
+          <div class="advb">QUOTE · GET /v1/clip-analytics · 402 Payment required issued · $0.003 USDC quoted · X-PAYMENT never received · no settlement · no access granted</div>
+        </details>
+      </div>
+      <div class="card" id="ctdEmpty" hidden>
+        <p class="sub" style="font-size:12.5px">No payments yet. The endpoint is discoverable. The first paid request appears here.</p>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div class="lrow" style="border:0;padding:2px 0"><span class="grow"><span class="t">Pause contract</span><br/><span class="s">NO NEW PAYMENTS WHILE PAUSED</span></span><button class="sw" id="ctdPause" role="switch" aria-checked="false" aria-label="Pause contract"></button></div>
+        <div class="row" style="margin-top:10px;gap:8px">
+          <button class="pillbtn" data-open="priceSheet">EDIT PRICE</button>
+          <button class="pillbtn" data-toast="Settlement key rotated · old key valid for 24h ✓">ROTATE KEY</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ P04 EVENT DETAIL ════ -->
+  <section class="scr" id="p04" data-screen-label="P04 Event detail">
+    <div class="appbar"><button class="backb" data-go="p01" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg></button><span class="ttl">Payment event</span></div>
+    <div class="body notab">
+      <div style="text-align:center;margin-top:8px">
+        <span class="agent-av hot" id="evAv" style="margin:0 auto;width:48px;height:48px">R1</span>
+        <h1 class="h-big" id="evName" style="font-size:22px;margin-top:10px">ResearchBot-01</h1>
+        <p class="bignum" id="evAmt" style="font-size:34px;color:var(--success)">+$0.003</p>
+        <span class="tag ok" id="evTag" style="margin-top:6px">SETTLED</span>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <div class="kv"><span class="k">BUYER</span><b id="evBuyer">ResearchBot-01 · Agent</b></div>
+        <div class="kv"><span class="k">RESOURCE</span><span class="num" id="evRes">GET /v1/clip-analytics</span></div>
+        <div class="kv"><span class="k">HTTP</span><span class="num" id="evHttp">402 → 200 OK</span></div>
+        <div class="kv"><span class="k">SETTLEMENT REF</span><span class="num" id="evRef">0x8c1f…e2d4</span></div>
+        <div class="kv"><span class="k">NETWORK</span><b>Base</b></div>
+        <div class="kv"><span class="k">TIMESTAMP</span><b id="evTime">Today, 12:04:11</b></div>
+      </div>
+      <details class="adv"><summary>Raw receipt</summary><div class="advb" id="evAdv">x402 receipt · GET /v1/clip-analytics · quote $0.003 USDC · X-PAYMENT verified · 200 OK in 1.8s · settled on Base · ref 0x8c1f…e2d4 · settlement complete</div></details>
+    </div>
+  </section>
+
+  <!-- toasts + sheets -->
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <div class="ovl" id="priceSheet">
+    <div class="scrim" data-close="priceSheet"></div>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Edit price per request">
+      <div class="grab"></div>
+      <p class="eyebrow">PRICE PER REQUEST</p>
+      <div class="amount-disp" style="font-size:40px;text-align:center">$<span id="prV">0.003</span></div>
+      <div style="margin-top:14px;padding-inline:4px"><input type="range" id="prRange" min="0.001" max="0.1" step="0.001" value="0.003" aria-label="Price per request"/></div>
+      <p class="sub" style="font-size:11px;margin-top:10px;text-align:center;font-family:var(--mono);color:var(--meta)">APPLIES TO NEW REQUESTS IMMEDIATELY · AGENTS SEE THE NEW QUOTE ON THEIR NEXT 402</p>
+      <div style="margin-top:14px"><button class="btn" id="prSave">Update price</button></div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="/src/portal-main.ts"></script>
+</body>
+</html>

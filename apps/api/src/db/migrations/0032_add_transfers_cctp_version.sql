@@ -1,0 +1,1 @@
+ALTER TABLE "nb_transfers" ADD COLUMN "cctp_version" integer;

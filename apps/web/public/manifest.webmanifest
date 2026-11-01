@@ -1,0 +1,32 @@
+{
+  "name": "MAZE",
+  "short_name": "MAZE",
+  "description": "One ledger for humans and agents.",
+  "id": "/app.html",
+  "start_url": "/app.html",
+  "display": "standalone",
+  "background_color": "#F5F6FA",
+  "theme_color": "#F5F6FA",
+  "scope": "/",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-1024-maskable.png",
+      "type": "image/png",
+      "sizes": "1024x1024",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+node_modules
+dist
+.turbo
+.vite
+*.log
+.env
+.env.local
+.env.*.local
+!.env.example
+coverage
+.DS_Store
+test-results
+playwright-report
+playwright/.cache
+
+# Claude Code hook runtime state (violation + verify logs) — never commit
+.claude/state/
+
+# graphify outputs (commit only the human-readable report + interactive callflow)
+graphify-out/*
+!graphify-out/GRAPH_REPORT.md
+!graphify-out/*-callflow.html
+
+# Playwright visual baseline (regenerated on demand; do not bloat repo)
+apps/web/screenshots/
+
+# shared-zod build output (rebuilt by Dockerfile and pnpm install lifecycle)
+packages/shared-zod/dist/
+
+# nexa-sdk OpenAPI codegen temp file (regenerated each `gen:types` run)
+packages/nexa-sdk/.openapi.tmp.json
+
+# Loose screenshots at repo root (WhatsApp / reference dumps — not product artifacts)
+# Curated design captures live elsewhere; CI-generated visuals under apps/web/screenshots/
+# are already covered above.
+/screenshots/
+
+# scripts/load-harness/run.mjs artifacts — timestamped JSON per gate run,
+# not product source. --out overrides land wherever the caller points them.
+/load-results/

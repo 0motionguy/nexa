@@ -1,0 +1,1 @@
+ALTER TABLE "nb_user_state" ADD COLUMN "eur_usd" numeric(18, 6) DEFAULT '0' NOT NULL;

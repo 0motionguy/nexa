@@ -1,0 +1,183 @@
+# Prometheus alert rules for the MAZE neobank.
+#
+# Scraped by the toolbox prometheus instance from inside the data network
+# against neobank-api:8090/metrics. Public Caddy hosts block /metrics.
+# The endpoint is gated on METRICS_TOKEN; see RUNBOOK observability. The metric names
+# below match the inventory in apps/api/src/lib/metrics.ts.
+#
+# Alerts fan out via the toolbox alertmanager → Slack / PagerDuty pipeline.
+# Severity convention follows toolbox-wide:
+#   critical = page; respond now
+#   warning  = chat ping; respond same business day
+#   info     = trend signal; no page
+
+groups:
+  - name: maze-payments
+    interval: 30s
+    rules:
+      - alert: PaymentsFailedRateHigh
+        expr: rate(payments_failed_total[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: critical
+          service: maze-api
+        annotations:
+          summary: "Payments failing at >30/min sustained over 5 min"
+          description: "{{ $labels.reason }} dominant: {{ $value }} per sec"
+
+      - alert: X402SettlementFailures
+        expr: rate(x402_settlements_total{result="failure"}[10m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          service: maze-api
+        annotations:
+          summary: "x402 settlement failure rate is elevated"
+          description: "{{ $value }} failures/sec over 10m; investigate facilitator + chain liveness"
+
+  - name: maze-http
+    interval: 30s
+    rules:
+      - alert: MazeApiDown
+        expr: up{job=~"maze-api|neobank-api|maze-neobank-api"} == 0
+        for: 60s
+        labels:
+          severity: critical
+          service: maze-api
+        annotations:
+          summary: "MAZE API scrape target has been down for 60s"
+          description: "job={{ $labels.job }} instance={{ $labels.instance }} is not scrapeable. Check https://maze.aiso.tools/api/healthz, docker compose ps/logs, Caddy, and the neobank-api container."
+
+      - alert: ApiP95LatencyHigh
+        expr: histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket[5m]))) > 2
+        for: 10m
+        labels:
+          severity: warning
+          service: maze-api
+        annotations:
+          summary: "p95 latency > 2s on {{ $labels.route }}"
+          description: "{{ $value }}s — check db saturation + vendor calls"
+
+      - alert: ApiServerErrorsHigh
+        expr: rate(http_errors_total{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: maze-api
+        annotations:
+          summary: "5xx responses > 6/min sustained"
+          description: "method={{ $labels.method }} route={{ $labels.route }} status={{ $labels.status }}"
+
+  - name: maze-workers
+    interval: 30s
+    rules:
+      - alert: BullmqQueueBacklog
+        expr: bullmq_queue_depth{state="waiting"} > 100
+        for: 15m
+        labels:
+          severity: warning
+          service: maze-api
+        annotations:
+          summary: "BullMQ queue {{ $labels.queue }} backlog > 100"
+          description: "waiting={{ $value }} — check worker process and Redis liveness"
+
+      - alert: BullmqJobsFailed
+        expr: bullmq_queue_depth{state="failed"} > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: maze-api
+        annotations:
+          summary: "{{ $labels.queue }} has {{ $value }} failed jobs"
+          description: "Inspect dead-letter; retry via /admin sweep endpoints if appropriate"
+
+      - alert: WorkerHeartbeatStale
+        expr: time() - worker_heartbeat_seconds{worker=~"scheduler|fills-notifier|deposit-reconcile"} > 600
+        for: 5m
+        labels:
+          severity: critical
+          service: maze-api
+        annotations:
+          summary: "Worker {{ $labels.worker }} hasn't ticked in 10 min"
+          description: "A scheduler, fills, or deposit-reconcile heartbeat is over 10 minutes old. Inspect the scheduler before restarting anything."
+
+      - alert: SubscriptionRenewerHeartbeatStale
+        expr: time() - worker_heartbeat_seconds{worker="subscription-renewer"} > 4500
+        for: 5m
+        labels:
+          severity: critical
+          service: maze-api
+        annotations:
+          summary: "Hourly subscription renewer missed its cadence"
+          description: "The subscription-renewer runs hourly at minute 7. Its last completed sweep is over 75 minutes old for 5 minutes, including a 20-minute scheduling grace period."
+
+      - alert: DailyWorkerHeartbeatStale
+        expr: time() - worker_heartbeat_seconds{worker=~"claim-sweep|digest-sender"} > 93600
+        for: 15m
+        labels:
+          severity: critical
+          service: maze-api
+        annotations:
+          summary: "Daily worker {{ $labels.worker }} missed its cadence"
+          description: "A daily claim or digest worker heartbeat is over 26 hours old for 15 minutes. Event-driven worker heartbeats are intentionally excluded from age-only alerts."
+
+  - name: maze-claims
+    interval: 1m
+    rules:
+      - alert: ClaimSweepStalled
+        expr: increase(claims_expired_total[2h]) == 0 and hour() == 4
+        for: 30m
+        labels:
+          severity: warning
+          service: maze-api
+        annotations:
+          summary: "Claim-sweep cron produced 0 expirations in the 2h after its 03:00 UTC window"
+          description: "Either the worker hung or genuinely zero claims expired. Check claim-sweep heartbeat."
+
+  - name: maze-agents
+    interval: 30s
+    rules:
+      # Sprint 11 follow-up: `agent.blocked` is fired as an outbound webhook
+      # event (see lib/webhooks.ts MazeWebhookPayload), but not yet recorded
+      # as a counter. Sprint 12 stub: wire `agent_blocked_total` in
+      # apps/api/src/lib/metrics.ts, then uncomment the alert below.
+      #
+      # - alert: AgentBlockedRateSpike
+      #   expr: rate(agent_blocked_total[5m]) > 0.05
+      #   for: 10m
+      #   labels:
+      #     severity: warning
+      #     service: maze-api
+      #   annotations:
+      #     summary: "agent.blocked rate > 3/min sustained"
+      #     description: "{{ $value }}/sec — investigate per-agent policy kicking in"
+
+      # Until the dedicated counter exists, the closest proxy is the
+      # policy-error bucket of payments_failed_total (a `reason` label
+      # the route layer sets when PolicyError bubbles from x402Pay).
+      - alert: AgentPolicyFailureRateHigh
+        expr: rate(payments_failed_total{reason=~"policy.*"}[5m]) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+          service: maze-api
+        annotations:
+          summary: "Payments failing with reason=policy* > 3/min"
+          description: "Likely agent policy enforcement (kill-switch, per-tx cap, per-day cap, endpoint allowlist). Cross-reference agent.blocked webhook dispatches."
+
+  # Sprint 13 COMMIT 7 (C9) — the chain mirror is best-effort and swallows
+  # errors so the ledger move keeps. This rule is the only signal that the
+  # chain side has stopped accepting writes. Hot when the rate climbs above
+  # one failure per minute sustained over 10 min.
+  - name: maze-chain-mirror
+    interval: 30s
+    rules:
+      - alert: ChainMirrorFailures
+        expr: rate(chain_mirror_failures_total[10m]) > 0.0167
+        for: 10m
+        labels:
+          severity: warning
+          service: maze-api
+        annotations:
+          summary: "chain-mirror failure rate > 1/min sustained over 10 min"
+          description: "op={{ $labels.op }} tier={{ $labels.tier }} — earn ledger is ahead of chain. Investigate EarnRouter adapter + RPC liveness; backlog will not auto-replay."

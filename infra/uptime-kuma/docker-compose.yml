@@ -1,0 +1,49 @@
+# Uptime Kuma — external uptime monitoring (S13).
+#
+# Sits on the same toolbox_data network as the api so it can probe both the
+# public URL (proxied through Cloudflare → Caddy) and the private container
+# health. Persists monitor config + history to a named volume.
+#
+# Bring-up:
+#   cd /opt/toolbox && docker compose -f /opt/neobank/src/infra/uptime-kuma/docker-compose.yml up -d
+#   then visit http://<vps>:3001 (or proxy via Caddy on a subdomain like
+#   status.aiso.tools) and complete the first-run admin setup.
+#
+# Monitors to configure post-install (60s interval each):
+#   1. https://nexa.aiso.tools/api/healthz       expect 200 + JSON .ok=true
+#   2. https://nexa.aiso.tools/portal.html       expect 200
+#   3. https://api.nexa.aiso.tools/healthz       expect 200 (post-ACM)
+#   4. https://portal.nexa.aiso.tools/           expect 200 (post-ACM)
+#   5. https://maze.aiso.tools/api/healthz       expect 200 (alias)
+#
+# Slack webhook: paste your alerting webhook from your secrets store
+# into Kuma's Notification settings; route all
+# monitors to it; threshold 60s down → alert, 30s recover → notify.
+#
+# Storage: ~50 MB after 6 months of monitoring history.
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1.23-debian
+    container_name: toolbox-uptime-kuma-1
+    restart: unless-stopped
+    networks:
+      - toolbox_data
+    volumes:
+      - uptime-kuma-data:/app/data
+    ports:
+      # Bind to 127.0.0.1 only; Caddy should proxy a subdomain to here.
+      # Drop the host: prefix and add port directly to expose to LAN.
+      - "127.0.0.1:3001:3001"
+    environment:
+      # Lock down brute-force admin attempts.
+      UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN: "0"
+
+networks:
+  toolbox_data:
+    external: true
+    name: toolbox_data
+
+volumes:
+  uptime-kuma-data:
+    name: uptime-kuma-data

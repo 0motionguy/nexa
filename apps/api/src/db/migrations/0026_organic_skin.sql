@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "nb_transactions_user_tx_hash_uq" ON "nb_transactions" USING btree ("user_id","tx_hash") WHERE "nb_transactions"."tx_hash" IS NOT NULL;

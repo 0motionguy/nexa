@@ -1,0 +1,2 @@
+ALTER TABLE "nb_market_positions" ADD COLUMN "idempotency_key" varchar(120);--> statement-breakpoint
+CREATE UNIQUE INDEX "nb_market_positions_user_idempotency_key_uq" ON "nb_market_positions" USING btree ("user_id","idempotency_key");

@@ -1,0 +1,41 @@
+{
+  "name": "@nexa/charts",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./indicators": {
+      "types": "./src/indicators/index.ts",
+      "import": "./src/indicators/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json --noEmit false --outDir dist",
+    "test": "vitest run",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "peerDependencies": {
+    "@nexa/realtime-client": "workspace:*",
+    "lightweight-charts": "^5.0.0",
+    "react": "^18.2.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@nexa/realtime-client": { "optional": true },
+    "react": { "optional": true }
+  },
+  "devDependencies": {
+    "@nexa/realtime-client": "workspace:*",
+    "@types/react": "^19.0.0",
+    "lightweight-charts": "^5.0.9",
+    "react": "^19.0.0",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.6"
+  }
+}

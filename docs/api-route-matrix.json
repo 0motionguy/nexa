@@ -1,0 +1,2418 @@
+{
+  "generatedAt": "2026-07-16T11:58:45.432Z",
+  "mounts": 32,
+  "endpoints": 240,
+  "documented": 24,
+  "warnings": [],
+  "rows": [
+    {
+      "mount": "(app)",
+      "module": "index.ts",
+      "method": "GET",
+      "path": "/metrics",
+      "auth": "bearer METRICS_TOKEN",
+      "flag": "METRICS_ENABLED",
+      "source": "apps/api/src/index.ts:171",
+      "openapi": false,
+      "note": "gated by METRICS_ENABLED"
+    },
+    {
+      "mount": "(app)",
+      "module": "index.ts",
+      "method": "GET",
+      "path": "/healthz",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/index.ts:190",
+      "openapi": false
+    },
+    {
+      "mount": "(app)",
+      "module": "index.ts",
+      "method": "GET",
+      "path": "/health/ready",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/index.ts:250",
+      "openapi": false
+    },
+    {
+      "mount": "(app)",
+      "module": "index.ts",
+      "method": "GET",
+      "path": "/health/money",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/index.ts:271",
+      "openapi": false
+    },
+    {
+      "mount": "(app)",
+      "module": "index.ts",
+      "method": "GET",
+      "path": "/v1/openapi.json",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/index.ts:513",
+      "openapi": false
+    },
+    {
+      "mount": "(app)",
+      "module": "index.ts",
+      "method": "GET",
+      "path": "/v1/docs",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/index.ts:523",
+      "openapi": false
+    },
+    {
+      "mount": "(app)",
+      "module": "index.ts",
+      "method": "GET",
+      "path": "/card/",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/index.ts:528",
+      "openapi": false
+    },
+    {
+      "mount": "(app)",
+      "module": "index.ts",
+      "method": "ALL",
+      "path": "/mcp",
+      "auth": "agent-key (nx_live_*)",
+      "flag": null,
+      "source": "apps/api/src/index.ts:572",
+      "openapi": false
+    },
+    {
+      "mount": "/auth",
+      "module": "routes/auth.ts",
+      "method": "POST",
+      "path": "/auth/start",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/auth.ts:77",
+      "openapi": true
+    },
+    {
+      "mount": "/auth",
+      "module": "routes/auth.ts",
+      "method": "POST",
+      "path": "/auth/verify",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/auth.ts:106",
+      "openapi": true
+    },
+    {
+      "mount": "/auth",
+      "module": "routes/auth.ts",
+      "method": "POST",
+      "path": "/auth/privy-verify",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/auth.ts:152",
+      "openapi": true
+    },
+    {
+      "mount": "/auth",
+      "module": "routes/auth.ts",
+      "method": "POST",
+      "path": "/auth/signout",
+      "auth": "optional-session",
+      "flag": null,
+      "source": "apps/api/src/routes/auth.ts:272",
+      "openapi": false
+    },
+    {
+      "mount": "/auth",
+      "module": "routes/auth.ts",
+      "method": "POST",
+      "path": "/auth/revoke",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/auth.ts:290",
+      "openapi": false
+    },
+    {
+      "mount": "/auth",
+      "module": "routes/auth.ts",
+      "method": "POST",
+      "path": "/auth/refresh",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/auth.ts:314",
+      "openapi": false
+    },
+    {
+      "mount": "/auth",
+      "module": "routes/auth.ts",
+      "method": "GET",
+      "path": "/auth/me",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/auth.ts:335",
+      "openapi": true
+    },
+    {
+      "mount": "/me",
+      "module": "routes/me.ts",
+      "method": "GET",
+      "path": "/me/profile",
+      "auth": "session-or-api-key",
+      "flag": null,
+      "source": "apps/api/src/routes/me.ts:65",
+      "openapi": true
+    },
+    {
+      "mount": "/me",
+      "module": "routes/me.ts",
+      "method": "GET",
+      "path": "/me/fees",
+      "auth": "session-or-api-key",
+      "flag": null,
+      "source": "apps/api/src/routes/me.ts:185",
+      "openapi": true
+    },
+    {
+      "mount": "/me",
+      "module": "routes/me.ts",
+      "method": "PUT",
+      "path": "/me/devices/:installationId/push",
+      "auth": "session-or-api-key",
+      "flag": null,
+      "source": "apps/api/src/routes/me.ts:249",
+      "openapi": false
+    },
+    {
+      "mount": "/me",
+      "module": "routes/me.ts",
+      "method": "DELETE",
+      "path": "/me/devices/:installationId/push",
+      "auth": "session-or-api-key",
+      "flag": null,
+      "source": "apps/api/src/routes/me.ts:271",
+      "openapi": false
+    },
+    {
+      "mount": "/me",
+      "module": "routes/me.ts",
+      "method": "GET",
+      "path": "/me/devices",
+      "auth": "session-or-api-key",
+      "flag": null,
+      "source": "apps/api/src/routes/me.ts:283",
+      "openapi": false
+    },
+    {
+      "mount": "/me",
+      "module": "routes/me.ts",
+      "method": "PATCH",
+      "path": "/me/notification-preferences",
+      "auth": "session-or-api-key",
+      "flag": null,
+      "source": "apps/api/src/routes/me.ts:292",
+      "openapi": false
+    },
+    {
+      "mount": "/me",
+      "module": "routes/me.ts",
+      "method": "GET",
+      "path": "/me/admin/fees/summary",
+      "auth": "session-or-api-key",
+      "flag": null,
+      "source": "apps/api/src/routes/me.ts:308",
+      "openapi": false
+    },
+    {
+      "mount": "/ledger",
+      "module": "routes/ledger.ts",
+      "method": "GET",
+      "path": "/ledger/balance",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/ledger.ts:39",
+      "openapi": false
+    },
+    {
+      "mount": "/ledger",
+      "module": "routes/ledger.ts",
+      "method": "GET",
+      "path": "/ledger/activity",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/ledger.ts:76",
+      "openapi": false
+    },
+    {
+      "mount": "/ledger",
+      "module": "routes/ledger.ts",
+      "method": "GET",
+      "path": "/ledger/me",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/ledger.ts:111",
+      "openapi": false
+    },
+    {
+      "mount": "/ledger",
+      "module": "routes/ledger.ts",
+      "method": "GET",
+      "path": "/ledger/activity/stream",
+      "auth": "stream-token",
+      "flag": null,
+      "source": "apps/api/src/routes/ledger.ts:156",
+      "openapi": false
+    },
+    {
+      "mount": "/payments",
+      "module": "routes/payments.ts",
+      "method": "POST",
+      "path": "/payments/send",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/payments.ts:45",
+      "openapi": false
+    },
+    {
+      "mount": "/payments",
+      "module": "routes/payments.ts",
+      "method": "POST",
+      "path": "/payments/request-link",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/payments.ts:120",
+      "openapi": false
+    },
+    {
+      "mount": "/payments",
+      "module": "routes/payments.ts",
+      "method": "POST",
+      "path": "/payments/topup",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/payments.ts:144",
+      "openapi": false
+    },
+    {
+      "mount": "/offers",
+      "module": "routes/offers.ts",
+      "method": "POST",
+      "path": "/offers",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:66",
+      "openapi": false
+    },
+    {
+      "mount": "/offers",
+      "module": "routes/offers.ts",
+      "method": "GET",
+      "path": "/offers",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:73",
+      "openapi": false
+    },
+    {
+      "mount": "/offers",
+      "module": "routes/offers.ts",
+      "method": "GET",
+      "path": "/offers/payments",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:79",
+      "openapi": false
+    },
+    {
+      "mount": "/offers",
+      "module": "routes/offers.ts",
+      "method": "POST",
+      "path": "/offers/webhooks",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:85",
+      "openapi": false
+    },
+    {
+      "mount": "/offers",
+      "module": "routes/offers.ts",
+      "method": "GET",
+      "path": "/offers/webhooks",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:102",
+      "openapi": false
+    },
+    {
+      "mount": "/offers",
+      "module": "routes/offers.ts",
+      "method": "GET",
+      "path": "/offers/:id",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:111",
+      "openapi": false
+    },
+    {
+      "mount": "/offers",
+      "module": "routes/offers.ts",
+      "method": "PATCH",
+      "path": "/offers/:id",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:125",
+      "openapi": false
+    },
+    {
+      "mount": "/checkout",
+      "module": "routes/offers.ts",
+      "method": "GET",
+      "path": "/checkout/session-status",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:158",
+      "openapi": false
+    },
+    {
+      "mount": "/checkout",
+      "module": "routes/offers.ts",
+      "method": "GET",
+      "path": "/checkout/:id",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:180",
+      "openapi": false
+    },
+    {
+      "mount": "/checkout",
+      "module": "routes/offers.ts",
+      "method": "POST",
+      "path": "/checkout/:id/pay",
+      "auth": "optional-session",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:206",
+      "openapi": false
+    },
+    {
+      "mount": "/checkout",
+      "module": "routes/offers.ts",
+      "method": "POST",
+      "path": "/checkout/stripe-webhook",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/offers.ts:383",
+      "openapi": false,
+      "note": "Stripe signature verified in handler"
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "POST",
+      "path": "/v1/offers",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:78",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/offers",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:91",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/offers/:id",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:98",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "PATCH",
+      "path": "/v1/offers/:id",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:112",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/payments",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:135",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/payments/:id",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:142",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "POST",
+      "path": "/v1/sub-accounts",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:158",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/sub-accounts",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:165",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/sub-accounts/:id",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:171",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "POST",
+      "path": "/v1/payouts",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:187",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/payouts",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:225",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/payouts/:id",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:232",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/subscriptions",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:248",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/subscriptions/:id",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:255",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "POST",
+      "path": "/v1/subscriptions/:id/cancel",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:269",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "POST",
+      "path": "/v1/subscriptions/:id/renew",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:290",
+      "openapi": true
+    },
+    {
+      "mount": "/v1",
+      "module": "routes/v1.ts",
+      "method": "GET",
+      "path": "/v1/balance",
+      "auth": "custom gate (routes/v1.ts:38)",
+      "flag": null,
+      "source": "apps/api/src/routes/v1.ts:320",
+      "openapi": true
+    },
+    {
+      "mount": "/keys",
+      "module": "routes/keys.ts",
+      "method": "POST",
+      "path": "/keys",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/keys.ts:21",
+      "openapi": false
+    },
+    {
+      "mount": "/keys",
+      "module": "routes/keys.ts",
+      "method": "GET",
+      "path": "/keys",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/keys.ts:39",
+      "openapi": false
+    },
+    {
+      "mount": "/keys",
+      "module": "routes/keys.ts",
+      "method": "DELETE",
+      "path": "/keys/:id",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/keys.ts:45",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "GET",
+      "path": "/earn/ethena",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:57",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "GET",
+      "path": "/earn/jupiter-lend",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:78",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "GET",
+      "path": "/earn/landing",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:118",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "GET",
+      "path": "/earn/apy",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:206",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "GET",
+      "path": "/earn/protocols",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:243",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "POST",
+      "path": "/earn/deposit",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:267",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "POST",
+      "path": "/earn/withdraw",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:315",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "POST",
+      "path": "/earn/configure",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:363",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "POST",
+      "path": "/earn/tier",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:381",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "GET",
+      "path": "/earn/morpho/vaults",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:394",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "POST",
+      "path": "/earn/marinade/stake",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:449",
+      "openapi": false
+    },
+    {
+      "mount": "/earn",
+      "module": "routes/earn.ts",
+      "method": "POST",
+      "path": "/earn/marinade/unstake",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:484",
+      "openapi": false
+    },
+    {
+      "mount": "/swap",
+      "module": "routes/earn.ts",
+      "method": "GET",
+      "path": "/swap/quote",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:741",
+      "openapi": false
+    },
+    {
+      "mount": "/swap",
+      "module": "routes/earn.ts",
+      "method": "POST",
+      "path": "/swap/execute",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/earn.ts:883",
+      "openapi": false
+    },
+    {
+      "mount": "/card",
+      "module": "routes/card.ts",
+      "method": "GET",
+      "path": "/card",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/card.ts:58",
+      "openapi": false
+    },
+    {
+      "mount": "/card",
+      "module": "routes/card.ts",
+      "method": "POST",
+      "path": "/card/order",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/card.ts:60",
+      "openapi": false
+    },
+    {
+      "mount": "/card",
+      "module": "routes/card.ts",
+      "method": "POST",
+      "path": "/card/topup",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/card.ts:97",
+      "openapi": false
+    },
+    {
+      "mount": "/card",
+      "module": "routes/card.ts",
+      "method": "POST",
+      "path": "/card/freeze",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/card.ts:184",
+      "openapi": false
+    },
+    {
+      "mount": "/card",
+      "module": "routes/card.ts",
+      "method": "POST",
+      "path": "/card/limit",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/card.ts:194",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "GET",
+      "path": "/agent",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:32",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "POST",
+      "path": "/agent/create",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:39",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "POST",
+      "path": "/agent/kill-switch",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:70",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "POST",
+      "path": "/agent/:id/fund",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:90",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "POST",
+      "path": "/agent/:id/defund",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:122",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "POST",
+      "path": "/agent/:id/pause",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:144",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "POST",
+      "path": "/agent/:id/policy",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:160",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "POST",
+      "path": "/agent/:id/approve-once",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:183",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "GET",
+      "path": "/agent/:id/activity",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:214",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "POST",
+      "path": "/agent/:id/card",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:228",
+      "openapi": false
+    },
+    {
+      "mount": "/agent",
+      "module": "routes/agent.ts",
+      "method": "POST",
+      "path": "/agent/:id/bank",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/agent.ts:245",
+      "openapi": false
+    },
+    {
+      "mount": "/x402",
+      "module": "routes/x402.ts",
+      "method": "POST",
+      "path": "/x402/pay",
+      "auth": "agent-key (nx_live_*)",
+      "flag": null,
+      "source": "apps/api/src/routes/x402.ts:201",
+      "openapi": false
+    },
+    {
+      "mount": "/x402",
+      "module": "routes/x402.ts",
+      "method": "POST",
+      "path": "/x402/settle",
+      "auth": "agent-key (nx_live_*)",
+      "flag": null,
+      "source": "apps/api/src/routes/x402.ts:298",
+      "openapi": false
+    },
+    {
+      "mount": "/x402",
+      "module": "routes/x402.ts",
+      "method": "GET",
+      "path": "/x402/quote",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/x402.ts:355",
+      "openapi": false
+    },
+    {
+      "mount": "/x402",
+      "module": "routes/x402.ts",
+      "method": "GET",
+      "path": "/x402/contracts",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/x402.ts:376",
+      "openapi": false
+    },
+    {
+      "mount": "/x402",
+      "module": "routes/x402.ts",
+      "method": "POST",
+      "path": "/x402/contracts",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/x402.ts:381",
+      "openapi": false
+    },
+    {
+      "mount": "/x402",
+      "module": "routes/x402.ts",
+      "method": "GET",
+      "path": "/x402/contracts/:id",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/x402.ts:402",
+      "openapi": false
+    },
+    {
+      "mount": "/x402",
+      "module": "routes/x402.ts",
+      "method": "POST",
+      "path": "/x402/contracts/:id/status",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/x402.ts:411",
+      "openapi": false
+    },
+    {
+      "mount": "/x402",
+      "module": "routes/x402.ts",
+      "method": "GET",
+      "path": "/x402/events",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/x402.ts:426",
+      "openapi": false
+    },
+    {
+      "mount": "/bridge",
+      "module": "routes/bridge.ts",
+      "method": "POST",
+      "path": "/bridge/customer",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/bridge.ts:106",
+      "openapi": false
+    },
+    {
+      "mount": "/bridge",
+      "module": "routes/bridge.ts",
+      "method": "POST",
+      "path": "/bridge/virtual-account",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/bridge.ts:122",
+      "openapi": false
+    },
+    {
+      "mount": "/bridge",
+      "module": "routes/bridge.ts",
+      "method": "GET",
+      "path": "/bridge/accounts",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/bridge.ts:149",
+      "openapi": false
+    },
+    {
+      "mount": "/bridge",
+      "module": "routes/bridge.ts",
+      "method": "POST",
+      "path": "/bridge/payout-method",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/bridge.ts:162",
+      "openapi": false
+    },
+    {
+      "mount": "/bridge",
+      "module": "routes/bridge.ts",
+      "method": "GET",
+      "path": "/bridge/payout-methods",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/bridge.ts:198",
+      "openapi": false
+    },
+    {
+      "mount": "/bridge",
+      "module": "routes/bridge.ts",
+      "method": "POST",
+      "path": "/bridge/withdraw",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/bridge.ts:209",
+      "openapi": false
+    },
+    {
+      "mount": "/bridge",
+      "module": "routes/bridge.ts",
+      "method": "POST",
+      "path": "/bridge/webhook",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/bridge.ts:349",
+      "openapi": false,
+      "note": "Bridge HMAC verified in handler"
+    },
+    {
+      "mount": "/bridge",
+      "module": "routes/bridge.ts",
+      "method": "POST",
+      "path": "/bridge/transfer-webhook",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/bridge.ts:381",
+      "openapi": false,
+      "note": "Bridge HMAC verified in handler"
+    },
+    {
+      "mount": "/kyc",
+      "module": "routes/kyc.ts",
+      "method": "POST",
+      "path": "/kyc/start",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/kyc.ts:20",
+      "openapi": false
+    },
+    {
+      "mount": "/kyc",
+      "module": "routes/kyc.ts",
+      "method": "GET",
+      "path": "/kyc/status",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/kyc.ts:27",
+      "openapi": false
+    },
+    {
+      "mount": "/kyc",
+      "module": "routes/kyc.ts",
+      "method": "POST",
+      "path": "/kyc/webhook",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/kyc.ts:35",
+      "openapi": false,
+      "note": "Sumsub HMAC verified in handler"
+    },
+    {
+      "mount": "/claim",
+      "module": "routes/claim.ts",
+      "method": "GET",
+      "path": "/claim/:slug",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/claim.ts:20",
+      "openapi": false
+    },
+    {
+      "mount": "/claim",
+      "module": "routes/claim.ts",
+      "method": "POST",
+      "path": "/claim/:slug",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/claim.ts:37",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:1588",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/builder-approval",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:1615",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/builder-status",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:1630",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/approve-builder",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:1673",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/order",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:1779",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/cancel",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:1963",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/cancel-many",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2030",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/modify",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2093",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/update-leverage",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2157",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/update-isolated-margin",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2189",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/usd-class-transfer",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2224",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/usd-send",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2303",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/transfer-to-dex",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2378",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid/withdraw",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2476",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/open-orders",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2553",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/user-fills",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2562",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/user-state",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2572",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/positions",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2580",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/candles",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2681",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/all-mids",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2697",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/orderbook",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2706",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/recent-trades",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2721",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/funding-history",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2740",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid/:coin",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2755",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/global",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2785",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/polymarket",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2800",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/polymarket/leaderboard",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2848",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/polymarket/order",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:2901",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/polymarket/sell",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3182",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/polymarket/trading-status",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3509",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/polymarket/enable-trading",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3521",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/polymarket/builder-status",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3540",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/polymarket/builder-setup",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3561",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/polymarket/builder-fund",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3588",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/polymarket/wrap",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3616",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/polymarket/unwrap",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3628",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/polymarket/positions",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3640",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/polymarket/traders/:wallet/copy-intent",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3652",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/polymarket/:id",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3669",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/polymarket/:id/book",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3696",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/polymarket/:id/top-traders",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3720",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid-spot",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3755",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid-spot/detail",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3779",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid-spot/user-state",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3802",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid-spot/positions",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3810",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid-spot/order",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3818",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/hyperliquid-spot/cancel",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3939",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/hyperliquid-spot/all-mids",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:3984",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/jupiter",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4007",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/jupiter/detail",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4180",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/jupiter/prices",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4202",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/jupiter/candles",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4239",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/jupiter/quote",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4259",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/jupiter/swap",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4289",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/jupiter/positions",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4483",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/stocks",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4504",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/stocks/perps",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4529",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/stocks/spot",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4549",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/stocks/detail",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4581",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/stocks/candles",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4619",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/stocks/all-mids",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4638",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/stocks/order",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4654",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/stocks/cancel",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4777",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/stocks/positions",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4817",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/orders",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4886",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/orders/:id",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4902",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/positions",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4919",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/portfolio/summary",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:4937",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "GET",
+      "path": "/markets/fills",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:5002",
+      "openapi": false
+    },
+    {
+      "mount": "/markets",
+      "module": "routes/markets.ts",
+      "method": "POST",
+      "path": "/markets/orders/:id/cancel",
+      "auth": "hybrid: public GET allowlist, else session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets.ts:5054",
+      "openapi": false
+    },
+    {
+      "mount": "/v1",
+      "module": "realtime/router.ts",
+      "method": "GET",
+      "path": "/v1/feeds/health",
+      "auth": "public",
+      "flag": "REALTIME_HUB_V1",
+      "source": "apps/api/src/realtime/router.ts:76",
+      "openapi": false,
+      "note": "gated by REALTIME_HUB_V1"
+    },
+    {
+      "mount": "/v1",
+      "module": "realtime/router.ts",
+      "method": "POST",
+      "path": "/v1/stream/ticket",
+      "auth": "session",
+      "flag": "REALTIME_HUB_V1",
+      "source": "apps/api/src/realtime/router.ts:93",
+      "openapi": false,
+      "note": "gated by REALTIME_HUB_V1"
+    },
+    {
+      "mount": "/v1",
+      "module": "realtime/router.ts",
+      "method": "GET",
+      "path": "/v1/stream/sse",
+      "auth": "session-or-stream-ticket",
+      "flag": "REALTIME_HUB_V1",
+      "source": "apps/api/src/realtime/router.ts:101",
+      "openapi": false,
+      "note": "gated by REALTIME_HUB_V1"
+    },
+    {
+      "mount": "/markets/cards",
+      "module": "routes/markets-cards.ts",
+      "method": "GET",
+      "path": "/markets/cards",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/markets-cards.ts:74",
+      "openapi": false
+    },
+    {
+      "mount": "/markets/cards",
+      "module": "routes/markets-cards.ts",
+      "method": "GET",
+      "path": "/markets/cards/collections",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/markets-cards.ts:95",
+      "openapi": false
+    },
+    {
+      "mount": "/markets/cards",
+      "module": "routes/markets-cards.ts",
+      "method": "GET",
+      "path": "/markets/cards/positions",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets-cards.ts:106",
+      "openapi": false
+    },
+    {
+      "mount": "/markets/cards",
+      "module": "routes/markets-cards.ts",
+      "method": "GET",
+      "path": "/markets/cards/:id",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/markets-cards.ts:126",
+      "openapi": false
+    },
+    {
+      "mount": "/markets/cards",
+      "module": "routes/markets-cards.ts",
+      "method": "POST",
+      "path": "/markets/cards/buy",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets-cards.ts:151",
+      "openapi": false
+    },
+    {
+      "mount": "/markets/cards",
+      "module": "routes/markets-cards.ts",
+      "method": "GET",
+      "path": "/markets/cards/trades/me",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/markets-cards.ts:296",
+      "openapi": false
+    },
+    {
+      "mount": "/tv",
+      "module": "routes/tv.ts",
+      "method": "GET",
+      "path": "/tv/snapshot",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/tv.ts:84",
+      "openapi": false
+    },
+    {
+      "mount": "/tv",
+      "module": "routes/tv.ts",
+      "method": "GET",
+      "path": "/tv/quote/:symbol",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/tv.ts:108",
+      "openapi": false
+    },
+    {
+      "mount": "/campaigns",
+      "module": "routes/campaigns.ts",
+      "method": "POST",
+      "path": "/campaigns",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/campaigns.ts:56",
+      "openapi": false
+    },
+    {
+      "mount": "/campaigns",
+      "module": "routes/campaigns.ts",
+      "method": "GET",
+      "path": "/campaigns",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/campaigns.ts:89",
+      "openapi": false
+    },
+    {
+      "mount": "/campaigns",
+      "module": "routes/campaigns.ts",
+      "method": "GET",
+      "path": "/campaigns/:id",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/campaigns.ts:97",
+      "openapi": false
+    },
+    {
+      "mount": "/campaigns",
+      "module": "routes/campaigns.ts",
+      "method": "POST",
+      "path": "/campaigns/:id/submit",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/campaigns.ts:109",
+      "openapi": false
+    },
+    {
+      "mount": "/campaigns",
+      "module": "routes/campaigns.ts",
+      "method": "POST",
+      "path": "/campaigns/:id/submissions/:subId/approve",
+      "auth": "admin-key (agent)",
+      "flag": null,
+      "source": "apps/api/src/routes/campaigns.ts:154",
+      "openapi": false
+    },
+    {
+      "mount": "/campaigns",
+      "module": "routes/campaigns.ts",
+      "method": "POST",
+      "path": "/campaigns/:id/submissions/:subId/release-bonus",
+      "auth": "admin-key (agent)",
+      "flag": null,
+      "source": "apps/api/src/routes/campaigns.ts:177",
+      "openapi": false
+    },
+    {
+      "mount": "/perks",
+      "module": "routes/perks.ts",
+      "method": "GET",
+      "path": "/perks",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/perks.ts:23",
+      "openapi": false
+    },
+    {
+      "mount": "/admin",
+      "module": "routes/admin.ts",
+      "method": "POST",
+      "path": "/admin/sweep-claims",
+      "auth": "admin-token (Bearer ADMIN_TOKEN)",
+      "flag": null,
+      "source": "apps/api/src/routes/admin.ts:66",
+      "openapi": false
+    },
+    {
+      "mount": "/admin",
+      "module": "routes/admin.ts",
+      "method": "POST",
+      "path": "/admin/sweep-deposits",
+      "auth": "admin-token (Bearer ADMIN_TOKEN)",
+      "flag": null,
+      "source": "apps/api/src/routes/admin.ts:87",
+      "openapi": false
+    },
+    {
+      "mount": "/admin",
+      "module": "routes/admin.ts",
+      "method": "POST",
+      "path": "/admin/sweep-subscriptions",
+      "auth": "admin-token (Bearer ADMIN_TOKEN)",
+      "flag": null,
+      "source": "apps/api/src/routes/admin.ts:101",
+      "openapi": false
+    },
+    {
+      "mount": "/admin",
+      "module": "routes/admin.ts",
+      "method": "POST",
+      "path": "/admin/dispatch-digests",
+      "auth": "admin-token (Bearer ADMIN_TOKEN)",
+      "flag": null,
+      "source": "apps/api/src/routes/admin.ts:125",
+      "openapi": false
+    },
+    {
+      "mount": "/admin",
+      "module": "routes/admin.ts",
+      "method": "POST",
+      "path": "/admin/sweep-fills",
+      "auth": "admin-token (Bearer ADMIN_TOKEN)",
+      "flag": null,
+      "source": "apps/api/src/routes/admin.ts:147",
+      "openapi": false
+    },
+    {
+      "mount": "/admin",
+      "module": "routes/admin.ts",
+      "method": "POST",
+      "path": "/admin/sentry-test",
+      "auth": "admin-token (Bearer ADMIN_TOKEN)",
+      "flag": null,
+      "source": "apps/api/src/routes/admin.ts:155",
+      "openapi": false
+    },
+    {
+      "mount": "/admin",
+      "module": "routes/admin.ts",
+      "method": "GET",
+      "path": "/admin/audit-log",
+      "auth": "admin-token (Bearer ADMIN_TOKEN)",
+      "flag": null,
+      "source": "apps/api/src/routes/admin.ts:192",
+      "openapi": false
+    },
+    {
+      "mount": "/admin",
+      "module": "routes/admin.ts",
+      "method": "POST",
+      "path": "/admin/cohort",
+      "auth": "admin-token (Bearer ADMIN_TOKEN)",
+      "flag": null,
+      "source": "apps/api/src/routes/admin.ts:237",
+      "openapi": false
+    },
+    {
+      "mount": "/admin",
+      "module": "routes/admin.ts",
+      "method": "POST",
+      "path": "/admin/withdraw-all",
+      "auth": "admin-token (Bearer ADMIN_TOKEN)",
+      "flag": null,
+      "source": "apps/api/src/routes/admin.ts:330",
+      "openapi": false
+    },
+    {
+      "mount": "/admin",
+      "module": "routes/admin.ts",
+      "method": "GET",
+      "path": "/admin/test-users",
+      "auth": "admin-token (Bearer ADMIN_TOKEN)",
+      "flag": null,
+      "source": "apps/api/src/routes/admin.ts:570",
+      "openapi": false
+    },
+    {
+      "mount": "/monerium",
+      "module": "routes/monerium.ts",
+      "method": "GET",
+      "path": "/monerium/status",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/monerium.ts:30",
+      "openapi": false
+    },
+    {
+      "mount": "/monerium",
+      "module": "routes/monerium.ts",
+      "method": "GET",
+      "path": "/monerium/profile",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/monerium.ts:34",
+      "openapi": false
+    },
+    {
+      "mount": "/monerium",
+      "module": "routes/monerium.ts",
+      "method": "POST",
+      "path": "/monerium/offramp",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/monerium.ts:85",
+      "openapi": false
+    },
+    {
+      "mount": "/onramp",
+      "module": "routes/onramp.ts",
+      "method": "POST",
+      "path": "/onramp/stripe/session",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/onramp.ts:47",
+      "openapi": false
+    },
+    {
+      "mount": "/onramp",
+      "module": "routes/onramp.ts",
+      "method": "POST",
+      "path": "/onramp/stripe/webhook",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/onramp.ts:104",
+      "openapi": false,
+      "note": "Stripe signature verified in handler"
+    },
+    {
+      "mount": "/onramp",
+      "module": "routes/onramp.ts",
+      "method": "GET",
+      "path": "/onramp/demo-success",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/onramp.ts:168",
+      "openapi": false
+    },
+    {
+      "mount": "/onramp",
+      "module": "routes/onramp.ts",
+      "method": "GET",
+      "path": "/onramp/stripe/status",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/onramp.ts:188",
+      "openapi": false
+    },
+    {
+      "mount": "/onramp",
+      "module": "routes/onramp.ts",
+      "method": "POST",
+      "path": "/onramp/onramper/session",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/onramp.ts:228",
+      "openapi": false
+    },
+    {
+      "mount": "/onramp",
+      "module": "routes/onramp.ts",
+      "method": "GET",
+      "path": "/onramp/deposit-address",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/onramp.ts:310",
+      "openapi": false
+    },
+    {
+      "mount": "/onramp",
+      "module": "routes/onramp.ts",
+      "method": "GET",
+      "path": "/onramp/onramper/status",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/onramp.ts:348",
+      "openapi": false
+    },
+    {
+      "mount": "/balances",
+      "module": "routes/transfers.ts",
+      "method": "GET",
+      "path": "/balances",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/transfers.ts:137",
+      "openapi": false
+    },
+    {
+      "mount": "/transfers",
+      "module": "routes/transfers.ts",
+      "method": "GET",
+      "path": "/transfers/onramp/deposit-address",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/transfers.ts:160",
+      "openapi": false
+    },
+    {
+      "mount": "/transfers",
+      "module": "routes/transfers.ts",
+      "method": "POST",
+      "path": "/transfers/internal",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/transfers.ts:187",
+      "openapi": false
+    },
+    {
+      "mount": "/transfers",
+      "module": "routes/transfers.ts",
+      "method": "POST",
+      "path": "/transfers/external",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/transfers.ts:541",
+      "openapi": false
+    },
+    {
+      "mount": "/transfers",
+      "module": "routes/transfers.ts",
+      "method": "POST",
+      "path": "/transfers/hl-deposit",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/transfers.ts:757",
+      "openapi": false
+    },
+    {
+      "mount": "/transfers",
+      "module": "routes/transfers.ts",
+      "method": "GET",
+      "path": "/transfers",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/transfers.ts:997",
+      "openapi": false
+    },
+    {
+      "mount": "/transfers",
+      "module": "routes/transfers.ts",
+      "method": "GET",
+      "path": "/transfers/:id",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/transfers.ts:1010",
+      "openapi": false
+    },
+    {
+      "mount": "/spend",
+      "module": "routes/spend.ts",
+      "method": "GET",
+      "path": "/spend/monthly",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/spend.ts:28",
+      "openapi": false
+    },
+    {
+      "mount": "/push",
+      "module": "routes/push.ts",
+      "method": "GET",
+      "path": "/push/vapid-public-key",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/push.ts:35",
+      "openapi": false
+    },
+    {
+      "mount": "/push",
+      "module": "routes/push.ts",
+      "method": "POST",
+      "path": "/push/subscribe",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/push.ts:40",
+      "openapi": false
+    },
+    {
+      "mount": "/push",
+      "module": "routes/push.ts",
+      "method": "DELETE",
+      "path": "/push/subscribe",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/push.ts:51",
+      "openapi": false
+    },
+    {
+      "mount": "/push",
+      "module": "routes/push.ts",
+      "method": "GET",
+      "path": "/push/subscriptions",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/push.ts:58",
+      "openapi": false
+    },
+    {
+      "mount": "/push",
+      "module": "routes/push.ts",
+      "method": "POST",
+      "path": "/push/expo-subscribe",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/push.ts:80",
+      "openapi": false
+    },
+    {
+      "mount": "/push",
+      "module": "routes/push.ts",
+      "method": "DELETE",
+      "path": "/push/expo-subscribe",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/push.ts:90",
+      "openapi": false
+    },
+    {
+      "mount": "/push",
+      "module": "routes/push.ts",
+      "method": "GET",
+      "path": "/push/expo-subscriptions",
+      "auth": "session",
+      "flag": null,
+      "source": "apps/api/src/routes/push.ts:97",
+      "openapi": false
+    },
+    {
+      "mount": "/system",
+      "module": "routes/system.ts",
+      "method": "GET",
+      "path": "/system/providers",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/system.ts:33",
+      "openapi": false
+    },
+    {
+      "mount": "/system",
+      "module": "routes/system.ts",
+      "method": "GET",
+      "path": "/system/data-sources",
+      "auth": "optional-session",
+      "flag": null,
+      "source": "apps/api/src/routes/system.ts:42",
+      "openapi": false
+    },
+    {
+      "mount": "/system",
+      "module": "routes/system.ts",
+      "method": "GET",
+      "path": "/system/health",
+      "auth": "optional-session",
+      "flag": null,
+      "source": "apps/api/src/routes/system.ts:51",
+      "openapi": false
+    },
+    {
+      "mount": "/system",
+      "module": "routes/system.ts",
+      "method": "GET",
+      "path": "/system/tokenized-stocks",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/system.ts:76",
+      "openapi": false
+    },
+    {
+      "mount": "/config",
+      "module": "routes/config.ts",
+      "method": "GET",
+      "path": "/config/safe-mode",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/config.ts:6",
+      "openapi": true
+    },
+    {
+      "mount": "/.well-known",
+      "module": "routes/wellknown.ts",
+      "method": "GET",
+      "path": "/.well-known/x402-catalog",
+      "auth": "public",
+      "flag": null,
+      "source": "apps/api/src/routes/wellknown.ts:128",
+      "openapi": false
+    }
+  ]
+}

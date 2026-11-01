@@ -1,0 +1,429 @@
+/* ═══ MAZE developer reference — standalone static docs page.
+   Uses the shared primitive + semantic tokens (tokens.css / tokens.semantic.css).
+   Readable docs layout: sticky side nav + a max-width prose column, styled
+   <pre>/<code>, light/dark via the same token vars checkout.css uses.
+
+   Dark mode: .dev-stage owns color:var(--fg) and the page background so the
+   dark token cascade (set via [data-theme="dark"]) actually lands. No
+   decorative top stripe — definition comes from surfaces + hairlines. ═══ */
+
+.dev-stage {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* ── top bar — wordmark + sandbox/base hint ── */
+.dev-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px clamp(18px, 4vw, 40px);
+  background: var(--glass);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.dev-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: var(--fg);
+}
+.dev-wordmark {
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: var(--ls-caps-wide);
+  font-size: 15px;
+}
+.dev-badge {
+  font-family: var(--mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--meta);
+  border: 1px solid var(--border-md);
+  border-radius: var(--pill);
+  padding: 4px 10px;
+}
+.dev-topbar-spacer { flex: 1; }
+.dev-topbar-link {
+  font-family: var(--mono);
+  font-size: var(--fs-body-sm);
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.dev-topbar-link:hover { color: var(--fg); border-bottom-color: var(--accent-edge); }
+
+/* ── shell: sticky nav rail + content column ── */
+.dev-shell {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: clamp(24px, 5vw, 64px);
+  max-width: 1100px;
+  margin-inline: auto;
+  padding: clamp(28px, 5vw, 56px) clamp(18px, 4vw, 40px) 96px;
+}
+
+.dev-nav {
+  position: sticky;
+  top: 78px;
+  align-self: start;
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
+}
+.dev-nav-group + .dev-nav-group { margin-top: 18px; }
+.dev-nav-title {
+  font-family: var(--mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--meta);
+  margin: 0 0 7px;
+}
+.dev-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.dev-nav a {
+  display: block;
+  padding: 5px 10px;
+  font-size: var(--fs-body);
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: var(--r-sm);
+  border-left: 2px solid transparent;
+  transition: color 0.12s var(--ease), background 0.12s var(--ease);
+}
+.dev-nav a:hover { color: var(--fg); background: var(--surface-2); }
+.dev-nav a.is-active {
+  color: var(--fg);
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+}
+
+/* ── content column ── */
+.dev-content {
+  min-width: 0;
+  max-width: 760px;
+}
+.dev-hero {
+  margin-bottom: 40px;
+}
+.dev-eyebrow {
+  font-family: var(--mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--meta);
+  margin: 0 0 10px;
+}
+.dev-h1 {
+  font-family: var(--mono);
+  font-size: clamp(28px, 6vw, 40px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.dev-lead {
+  color: var(--muted);
+  font-size: clamp(15px, 2.4vw, 17px);
+  line-height: 1.6;
+  margin-top: 14px;
+  max-width: 60ch;
+}
+
+.dev-section {
+  padding-top: 28px;
+  margin-top: 28px;
+  border-top: 1px solid var(--border);
+  scroll-margin-top: 84px;
+}
+.dev-section:first-of-type { border-top: 0; }
+.dev-h2 {
+  font-family: var(--mono);
+  font-size: clamp(20px, 4vw, 25px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 84px;
+}
+.dev-h3 {
+  font-family: var(--mono);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  margin-top: 26px;
+  scroll-margin-top: 84px;
+}
+.dev-content p {
+  color: var(--muted);
+  font-size: var(--fs-input);
+  line-height: 1.62;
+  margin-top: 12px;
+}
+.dev-content p strong { color: var(--fg); font-weight: 600; }
+.dev-content ul.dev-list {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: var(--fs-input);
+  line-height: 1.6;
+}
+.dev-content ul.dev-list li { margin-top: 6px; }
+.dev-content ul.dev-list li::marker { color: var(--meta); }
+
+.dev-content a.dev-inline {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-edge);
+}
+.dev-content a.dev-inline:hover { border-bottom-color: var(--accent); }
+
+/* ── inline + block code ── */
+code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+}
+:not(pre) > code {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 1.5px 6px;
+  color: var(--fg);
+  white-space: nowrap;
+}
+.dev-pre {
+  margin-top: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.dev-pre-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--meta);
+}
+.dev-pre pre {
+  margin: 0;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  color: var(--fg);
+  -webkit-text-size-adjust: 100%;
+}
+.dev-pre pre code {
+  font-size: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  white-space: pre;
+}
+
+/* ── method + endpoint chips ── */
+.dev-endpoint {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.dev-method {
+  font-family: var(--mono);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-on);
+  background: var(--accent);
+  border-radius: var(--r-sm);
+  padding: 3px 9px;
+  flex: none;
+}
+.dev-method.get { background: var(--success); }
+.dev-method.patch { background: var(--warn); color: #1a1205; }
+.dev-path {
+  font-family: var(--mono);
+  font-size: var(--fs-input);
+  color: var(--fg);
+  word-break: break-all;
+}
+
+/* ── callout (the red-line / tone note) ── */
+.dev-callout {
+  margin-top: 18px;
+  display: flex;
+  gap: 11px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-edge);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+}
+.dev-callout svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  stroke: var(--accent);
+  margin-top: 1px;
+}
+.dev-callout p { margin: 0; color: var(--fg); font-size: var(--fs-body); line-height: 1.55; }
+.dev-callout p strong { color: var(--fg); }
+
+/* ── three-doors cards ── */
+.dev-doors {
+  margin-top: 18px;
+  display: grid;
+  gap: 14px;
+}
+@media (min-width: 640px) {
+  .dev-doors { grid-template-columns: repeat(3, 1fr); }
+}
+.dev-door {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 18px;
+}
+.dev-door-n {
+  font-family: var(--mono);
+  font-size: var(--fs-meta);
+  letter-spacing: var(--ls-caps);
+  color: var(--meta);
+}
+.dev-door h3 {
+  font-family: var(--mono);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  margin-top: 8px;
+}
+.dev-door p { margin-top: 8px; font-size: var(--fs-body); }
+
+/* ── parameter table ── */
+.dev-params {
+  margin-top: 16px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-body);
+}
+.dev-params th,
+.dev-params td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.dev-params th {
+  font-family: var(--mono);
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--meta);
+  font-weight: 600;
+}
+.dev-params td:first-child {
+  font-family: var(--mono);
+  color: var(--fg);
+  white-space: nowrap;
+}
+.dev-params td.dev-type { font-family: var(--mono); color: var(--muted); font-size: var(--fs-body-sm); }
+.dev-params td:last-child { color: var(--muted); }
+.dev-req {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-left: 6px;
+}
+
+/* ── footer ── */
+.dev-footer {
+  border-top: 1px solid var(--border);
+  padding: 28px clamp(18px, 4vw, 40px) 40px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--meta);
+}
+.dev-footer b { color: var(--muted); font-weight: 600; }
+
+/* ── responsive: collapse the rail to a horizontal scroll-strip ── */
+@media (max-width: 860px) {
+  .dev-shell {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .dev-nav {
+    position: sticky;
+    top: 58px;
+    z-index: 20;
+    max-height: none;
+    overflow: visible;
+    margin: 0 calc(-1 * clamp(18px, 4vw, 40px)) 22px;
+    padding: 10px clamp(18px, 4vw, 40px);
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .dev-nav-group + .dev-nav-group { margin-top: 0; }
+  .dev-nav-title { display: none; }
+  .dev-nav ul {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow-x: auto;
+  }
+  .dev-nav a {
+    white-space: nowrap;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: var(--r-sm) var(--r-sm) 0 0;
+  }
+  .dev-nav a.is-active { border-left: 0; border-bottom-color: var(--accent); }
+}
+
+/* ═══ Provider ecosystem grid (Sprint 16) ═══
+   Mirrors s28 / landing #built but in the docs page's content column. */
+.dev-provider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+.dev-provider-grid > nexa-provider-card { min-width: 0; }
+.dev-provider-foot {
+  margin: 18px 0 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .04em;
+  color: var(--meta);
+}
+.dev-link {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted color-mix(in oklab, var(--accent) 50%, transparent);
+  padding-bottom: 1px;
+}
+.dev-link:hover, .dev-link:focus-visible {
+  border-bottom-color: var(--accent);
+  outline: none;
+}

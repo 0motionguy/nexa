@@ -1,0 +1,104 @@
+/* ═══ BASE — global resets + reduced-motion gate.
+   Ported from app-v2.html lines 51-63. ═══ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #EDEFF4;
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* native-app feel: kill the tap flash + window-level rubber-band */
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  overflow-x: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--mono);
+  margin: 0;
+  text-wrap: balance;
+}
+
+svg {
+  display: block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+.num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* MAZE square-M emblem — orange square with 3-bar M cutout. Used as favicon
+   (via data URI), inline wordmark badge, and on-card mark. The bars take the
+   current --bg so they read as the background "cut through" the orange tile. */
+.m-mark {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  display: inline-block;
+  vertical-align: -3px;
+}
+.m-mark.sm { width: 14px; height: 14px; vertical-align: -2px; }
+.m-mark.md { width: 22px; height: 22px; vertical-align: -4px; }
+.m-mark.lg { width: 28px; height: 28px; vertical-align: -5px; }
+.m-mark.xl { width: 44px; height: 44px; vertical-align: -8px; }
+
+/* Reduced-motion gate. Script in entry HTMLs sets html.rm based on
+   ?motion=off OR (prefers-reduced-motion: reduce). All keyframes
+   inside `html:not(.rm)` blocks. */
+html.rm *,
+html.rm *::before,
+html.rm *::after {
+  animation-duration: 0.001ms !important;
+  animation-delay: 0ms !important;
+  transition-duration: 0.001ms !important;
+}

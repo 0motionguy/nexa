@@ -1,0 +1,21 @@
+# Appended under `scrape_configs:` by scripts/deploy-vps.sh.
+  - job_name: neobank-api
+    metrics_path: /metrics
+    scheme: http
+    authorization:
+      type: Bearer
+      credentials: ${METRICS_TOKEN}
+    static_configs:
+      - targets: ["neobank-api:8090"]
+        labels:
+          service: maze-api
+  - job_name: neobank-scheduler
+    metrics_path: /metrics
+    scheme: http
+    authorization:
+      type: Bearer
+      credentials: ${METRICS_TOKEN}
+    static_configs:
+      - targets: ["neobank-scheduler:8091"]
+        labels:
+          service: maze-scheduler

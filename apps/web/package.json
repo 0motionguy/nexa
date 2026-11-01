@@ -1,0 +1,36 @@
+{
+  "name": "@nexa/web",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "lint": "eslint . --ext .ts"
+  },
+  "dependencies": {
+    "@nexa/charts": "workspace:*",
+    "@nexa/realtime-client": "workspace:*",
+    "@nexa/shared-zod": "workspace:*",
+    "@privy-io/react-auth": "^3.32.1",
+    "lightweight-charts": "^5.0.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.7.2",
+    "vite": "6.4.3",
+    "vitest": "^3.2.6"
+  }
+}

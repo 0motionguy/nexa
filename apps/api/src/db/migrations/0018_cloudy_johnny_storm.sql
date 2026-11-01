@@ -1,0 +1,1 @@
+ALTER TABLE "nb_users" ADD COLUMN "cohort" varchar(40);

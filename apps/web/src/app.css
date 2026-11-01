@@ -1,0 +1,1195 @@
+/* ═══ NEXA app surface — ported from app-v2.html CSS (lines 65-316).
+   Adaptations for production:
+   - review sidebar / phone frame / statusbar removed (DESIGN-HANDOFF: drop prototype chrome)
+   - .stage is the app column: full viewport on mobile, capped 520px centered on desktop
+   - overlay/faceid border-radius 46px → 0 (no phone corner radius)
+   - .tabbar fixed to the app column bottom
+   Everything else is verbatim — class names, geometry, motion. ═══ */
+
+/* ═══ APP COLUMN ═══ */
+.stage {
+  position: relative;
+  /* PLANB W3 — no phone frame: fluid mobile-first column with measured
+     desktop widening (640px at ≥1024, 880px on Trade surfaces at ≥1200). */
+  max-width: min(100%, 560px);
+  margin: 0 auto;
+  /* viewport ladder: 100vh fallback, then 100dvh so the column tracks the
+     iOS URL-bar and the bottom nav always sits at the true visible bottom. */
+  height: 100vh;
+  height: 100dvh;
+  overscroll-behavior: none;
+  background: var(--bg);
+  /* IMPORTANT: re-apply color here so descendants inherit the SCOPED --fg.
+     Without this, body's `color: var(--fg)` resolves once at root and locks
+     all text to light-mode #090A0C, making dark-mode text invisible. */
+  color: var(--fg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background .25s, color .25s, max-width .28s var(--ease);
+}
+@media (min-width: 560px) {
+  .stage {
+    border-inline: 1px solid var(--border);
+    box-shadow: var(--sh-soft);
+  }
+}
+@media (min-width: 1024px) {
+  .stage { max-width: 640px; }
+}
+/* Trade surfaces earn real width on large desktops; focused flows keep the
+   column. :has() is progressive — without support the 640px cap persists. */
+@media (min-width: 1200px) {
+  .stage:has(#s27.on),
+  .stage:has(#s27d.on) { max-width: 880px; }
+}
+html.rm .stage { transition: none; }
+
+/* ═══ SCREENS + APP CHROME ═══ */
+.scr{display:none;flex-direction:column;flex:1;min-height:0}
+.scr.on{display:flex}
+html:not(.rm) .scr.on{animation:scrIn .32s var(--ease)}
+@keyframes scrIn{from{opacity:0;transform:translateX(14px)}}
+/* PLANB W3 — View Transition flavor of the screen swap. go() sets html.vt
+   only while a transition runs so scrIn doesn't double-fire; JS gates VT on
+   html.rm / hidden tabs / support, so these pseudos are inert elsewhere. */
+html.vt .scr.on{animation:none}
+::view-transition-old(root){animation:vtOut .18s var(--ease) both}
+::view-transition-new(root){animation:vtIn .22s var(--ease) both}
+@keyframes vtOut{to{opacity:0;transform:translateX(-10px)}}
+@keyframes vtIn{from{opacity:0;transform:translateX(14px)}}
+.appbar{display:flex;align-items:center;gap:10px;padding:max(8px,env(safe-area-inset-top)) 16px 6px;flex:none;min-height:48px}
+.appbar .ttl{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.appbar .spacer{flex:1}
+.section-appbar{gap:10px}
+.section-appbar .home-wordmark{font-size:20px;letter-spacing:.24em}
+.section-label{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--meta);white-space:nowrap}
+.backb{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--border);border-radius:50%;background:var(--surface)}
+.backb svg{width:16px;height:16px;stroke:var(--fg)}
+.iconb{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--border);border-radius:50%;background:var(--surface);position:relative}
+.iconb svg{width:16px;height:16px;stroke:var(--fg)}
+.iconb .dot{position:absolute;top:7px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;padding:6px 18px calc(110px + env(safe-area-inset-bottom));scrollbar-width:none}
+.body::-webkit-scrollbar{display:none}
+.body.center{display:flex;flex-direction:column;justify-content:center;padding-bottom:40px}
+.body.notab{padding-bottom:34px}
+.tabbar{position:absolute;left:0;right:0;bottom:0;z-index:30;display:none;align-items:center;justify-content:space-around;background:color-mix(in oklab,var(--surface) 84%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);padding:9px max(13px,calc((100% - 520px)/2)) max(18px,env(safe-area-inset-bottom));box-shadow:0 -12px 32px color-mix(in oklab,var(--fg) 7%,transparent)}
+.tabbar.on{display:flex}
+.tb{display:grid;justify-items:center;gap:5px;font-size:12px;color:var(--muted);font-weight:500;min-width:56px;padding:3px 0 0;border-radius:12px;transition:background .2s var(--ease),color .2s}
+.tb svg{width:23px;height:23px;stroke:currentColor}
+.tb.on{background:transparent;color:var(--fg)}
+.tb.plus{align-self:start;min-width:54px;height:54px;border-radius:50%;background:var(--fg);color:var(--bg);margin-top:-11px;box-shadow:0 12px 26px color-mix(in oklab,var(--fg) 20%,transparent);padding:0;gap:0;place-content:center}
+.tb.plus svg{width:28px;height:28px;stroke:currentColor}
+.tb.plus.on{background:var(--fg);color:var(--bg)}
+.home-ind{position:absolute;bottom:max(4px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:110px;height:4px;border-radius:4px;background:var(--fg);opacity:.7;z-index:31}
+/* The fake home indicator is browser-only chrome; in an installed PWA the OS
+   draws the real one, so hide ours to avoid a doubled bar. */
+html.standalone .home-ind{display:none}
+@media (display-mode:standalone){.home-ind{display:none}}
+
+/* ═══ SHARED COMPONENTS ═══ */
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--meta);margin-bottom:10px}
+.h-big{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.sub{color:var(--muted);font-size:14px;margin-top:8px;line-height:1.55}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;border-radius:var(--pill);font-weight:600;font-size:14px;background:var(--fg);color:var(--bg);transition:opacity .15s,transform .05s}
+.btn:active{transform:translateY(1px)}
+.btn:hover{opacity:.88}
+.btn.acc{background:var(--accent);color:#FFF}
+.btn.acc:hover{background:var(--accent-deep);opacity:1}
+.btn.ghost{background:transparent;border:1px solid var(--border-md);color:var(--fg)}
+.btn.sm{min-height:42px;font-size:13.5px;width:auto;padding:0 20px}
+.btn:disabled{opacity:.4;cursor:default}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;box-shadow:var(--sh-soft)}
+.row{display:flex;align-items:center;gap:12px}
+.row .grow{flex:1;min-width:0}
+.lrow{display:flex;align-items:center;gap:12px;padding:13px 2px;border-top:1px solid var(--border);min-height:52px}
+.lrow:first-child{border-top:0}
+.lrow .grow{flex:1;min-width:0}
+.lrow .ic{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;flex:none}
+.lrow .ic svg{width:15px;height:15px;stroke:var(--muted)}
+.lrow .t{font-size:13.5px;font-weight:500;line-height:1.25}
+.lrow .s{font-size:11px;color:var(--meta);font-family:var(--mono)}
+.lrow .amt{margin-left:auto;font-family:var(--mono);font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;flex:none}
+.amt.pos{color:var(--success)}
+.chev{margin-left:auto;color:var(--meta);flex:none}
+.field{display:grid;gap:7px;margin-top:14px}
+.field label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--meta);text-transform:uppercase}
+.inp{width:100%;min-height:46px;padding:11px 14px;border:1px solid var(--border-md);border-radius:var(--r-md);background:var(--surface);font-size:16px}
+.inp:focus{outline:2px solid var(--accent-soft);border-color:var(--border-md)}
+.pillbtn{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted);border:1px solid var(--border-md);border-radius:var(--pill);padding:7px 13px;min-height:32px}
+.pillbtn:hover{border-color:var(--fg);color:var(--fg)}
+.pillbtn.onx{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border:1px solid var(--border-md);border-radius:var(--pill);font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.tag.live{color:var(--accent);border-color:color-mix(in oklab,var(--accent) 45%,transparent)}
+.tag.ok{color:var(--success);border-color:color-mix(in oklab,var(--success) 40%,transparent)}
+.tag.warnx{color:var(--warn);border-color:color-mix(in oklab,var(--warn) 50%,transparent)}
+.tag.dang{color:var(--danger);border-color:color-mix(in oklab,var(--danger) 45%,transparent)}
+.sw{width:46px;height:27px;border-radius:var(--pill);background:var(--border-md);position:relative;transition:background .2s;flex:none}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:var(--surface);box-shadow:var(--sh-soft);transition:left .2s}
+.sw[aria-checked="true"]{background:var(--accent)}
+.sw[aria-checked="true"]::after{left:22px}
+.sw.green[aria-checked="true"]{background:var(--success)}
+.bignum{font-family:var(--mono);font-size:32px;font-weight:600;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--border);font-size:13.5px}
+.kv:first-child{border-top:0}
+.kv b{font-weight:600}
+.kv .k{color:var(--meta);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding-top:2px}
+.kv .num{font-weight:600}
+.adv{margin-top:16px;border:1px dashed var(--border-md);border-radius:var(--r-md);overflow:hidden}
+.adv summary{list-style:none;cursor:pointer;padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--meta);text-transform:uppercase;display:flex;justify-content:space-between}
+.adv summary::after{content:'+'}
+.adv[open] summary::after{content:'−'}
+.adv .advb{padding:2px 14px 12px;font-family:var(--mono);font-size:11.5px;color:var(--muted);line-height:1.7;overflow-wrap:anywhere}
+.seg{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--pill);padding:3px;gap:2px;margin-bottom:14px}
+.seg button{flex:1;min-height:36px;border-radius:var(--pill);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--meta)}
+.seg button.on{background:var(--fg);color:var(--bg)}
+.seg button[aria-disabled="true"]{opacity:.5;cursor:not-allowed}
+.trade-venue-seg,.activity-filter-seg{margin-top:4px}
+.iconb.spinning svg{animation:spin .9s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+html.rm .iconb.spinning svg{animation:none}
+/* ═══ FULL-APP-FEEL micro-interactions (Phase I) ═══ */
+/* Chrome controls should never feel "webby": no text-selection on tap, no
+   tap-highlight blue flash, no double-tap zoom on buttons. */
+.tb,.btn,.iconb,.pillbtn,.qa,.backb,.seg button{
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
+  user-select:none;
+  -webkit-user-select:none;
+  touch-action:manipulation;
+}
+/* Tap-press feedback: snap-scale on press, eased back on release. */
+.tb,.qa{transition:transform .12s var(--ease),background .2s var(--ease),color .2s}
+.tb:active,.qa:active,.iconb:active,.seg button:active{transform:scale(.94)}
+.btn:active{transform:scale(.985) translateY(1px)}
+/* Top loading bar — visible during syncFromServer. Sits above tabbar at the
+   top of the app column, indeterminate sweep, hides when sync resolves. */
+.top-loadbar{position:absolute;top:0;left:0;right:0;height:2px;background:transparent;z-index:40;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .15s var(--ease)}
+.top-loadbar.on{opacity:1}
+.top-loadbar i{display:block;height:100%;width:42%;background:linear-gradient(90deg,transparent,var(--accent),transparent);border-radius:2px;transform:translateX(-100%)}
+html:not(.rm) .top-loadbar.on i{animation:loadbar 1.1s cubic-bezier(.42,0,.58,1) infinite}
+@keyframes loadbar{0%{transform:translateX(-100%)}100%{transform:translateX(240%)}}
+/* Sheet grab handle: visual affordance for drag-to-dismiss. */
+.sheet .grab{width:46px;height:5px;border-radius:3px;background:color-mix(in oklab,var(--fg) 18%,transparent);margin:-2px auto 14px;cursor:grab;touch-action:none}
+.sheet.dragging{transition:none}
+.sheet.dragging .grab{cursor:grabbing}
+html:not(.rm) .sheet{transition:transform .28s var(--ease)}
+input[type="range"]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--border-md);outline:none}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:var(--fg);border:5px solid var(--surface);box-shadow:0 0 0 1px var(--border-md);cursor:grab}
+input[type="range"]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--fg);border:4px solid var(--surface);box-shadow:0 0 0 1px var(--border-md)}
+.meter{height:5px;background:var(--border);border-radius:5px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:5px;transition:width .5s var(--ease)}
+.banner{display:flex;gap:10px;align-items:center;background:var(--warn-soft);border:1px solid color-mix(in oklab,var(--warn) 40%,transparent);border-radius:var(--r-md);padding:10px 13px;font-size:12.5px;margin-bottom:12px}
+.banner b{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--warn)}
+.banner button{margin-left:auto;color:var(--meta);font-size:16px;width:32px;height:32px}
+.skel{border-radius:10px;background:linear-gradient(90deg,var(--border) 25%,var(--surface) 50%,var(--border) 75%);background-size:200% 100%}
+html:not(.rm) .skel{animation:shim 1.1s linear infinite}
+@keyframes shim{to{background-position:-200% 0}}
+/* Skeleton rows — market-list loading placeholders in the exact geometry of
+   the rows they replace (built by src/lib/list-skeleton.ts). Bars reuse the
+   .skel shimmer primitive so reduced-motion falls back with the same gate. */
+.skel-row{display:flex;align-items:center;gap:12px;padding:12px 2px;border-top:1px solid var(--border);min-height:70px}
+.skel-row:first-child{border-top:0}
+.skel-row .skel-logo{width:46px;height:46px;border-radius:12px;flex:none}
+.skel-row.skel-lrow{padding:13px 2px}
+.skel-row.skel-lrow .skel-logo{width:44px;height:44px;border-radius:8px}
+.skel-row .skel-stack{flex:1;min-width:0;display:grid;gap:7px;justify-items:start}
+.skel-row .skel-bar{height:12px;width:min(46%,150px)}
+.skel-row .skel-bar.sub{height:10px;width:min(64%,210px)}
+.skel-row .skel-right{display:grid;gap:7px;justify-items:end;flex:none;min-width:84px}
+.skel-row .skel-bar.amt{width:64px}
+.skel-row .skel-bar.pct{width:44px;height:10px}
+.skel-pm-card{height:132px;border-radius:var(--r-md)}
+/* Offscreen market rows skip layout+paint so expanded lists (175+ rows) stay
+   cheap to scroll. contain-intrinsic-size ≈ real row height keeps the
+   scrollbar honest; `auto` remembers the measured size after first paint.
+   Viewport-gated hub subscriptions are unaffected — IntersectionObserver
+   still reports for content-visibility:auto elements. */
+#hlMarketsList nexa-market-row,
+#hlSpotMarketsList nexa-market-row,
+#hlMemesMarketsList nexa-market-row,
+#stocksPerpMarketsList nexa-market-row{content-visibility:auto;contain-intrinsic-size:auto 71px}
+#jupMemesMarketsList .lrow.cards-row,
+#xStocksSpotMarketsList .lrow.cards-row{content-visibility:auto;contain-intrinsic-size:auto 71px}
+.codez{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(4px,2vw,8px);margin-top:14px}
+.codez input{width:100%;min-width:0;height:56px;text-align:center;font-family:var(--mono);font-size:22px;font-weight:600;border:1px solid var(--border-md);border-radius:var(--r-md);background:var(--surface)}
+.codez input:focus{outline:2px solid var(--accent-soft)}
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin-top:16px}
+.qa{display:grid;justify-items:center;gap:6px;font-size:10.5px;color:var(--muted);font-weight:500;padding:4px 0;border-radius:14px;min-height:44px}
+.qa b{width:48px;height:48px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--border);border-radius:50%;transition:transform .16s var(--ease),background .16s}
+.qa svg{width:17px;height:17px;stroke:var(--fg)}
+.qa:active b{transform:scale(.9)}
+.globe-slot{position:relative;height:190px}
+.globe-slot canvas{width:100%;height:100%}
+.checkw{width:84px;height:84px;border-radius:50%;background:var(--gain-soft);display:grid;place-items:center;margin:0 auto 18px}
+.checkw svg{width:38px;height:38px;stroke:var(--success);stroke-width:2.2}
+html:not(.rm) .checkw svg path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .6s .15s var(--ease) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.kpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px}
+.kpad button{min-height:52px;border-radius:var(--r-md);font-family:var(--mono);font-size:19px;font-weight:500;transition:transform .12s var(--ease),background .15s}
+.kpad button:hover{background:var(--surface)}
+.kpad button:active{transform:scale(.93)}
+.amount-disp{font-family:var(--mono);font-size:36px;font-weight:600;letter-spacing:-.03em;text-align:center;font-variant-numeric:tabular-nums;line-height:1.1}
+.amount-disp small{font-size:18px;color:var(--meta)}
+/* ═══ SWAP — token-selector legs + picker ═══ */
+.swap-leg{padding:14px 16px}
+.swap-row{display:flex;align-items:center;gap:10px}
+.swap-amt{flex:1;min-width:0;border:0;background:none;padding:0;font-size:30px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--fg);outline:none}
+.swap-meta{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--meta);font-family:var(--mono)}
+.token-pick{display:flex;align-items:center;gap:7px;flex:none;background:var(--bg);border:1px solid var(--border-md);border-radius:var(--pill);padding:6px 12px 6px 7px;font-weight:600;font-size:14px}
+.token-pick:hover{border-color:var(--fg)}
+.token-ic{width:24px;height:24px;border-radius:50%;background:var(--fg);color:var(--bg);display:grid;place-items:center;font-size:12px;font-family:var(--mono);font-weight:600;flex:none}
+.tk-chev{color:var(--meta);font-size:11px}
+.swap-flip-wrap{display:grid;place-items:center;height:0;position:relative;z-index:2}
+.swap-flip{margin:-7px 0;background:var(--surface);box-shadow:var(--sh-soft)}
+.tk-group{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--meta);margin:14px 0 2px}
+.tk-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--border);cursor:pointer;width:100%;text-align:left}
+.tk-row:first-child{border-top:0}
+.tk-row .token-ic{width:32px;height:32px;font-size:13px}
+.tk-row .grow{flex:1;min-width:0}
+.tk-row .tk-name{font-size:13.5px;font-weight:500}
+.tk-row .tk-sub{font-size:11px;color:var(--meta);font-family:var(--mono)}
+.vcard{aspect-ratio:1.586;border-radius:18px;background:var(--ink);color:var(--ink-fg);padding:18px;display:flex;flex-direction:column;justify-content:space-between;background-image:radial-gradient(var(--emboss) 1.2px,transparent 1.6px);background-size:12px 12px;position:relative;overflow:hidden;transition:filter .25s,opacity .25s}
+.vcard.frozen{filter:grayscale(1);opacity:.55}
+.vcard .wmk{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.3em}
+.vcard .vpan{font-family:var(--mono);font-size:17px;letter-spacing:.14em;font-weight:500}
+.vcard .vrow{display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--ink-muted)}
+.frozen-b{position:absolute;inset:0;display:none;place-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.3em}
+.vcard.frozen .frozen-b{display:grid}
+html:not(.rm) .vcard.flip{animation:vflip .72s var(--ease)}
+@keyframes vflip{0%{transform:perspective(700px) rotateY(0)}50%{transform:perspective(700px) rotateY(88deg)}100%{transform:perspective(700px) rotateY(0)}}
+.avatarb{width:40px;height:40px;border-radius:50%;background:var(--fg);color:var(--bg);display:grid;place-items:center;font-family:var(--mono);font-size:13px;font-weight:600}
+.agent-av{width:38px;height:38px;border-radius:12px;background:var(--surface);border:1px solid var(--border-md);display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600;flex:none}
+.agent-av.hot{border-color:color-mix(in oklab,var(--accent) 45%,transparent);color:var(--accent)}
+/* Brand-logo chip: an <img> sits inside the 38×38 .agent-av slot. Wordmarks
+   (aave/ethena/hyperliquid) get contained with a hair of padding so they read
+   as a chip-mark, not a stretched wordmark. Square icons (morpho/compound/
+   polymarket/marinade) fill the slot edge-to-edge. */
+.agent-av.brand{background:var(--surface);border-color:var(--border-md);overflow:hidden;padding:0}
+.agent-av.brand img{display:block;width:100%;height:100%;object-fit:contain;padding:4px;box-sizing:border-box;border-radius:inherit}
+/* Brand marks injected into [data-brand] slots. Plain slots need explicit size;
+   .ic keeps its own 15px rule through the more-specific .lrow .ic svg selector. */
+[data-brand] svg{display:block;width:20px;height:20px}
+pre.cfg{margin:10px 0 0;background:var(--ink);color:var(--ink-fg);border-radius:var(--r-md);padding:14px;font-family:var(--mono);font-size:11px;line-height:1.7;overflow-x:auto}
+
+/* ═══ SHEETS / MODAL / TOAST / FACEID ═══ */
+.ovl{position:absolute;inset:0;z-index:50;display:none}
+/* scroll-lock: while a sheet/overlay is open, freeze the screen body behind it
+   so iOS doesn't scroll the page under the scrim. The sheet keeps its own scroll. */
+.stage.locked .body{overflow:hidden}
+.ovl.on{display:block}
+.ovl .scrim{position:absolute;inset:0;background:var(--scrim)}
+.sheet{position:absolute;left:8px;right:8px;bottom:8px;background:var(--surface);border:1px solid var(--border);border-radius:28px;padding:20px 18px 24px;box-shadow:var(--sh-card);max-height:78%;overflow-y:auto;max-width:504px;margin-inline:auto}
+@media (max-width:480px){
+  .appbar{padding-inline:18px}
+  .body{padding-inline:20px}
+  .sheet{left:0;right:0;bottom:0;border-radius:22px 22px 0 0;max-height:100dvh;padding:20px 20px calc(24px + env(safe-area-inset-bottom))}
+}
+html:not(.rm) .ovl.on .sheet{animation:shup .3s var(--ease)}
+@keyframes shup{from{transform:translateY(30px);opacity:0}}
+.sheet .grab{width:40px;height:4px;border-radius:4px;background:var(--border-md);margin:0 auto 14px}
+.toasts{position:absolute;left:16px;right:16px;top:56px;z-index:60;display:grid;gap:8px;pointer-events:none;max-width:488px;margin-inline:auto}
+.net-banner{position:absolute;left:0;right:0;top:0;z-index:55;padding:max(7px,env(safe-area-inset-top)) 16px 7px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--fg);background:var(--warn-soft);border-bottom:1px solid color-mix(in oklab,var(--warn) 40%,transparent)}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--ink-fg);border-radius:14px;padding:11px 14px;font-size:12.5px;box-shadow:var(--sh-card)}
+html:not(.rm) .toast{animation:shup .3s var(--ease)}
+.toast i{width:7px;height:7px;flex:none;border-radius:2px;background:var(--success)}
+.toast.err i{background:var(--danger)}
+.toast button{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--accent);flex:none;min-height:32px;padding:0 8px}
+.faceid{position:absolute;inset:0;z-index:70;display:none;place-items:center;background:var(--scrim)}
+.faceid.on{display:grid}
+.faceid .fbox{background:var(--surface);border-radius:24px;padding:26px 34px;text-align:center;box-shadow:var(--sh-card)}
+.faceid svg{width:54px;height:54px;stroke:var(--fg);margin:0 auto 10px}
+html:not(.rm) .faceid.on svg{animation:fpulse 1s ease-in-out infinite}
+@keyframes fpulse{50%{opacity:.45}}
+html.rm .scr.on,html.rm .toast,html.rm .ovl.on .sheet{animation:none}
+
+/* ═══ ROUND 2 — staggered entrance + home modules ═══ */
+html:not(.rm) .scr.on .body>*{animation:fadeUp2 .42s var(--ease) backwards}
+html:not(.rm) .scr.on .body>*:nth-child(1){animation-delay:.03s}
+html:not(.rm) .scr.on .body>*:nth-child(2){animation-delay:.08s}
+html:not(.rm) .scr.on .body>*:nth-child(3){animation-delay:.13s}
+html:not(.rm) .scr.on .body>*:nth-child(4){animation-delay:.18s}
+html:not(.rm) .scr.on .body>*:nth-child(5){animation-delay:.23s}
+html:not(.rm) .scr.on .body>*:nth-child(6){animation-delay:.28s}
+html:not(.rm) .scr.on .body>*:nth-child(7){animation-delay:.33s}
+@keyframes fadeUp2{from{opacity:0;transform:translateY(10px)}}
+html:not(.rm) #s08.scr.on .body>*{animation:none}
+.camp-pay{font-family:var(--mono);font-size:11px;color:var(--meta)}
+.join2.joined{border-color:color-mix(in oklab,var(--success) 45%,transparent);color:var(--success)}
+
+/* screenshot-aligned home */
+#s08 .home-appbar{min-height:50px;padding:max(12px,env(safe-area-inset-top)) 20px 2px}
+.home-wordmark{font-family:var(--mono);font-size:25px;font-weight:500;letter-spacing:.32em;line-height:1}
+#s08 .iconb{background:transparent;border-color:transparent}
+#s08 .iconb svg{width:22px;height:22px;stroke-width:1.9}
+#s08 .iconb .dot{top:8px;right:7px;width:11px;height:11px;box-shadow:0 0 0 2px var(--bg)}
+.home-body{padding:22px 18px calc(112px + env(safe-area-inset-bottom));background:
+  radial-gradient(circle at 66% 10%,color-mix(in oklab,var(--surface) 60%,transparent),transparent 40%),
+  linear-gradient(180deg,color-mix(in oklab,var(--bg) 94%,var(--surface)),var(--bg) 32%,color-mix(in oklab,var(--bg) 92%,var(--fg)) 100%)}
+.home-greet{font-size:15px;color:var(--muted);line-height:1.2}
+.home-balance{font-family:var(--sans);font-size:34px;font-weight:600;letter-spacing:-.035em;line-height:1.05;font-variant-numeric:tabular-nums;margin-top:8px}
+#s14 .home-balance{text-align:center;margin-top:4px}
+.home-total{font-size:13px;color:var(--muted);line-height:1.2;margin-top:8px}
+.home-eur{font-size:13px;color:var(--fg);line-height:1.2;margin-top:4px;font-variant-numeric:tabular-nums}
+#s08 .qa-grid{gap:10px;margin-top:20px}
+#s08 .qa{min-height:64px;border-radius:13px;padding:10px 4px;background:color-mix(in oklab,var(--surface) 70%,transparent);border:1px solid color-mix(in oklab,var(--surface) 76%,var(--border));box-shadow:inset 0 1px 0 color-mix(in oklab,var(--surface) 86%,transparent),0 14px 32px color-mix(in oklab,var(--fg) 7%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font-size:11px;color:var(--fg)}
+#s08 .qa b{width:30px;height:30px;border:0;background:transparent;border-radius:0}
+#s08 .qa svg{width:20px;height:20px;stroke-width:1.8}
+#s08 .qa:active{transform:translateY(1px)}
+#s08 .qa:active b{transform:scale(.95)}
+.home-orbit{position:relative;margin:22px -18px -90px;height:290px;pointer-events:none}
+.home-globe{height:290px;overflow:visible}
+.home-globe canvas{opacity:1;filter:contrast(1.55) saturate(1.05)}
+.home-card{position:relative;z-index:2;background:color-mix(in oklab,var(--surface) 82%,transparent);border:1px solid color-mix(in oklab,var(--surface) 74%,var(--border));border-radius:16px;box-shadow:0 18px 45px color-mix(in oklab,var(--fg) 8%,transparent);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.spend-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;margin-top:0;width:100%;color:inherit;text-align:left;cursor:pointer}
+.spend-card .label{font-size:13px;color:var(--muted)}
+.spend-card .amount{font-size:19px;font-weight:600;letter-spacing:-.03em;margin-top:6px}
+.spend-card .delta{color:var(--accent);font-size:12px;margin-left:8px}
+.spend-card .subline{font-size:12px;color:var(--muted);margin-top:4px}
+.insights-hero{padding:16px}
+.insight-bar{height:7px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin-top:8px}
+.insight-bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.donut{width:78px;height:78px;flex:none;transform:rotate(-90deg)}
+.donut .track{stroke:color-mix(in oklab,var(--muted) 18%,transparent)}
+.donut .slice-a{stroke:color-mix(in oklab,var(--fg) 58%,var(--surface))}
+.donut .slice-b{stroke:color-mix(in oklab,var(--fg) 82%,var(--surface))}
+.tx-card{margin-top:12px;padding:14px 16px 6px}
+.tx-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tx-head h3{font-family:var(--sans);font-size:14px;letter-spacing:-.01em}
+.view-link{font-size:12px;color:var(--accent)}
+.tx-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--border);cursor:pointer}
+.tx-row:first-child{border-top:0}
+.tx-logo{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--fg);color:var(--bg);font-family:var(--sans);font-size:18px;font-weight:700;letter-spacing:-.08em;overflow:hidden}
+.tx-logo svg{width:19px;height:19px;stroke:currentColor}
+.tx-logo.spotify{background:var(--success);color:var(--surface);font-size:20px;letter-spacing:0}
+.tx-logo.uber{background:color-mix(in oklab,var(--accent) 26%,var(--fg));color:var(--surface);font-size:15px;letter-spacing:-.05em}
+.tx-logo.in{background:color-mix(in oklab,var(--success) 14%,var(--surface));color:var(--success)}
+.tx-logo.out,.tx-logo.card,.tx-logo.agent,.tx-logo.swap{background:color-mix(in oklab,var(--fg) 8%,var(--surface));color:var(--fg)}
+.tx-main{flex:1;min-width:0}
+.tx-title{display:block;font-size:14px;font-weight:500;line-height:1.2}
+.tx-sub{display:block;color:var(--muted);font-size:11.5px;line-height:1.25;margin-top:3px}
+.tx-amt{font-size:15px;font-weight:500;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.tx-amt.pos{color:var(--success)}
+
+/* ═══ DESKTOP HOVER AFFORDANCES — pointer devices only. Touch keeps the
+   prototype's :active feedback; these layer on top without moving layout. ═══ */
+.sw,.adv summary,.tb,.qa{cursor:pointer}
+@media (hover:hover) and (pointer:fine){
+  /* home quick-action tiles: lift + sharpen */
+  #s08 .qa{transition:transform .18s var(--ease),box-shadow .18s var(--ease),border-color .18s var(--ease)}
+  #s08 .qa:hover{transform:translateY(-2px);border-color:color-mix(in oklab,var(--fg) 14%,var(--border));box-shadow:inset 0 1px 0 color-mix(in oklab,var(--surface) 86%,transparent),0 18px 40px color-mix(in oklab,var(--fg) 11%,transparent)}
+  .qa:hover b{background:var(--bg);border-color:var(--border-md)}
+  #s08 .qa:hover b{background:transparent}
+
+  /* tappable ledger rows: tinted wash, geometry preserved via negative margin */
+  .tx-row{border-radius:12px;margin-inline:-10px;padding-inline:10px;transition:background .15s var(--ease)}
+  .tx-row:hover{background:color-mix(in oklab,var(--fg) 4%,transparent)}
+  .lrow[data-go]:hover,.lrow[data-open]:hover,.lrow[data-act]:hover{background:color-mix(in oklab,var(--fg) 4%,transparent);border-radius:10px;margin-inline:-8px;padding-inline:10px}
+  .lrow[data-go]:hover .chev,.lrow[data-open]:hover .chev,.lrow[data-act]:hover .chev{color:var(--fg)}
+
+  /* links + chrome buttons */
+  .view-link{transition:color .15s}
+  .view-link:hover{color:var(--accent-deep);text-decoration:underline;text-underline-offset:3px}
+  .iconb,.backb{transition:background .15s var(--ease),border-color .15s var(--ease)}
+  .iconb:hover,.backb:hover{background:var(--bg);border-color:var(--border-md)}
+  #s08 .iconb:hover{background:color-mix(in oklab,var(--fg) 5%,transparent);border-color:transparent}
+  .tb{transition:color .2s,transform .18s var(--ease)}
+  .tb:hover{color:var(--fg)}
+  .tb.plus:hover{transform:translateY(-2px);box-shadow:0 16px 32px color-mix(in oklab,var(--fg) 26%,transparent)}
+  .adv summary:hover{color:var(--fg)}
+  .sw{transition:background .2s,box-shadow .18s var(--ease)}
+  .sw:hover{box-shadow:0 0 0 4px color-mix(in oklab,var(--fg) 6%,transparent)}
+  .agent-av{transition:border-color .15s}
+  .lrow[data-go]:hover .agent-av{border-color:color-mix(in oklab,var(--fg) 30%,var(--border-md))}
+}
+html.rm .tx-row,html.rm .qa,html.rm .tb,html.rm .sw{transition:none}
+
+/* ═══ DARK-MODE COMPONENT POLISH — the components below all have light-mode
+   defaults higher in this file. These rules ONLY activate inside .stage[data-theme="dark"]
+   and address the readability bugs the user flagged: vcard invisible, qa tiles
+   muddy, faint borders, no accent affordances. Tiny accent-edge highlight lines
+   are the "tiny lines to highlight" pattern Mirko asked for — applied to
+   individual edges (top of card, focus ring, active tab) NOT as full top stripes
+   (those are AI-slop, banned per taste-skill 9.F). ═══ */
+
+/* The virtual card was using --ink (#0A0A0C) — identical to dark --bg. Lift
+   it onto --surface-2 with an accent-edge border for definition. */
+.stage[data-theme="dark"] .vcard {
+  background: var(--surface-2);
+  border: 1px solid var(--accent-edge);
+}
+/* Frozen state in dark — keep the badge legible */
+.stage[data-theme="dark"] .vcard.frozen { border-color: var(--border-md); }
+
+/* Home QA tiles: in light mode the 70% surface mix reads as a frosted card.
+   In dark mode the same recipe yields a near-black tile. Bump opacity + add
+   accent-edge top hairline for a "lifted" feel without going full stripe. */
+.stage[data-theme="dark"] #s08 .qa {
+  background: color-mix(in oklab, var(--surface) 88%, transparent);
+  border-color: color-mix(in oklab, var(--surface) 60%, var(--border-md));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--accent-edge), transparent 70%),
+    0 14px 32px rgba(0, 0, 0, .35);
+}
+.stage[data-theme="dark"] #s08 .qa:hover {
+  background: color-mix(in oklab, var(--accent) 7%, var(--surface));
+  border-color: color-mix(in oklab, var(--accent) 28%, var(--border-md));
+}
+
+/* Card top hairline — the "tiny line" pattern. Single-pixel orange at low
+   opacity along the TOP edge only, so it reads as a light source not a
+   dashboard stripe. Light mode skips this — only kicks in on dark. */
+.stage[data-theme="dark"] .card {
+  border-top: 1px solid color-mix(in oklab, var(--accent-edge), transparent 75%);
+}
+
+/* Inputs gain an accent-edge focus ring that works on both themes — the old
+   `outline: var(--accent-soft)` was invisible on dark. */
+.inp:focus { outline: 2px solid var(--accent-edge); outline-offset: 2px; border-color: var(--border-md); }
+.codez input:focus { outline: 2px solid var(--accent-edge); outline-offset: 2px; }
+.kpad button:focus-visible { outline: 2px solid var(--accent-edge); outline-offset: 2px; }
+
+/* Primary CTA lift — `.btn.acc` (orange) gets a glow that reads on dark. */
+@media (hover:hover) and (pointer:fine) {
+  .btn.acc:hover { box-shadow: 0 10px 30px color-mix(in oklab, var(--accent) 28%, transparent); }
+  .stage[data-theme="dark"] .btn:not(.acc):not(.ghost):hover {
+    box-shadow: 0 8px 24px color-mix(in oklab, var(--accent) 18%, transparent);
+  }
+}
+
+/* Segmented control active rim — the "tiny line" pattern again. The active
+   segment gains a 1px accent-edge ring instead of the plain --fg background. */
+.stage[data-theme="dark"] .seg button.on {
+  box-shadow: inset 0 0 0 1px var(--accent-edge);
+}
+
+/* ═══ PREMIUM BUTTON POLISH — cascades to all 28 screens (app + portal).
+   Layered shadow + subtle lift on hover; matches landing hero CTA chrome
+   so the user feels the same craft from landing through every product
+   screen. Hover-only so touch devices don't get jumpy. */
+@media (hover:hover) and (pointer:fine) {
+  .btn { will-change: transform; }
+  .btn:not(.ghost):not(:disabled) {
+    box-shadow:
+      0 8px 18px -6px rgba(10, 10, 12, .18),
+      0 1px 0 rgba(255, 255, 255, .04) inset;
+  }
+  .btn:not(.ghost):not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 14px 28px -8px rgba(10, 10, 12, .28),
+      0 1px 0 rgba(255, 255, 255, .06) inset;
+  }
+  .btn:not(.ghost):not(:disabled):active {
+    transform: translateY(0);
+    box-shadow:
+      0 4px 10px -2px rgba(10, 10, 12, .18),
+      0 1px 0 rgba(255, 255, 255, .04) inset;
+  }
+}
+.stage[data-theme="dark"] .btn:not(.ghost):not(:disabled) {
+  box-shadow:
+    0 8px 22px -6px rgba(0, 0, 0, .42),
+    0 1px 0 rgba(255, 255, 255, .04) inset;
+}
+@media (hover:hover) and (pointer:fine) {
+  .stage[data-theme="dark"] .btn:not(.ghost):not(:disabled):hover {
+    box-shadow:
+      0 16px 36px -8px rgba(0, 0, 0, .55),
+      0 1px 0 rgba(255, 255, 255, .06) inset;
+  }
+}
+
+/* Premium card lift — same craft on .card hover where the card is interactive
+   (has data-go or is wrapped in a clickable parent). Subtle, not jumpy. */
+@media (hover:hover) and (pointer:fine) {
+  .card[data-go]:hover,
+  a > .card:hover,
+  button > .card:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 16px 32px -10px rgba(10, 10, 12, .14),
+      0 1px 0 rgba(255, 255, 255, .04) inset;
+    transition: transform .18s ease, box-shadow .22s ease;
+  }
+}
+
+/* Bottom-nav active tab — micro accent underline (4px wide) under the label,
+   centered. Replaces the muted current treatment with a real "you are here"
+   signal in dark. */
+.stage[data-theme="dark"] .tabbar .tb.on { position: relative; }
+.stage[data-theme="dark"] .tabbar .tb.on::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: 6px;
+  height: 2px;
+  margin-left: -3px;
+  border-radius: 2px;
+  background: var(--accent-edge);
+}
+
+/* Banner + toast in dark mode — full hairline borders, no side-stripe. */
+.stage[data-theme="dark"] .banner {
+  background: color-mix(in oklab, var(--warn) 12%, var(--surface-2));
+  border: 1px solid color-mix(in oklab, var(--warn) 30%, transparent);
+}
+.stage[data-theme="dark"] .toast {
+  background: var(--surface-2);
+  color: var(--fg);
+  border: 1px solid var(--border-md);
+}
+.stage[data-theme="dark"] .toast.err { border-color: color-mix(in oklab, var(--danger) 38%, transparent); }
+
+/* MCP config block (s24) — gain accent-edge definition in dark so the code
+   block doesn't sit invisible inside the page. */
+.stage[data-theme="dark"] pre.cfg {
+  border: 1px solid color-mix(in oklab, var(--accent-edge), transparent 60%);
+}
+
+/* Live status tag — gain a soft accent halo so live-ness reads peripherally. */
+.stage[data-theme="dark"] .tag.live {
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 18%, transparent);
+}
+
+/* State-color tags — slightly stronger borders so they pop on dark. */
+.stage[data-theme="dark"] .tag.ok { border-color: color-mix(in oklab, var(--success) 55%, transparent); }
+.stage[data-theme="dark"] .tag.warnx { border-color: color-mix(in oklab, var(--warn) 60%, transparent); }
+.stage[data-theme="dark"] .tag.dang { border-color: color-mix(in oklab, var(--danger) 55%, transparent); }
+
+/* MAZE square-M emblem — context bars match the page bg. On dark theme,
+   the bars cut through to the dark canvas. */
+.stage[data-theme="dark"] { --m-bars: #0A0A0C; }
+
+/* Wordmark layout helper — the home-wordmark + landing wordmark contain an
+   inline svg + text; ensure they baseline-align so the M doesn't drift. */
+.home-wordmark { display: inline-flex; align-items: center; gap: 2px; }
+.vcard .wmk { display: inline-flex; align-items: center; gap: 4px; }
+
+/* Get-paid CTA — seller "New offer" entry on Home (LIVE mode only). An
+   accent-tinted row that reuses the .ic/.t/.s/.chev visual language without
+   being a .lrow. */
+.get-paid-cta {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  margin-top: 16px; padding: 13px 15px; min-height: 64px;
+  border: 1px solid color-mix(in oklab, var(--accent) 35%, transparent);
+  border-radius: var(--r-md); background: var(--accent-soft);
+  transition: transform .14s var(--ease), filter .14s var(--ease);
+}
+.get-paid-cta:active { transform: scale(.99); }
+.get-paid-cta:hover { filter: brightness(1.02); }
+.get-paid-cta .ic {
+  width: 38px; height: 38px; border-radius: 10px; flex: none; display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-on);
+}
+.get-paid-cta .ic svg { width: 18px; height: 18px; stroke: currentColor; }
+.get-paid-cta .grow { flex: 1; min-width: 0; }
+.get-paid-cta .t { font-size: 14px; font-weight: 600; line-height: 1.25; }
+.get-paid-cta .s { font-size: 10.5px; color: var(--meta); font-family: var(--mono); letter-spacing: .04em; }
+.get-paid-cta .chev { color: var(--accent); flex: none; font-size: 18px; }
+
+/* Developers · API keys sheet — minimal list + one-time secret reveal. The
+   secret card is warn-tinted to underline "save this now". */
+.key-secret { border-color: color-mix(in oklab, var(--warn) 45%, transparent); background: color-mix(in oklab, var(--warn) 7%, var(--surface)); }
+.key-list .key-row .t.mono { font-family: var(--mono); letter-spacing: .02em; }
+.key-list .key-row .pillbtn { margin-left: 4px; flex: none; }
+.key-list .key-empty { padding: 12px 2px; }
+
+/* ═══ s28 — TRANSPARENCY HUB ═══
+   The flagship surface for "show your work". The state bar sits at the top,
+   filter pills + category chips drive a provider grid below, and the existing
+   tabbed details (registry / data sources / docs gaps) stay below as the long
+   tail for power users. */
+.sys-filter-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 4px;
+  padding-bottom: 2px;
+}
+.sys-filter-row::-webkit-scrollbar { display: none; }
+/* Filter pills + category chips share the same caps rhythm now: 10px mono
+   with .08em tracking, matching the global .tag pattern. */
+.sys-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  border: 1px solid var(--border-md);
+  border-radius: var(--pill);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--surface);
+  transition: background .15s var(--ease), color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.sys-filter:hover { border-color: var(--fg); color: var(--fg); }
+.sys-filter.on {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+.sys-filter .cnt {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .04em;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: color-mix(in oklab, currentColor 12%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.sys-cat-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-top: 8px;
+  padding-bottom: 2px;
+}
+.sys-cat-row::-webkit-scrollbar { display: none; }
+.sys-cat {
+  flex: 0 0 auto;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--pill);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--meta);
+  background: var(--bg);
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.sys-cat:hover, .sys-cat.on {
+  color: var(--fg);
+  border-color: var(--fg);
+}
+.sys-cat.on { background: color-mix(in oklab, var(--fg) 6%, var(--bg)); }
+.sys-provider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+.sys-provider-grid > nexa-provider-card { min-width: 0; }
+.sys-empty {
+  text-align: center;
+  padding: 32px 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--meta);
+  grid-column: 1 / -1;
+}
+
+/* ═══ s27 — POLYMARKET PROBABILITY ROW ═══
+   Hyperliquid uses <nexa-market-row> for terminal-style perp lines; Polymarket
+   needs a different affordance — a question line + probability meter — so its
+   own row variant lives here. */
+.pm-row {
+  padding: 14px 14px 12px;
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .15s var(--ease);
+}
+.pm-row:first-child { border-top: 0; }
+.pm-row:hover { background: var(--bg); }
+.pm-q {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0 0 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pm-meter {
+  width: 100%;
+  height: 6px;
+  border-radius: 6px;
+  background: var(--border);
+  overflow: hidden;
+}
+.pm-meter i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width .35s var(--ease);
+}
+.pm-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.pm-top { color: var(--accent); font-weight: 600; }
+.pm-src { color: var(--meta); }
+
+/* Trade order sheet — half-screen with colored side toggle, stepped leverage,
+   no builder-fee / region / footer noise. The sheet's --side-color flips
+   between success and danger depending on whether Long or Short is active. */
+.sheet.half-sheet{max-height:62dvh}
+@media (max-width:520px){.sheet.half-sheet{max-height:68dvh;padding:18px 18px calc(20px + env(safe-area-inset-bottom))}}
+
+.trade-sheet{--side-color:var(--success);--side-soft:color-mix(in oklab,var(--success) 14%,transparent)}
+.trade-sheet[data-side="short"]{--side-color:var(--danger);--side-soft:color-mix(in oklab,var(--danger) 14%,transparent)}
+
+.trade-sheet-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.trade-sheet-head .order-logo{width:40px;height:40px;border-radius:12px;overflow:hidden;flex:none;border:1px solid var(--border);display:grid;place-items:center;background:var(--surface-2)}
+.trade-sheet-head .order-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.trade-sheet-head .order-logo-fallback{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--fg)}
+.trade-head-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.trade-head-main .symbol{font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:-.01em}
+.trade-head-main .price-row{display:flex;align-items:baseline;gap:10px}
+.trade-head-main .price{font-family:var(--mono);font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.trade-head-main .market-chip{font-family:var(--mono);font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:color-mix(in oklab,var(--success) 14%,transparent);color:var(--success)}
+.trade-head-main .market-chip.down{background:color-mix(in oklab,var(--danger) 14%,transparent);color:var(--danger)}
+
+/* Colored Long / Short pill toggle: filled tab adopts the side color. */
+.side-toggle{display:flex;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--pill);padding:4px;margin:14px 0}
+.side-btn{flex:1;min-height:44px;border-radius:var(--pill);border:none;background:transparent;font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:0;color:var(--meta);cursor:pointer;transition:background .15s var(--ease),color .15s var(--ease)}
+.side-btn.side-long.on{background:var(--success);color:#fff}
+.side-btn.side-short.on{background:var(--danger);color:#fff}
+
+/* Smaller market / limit toggle: most users pick market, no need to shout. */
+.type-toggle{display:inline-flex;gap:2px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--pill);padding:3px;margin:0 0 12px}
+.type-toggle button{min-height:30px;padding:0 14px;border:none;background:transparent;border-radius:var(--pill);font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--meta);cursor:pointer}
+.type-toggle button.on{background:var(--fg);color:var(--bg)}
+
+/* Leverage slider with tick marks. Side-colored thumb + active track so the
+   slider matches Long (green) / Short (red) accent of the sheet. Ticks
+   surface the common stops (1, 5, 10, 25, max) without forcing them. */
+.lev-field{margin-top:6px}
+.lev-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.lev-head label{font-size:13px;color:var(--fg);font-weight:500;display:inline-flex;align-items:baseline;gap:8px}
+.lev-val{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--side-color);min-width:32px}
+.lev-max{font-family:var(--mono);font-size:11px;color:var(--meta);letter-spacing:.05em}
+.lev-max span{color:var(--fg);font-weight:700}
+
+.lev-slider{
+  -webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer;
+  --pct:0%;
+}
+.lev-slider::-webkit-slider-runnable-track{
+  height:4px;border-radius:2px;
+  background:linear-gradient(to right, var(--side-color) 0%, var(--side-color) var(--pct), color-mix(in oklab,var(--fg) 12%,transparent) var(--pct), color-mix(in oklab,var(--fg) 12%,transparent) 100%);
+}
+.lev-slider::-moz-range-track{
+  height:4px;border-radius:2px;background:color-mix(in oklab,var(--fg) 12%,transparent);
+}
+.lev-slider::-moz-range-progress{height:4px;border-radius:2px;background:var(--side-color)}
+.lev-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;
+  background:var(--side-color);border:3px solid var(--surface);box-shadow:0 0 0 1px var(--side-color),0 2px 6px color-mix(in oklab,var(--side-color) 35%,transparent);
+  margin-top:-8px;cursor:grab;
+}
+.lev-slider::-moz-range-thumb{
+  width:20px;height:20px;border-radius:50%;background:var(--side-color);border:3px solid var(--surface);
+  box-shadow:0 0 0 1px var(--side-color),0 2px 6px color-mix(in oklab,var(--side-color) 35%,transparent);cursor:grab;
+}
+.lev-slider:active::-webkit-slider-thumb{cursor:grabbing}
+.lev-slider:active::-moz-range-thumb{cursor:grabbing}
+
+.lev-ticks{display:flex;justify-content:space-between;margin-top:-2px;padding:0 2px;pointer-events:none}
+.lev-ticks span{font-family:var(--mono);font-size:10px;color:var(--meta);letter-spacing:0}
+
+/* Bare key-value rows (replaces nested .card .kv stack — flatter, no chrome). */
+.kv-bare{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-top:1px solid var(--border);font-size:13px}
+.kv-bare:first-of-type{margin-top:14px}
+.kv-bare .k{color:var(--meta);font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.kv-bare .num{font-family:var(--mono);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* Spot mode trims the sheet — no leverage, no funding, no notional ramp.
+   Spot is a straight Buy/Sell, sized in USD. */
+.trade-sheet[data-market-kind="spot"] .lev-field,
+.trade-sheet[data-market-kind="spot"] .kv-bare{display:none}
+
+/* Single colored CTA — full-width, side-color filled. Replaces Cancel + Place. */
+.btn-trade{display:block;width:100%;min-height:54px;margin-top:16px;border:none;border-radius:16px;background:var(--side-color);color:#fff;font-family:var(--sans);font-size:16px;font-weight:700;letter-spacing:-.01em;cursor:pointer;transition:filter .15s var(--ease),opacity .15s var(--ease)}
+.btn-trade:hover{filter:brightness(1.05)}
+.btn-trade:disabled{background:var(--surface-2);color:var(--meta);cursor:not-allowed}
+.btn-trade-long{background:var(--success)}
+.btn-trade-short{background:var(--danger)}
+
+/* Hyperliquid market detail screen (s27d) — TradingView chart + tabs +
+   sticky Long/Short. Compact appbar carries the symbol+logo+leverage chip
+   so the screen surface is mostly chart. */
+.detail-body{display:flex;flex-direction:column;gap:8px;padding-top:8px;padding-bottom:8px}
+
+/* Hero block: logo leads, symbol + leverage chip on top line, name below.
+   Logo placed before the price (per Mirko's correction). */
+.detail-hero{display:flex;align-items:center;gap:12px;padding:4px 0 2px}
+.detail-hero-logo{width:46px;height:46px;border-radius:13px;overflow:hidden;flex:none;border:1px solid var(--border);background:var(--surface-2);display:grid;place-items:center}
+.detail-hero-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.detail-hero-logo span{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--fg)}
+.detail-hero-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.detail-hero-id{display:flex;align-items:center;gap:8px;min-width:0}
+.detail-hero-sym{font-family:var(--sans);font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--fg)}
+.detail-hero-lev{font-family:var(--mono);font-size:10.5px;font-weight:700;padding:3px 7px;border-radius:6px;background:color-mix(in oklab,var(--accent) 18%,transparent);color:var(--accent);flex:none;line-height:1.3}
+.detail-hero-name{font-size:12.5px;color:var(--meta);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Price row below the hero: big tabular price + colored change. */
+.detail-price-row{display:flex;align-items:baseline;gap:12px;padding:2px 0 4px}
+.detail-price-row .big{font-family:var(--sans);font-size:32px;font-weight:700;line-height:1.05;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.detail-price-row .chg{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--success)}
+.detail-price-row .chg.down{color:var(--danger)}
+
+/* Spot markets have no funding rate, no perp OI, no max leverage. Hide the
+   perp-only chrome on the detail screen + Info tab when the active market
+   is spot (kind set by openHyperliquidDetail). */
+#s27d[data-market-kind="spot"] .detail-hero-lev,
+#s27d[data-market-kind="spot"] .detail-stat-strip .stat:nth-of-type(2),  /* OI */
+#s27d[data-market-kind="spot"] .detail-stat-strip .stat:nth-of-type(3),  /* FUND */
+#s27d[data-market-kind="spot"] .detail-stat-strip .dot:nth-of-type(1),
+#s27d[data-market-kind="spot"] .detail-stat-strip .dot:nth-of-type(2),
+#s27d[data-market-kind="spot"] .detail-info-grid .kv-row:nth-of-type(2),
+#s27d[data-market-kind="spot"] .detail-info-grid .kv-row:nth-of-type(3),
+#s27d[data-market-kind="spot"] .detail-info-grid .kv-row:nth-of-type(4){display:none}
+
+/* Compact horizontal stats strip: VOL · OI · FUND on one line, mono labels. */
+.detail-stat-strip{display:flex;align-items:center;gap:8px;padding:0 0 4px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;line-height:1.4}
+.detail-stat-strip .stat{display:inline-flex;align-items:baseline;gap:6px}
+.detail-stat-strip .k{color:var(--meta);letter-spacing:.06em;text-transform:uppercase}
+.detail-stat-strip .v{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+.detail-stat-strip .dot{color:var(--meta);font-weight:400}
+
+/* Timeframe pills: text-only, no borders, mono caps. Active gets fg. */
+.detail-tf{display:flex;gap:14px;padding:2px 0 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.detail-tf::-webkit-scrollbar{display:none}
+.detail-tf .tf{flex:0 0 auto;padding:6px 2px;background:transparent;border:0;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--meta);cursor:pointer;letter-spacing:.02em;line-height:1}
+.detail-tf .tf.on{color:var(--fg)}
+
+/* TradingView Advanced Chart Widget — full-bleed (escapes body padding), no
+   card chrome, tall so the chart dominates the screen. */
+.detail-tv{
+  position:relative;
+  width:calc(100% + 36px);
+  margin-inline:-18px;
+  height:clamp(380px,58dvh,540px);
+  background:var(--bg);
+  border:0;
+  border-radius:0;
+  overflow:hidden;
+}
+.detail-tv iframe{width:100%!important;height:100%!important;display:block;border:0!important}
+.detail-tv-skel{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--meta);background:var(--bg);pointer-events:none}
+.detail-tv-skel.gone{display:none}
+/* H/L overlay sits in the chart's top-right corner, reads as part of the
+   chart UI. Backdrop blur + low opacity so the candles behind stay visible. */
+.detail-tv-hl{position:absolute;top:10px;right:14px;display:flex;flex-direction:column;gap:4px;pointer-events:none;z-index:2}
+.detail-tv-hl .hl-row{display:inline-flex;align-items:baseline;gap:6px;padding:4px 9px;border-radius:6px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:color-mix(in oklab,var(--bg) 78%,transparent);font-family:var(--mono);font-size:11px;font-variant-numeric:tabular-nums;line-height:1.2;border:1px solid color-mix(in oklab,var(--border) 70%,transparent)}
+.detail-tv-hl .hl-row .k{font-weight:700;letter-spacing:.06em}
+.detail-tv-hl .hl-row .v{font-weight:600;color:var(--fg)}
+.detail-tv-hl .hl-high .k{color:var(--success)}
+.detail-tv-hl .hl-low .k{color:var(--danger)}
+
+/* Below-chart tabs: Info / Trades / Positions. Underline on active. */
+.detail-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-top:4px}
+.detail-tabs .dtab{flex:1;padding:11px 4px;background:transparent;border:0;border-bottom:2px solid transparent;font-family:var(--sans);font-size:14px;font-weight:600;color:var(--meta);cursor:pointer;transition:color .15s var(--ease),border-color .15s var(--ease)}
+.detail-tabs .dtab.on{color:var(--fg);border-bottom-color:var(--accent)}
+
+.detail-tab-body{padding:4px 0}
+.detail-info-grid{display:flex;flex-direction:column}
+.detail-info-grid .kv-row{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--border);font-size:13.5px}
+.detail-info-grid .kv-row:last-child{border-bottom:0}
+.detail-info-grid .k{color:var(--meta)}
+.detail-info-grid .v{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;color:var(--fg)}
+
+/* Trades table — fixed 3-column grid, mono, scrolls. */
+.detail-trades-head{display:grid;grid-template-columns:1.1fr 1fr .8fr;gap:10px;padding:8px 2px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--meta);border-bottom:1px solid var(--border)}
+.detail-trades-list{max-height:220px;overflow-y:auto}
+.detail-trade-row{display:grid;grid-template-columns:1.1fr 1fr .8fr;gap:10px;padding:8px 2px;font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;border-bottom:1px solid color-mix(in oklab,var(--border) 65%,transparent)}
+.detail-trade-row .price{font-weight:600}
+.detail-trade-row .price.up{color:var(--success)}
+.detail-trade-row .price.down{color:var(--danger)}
+.detail-trade-row .size{color:var(--fg)}
+.detail-trade-row .time{color:var(--meta);text-align:right}
+
+/* Order book — two-column bid|ask layout with the cumulative size in the
+   middle. Bid rows tinted green left-to-right, ask rows tinted red
+   right-to-left so depth is visible at a glance. */
+.detail-ob-head{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:8px 2px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--meta);border-bottom:1px solid var(--border)}
+.detail-ob-head .ob-mid{text-align:center}
+.detail-ob-head .ob-ask{text-align:right}
+.detail-ob-list{max-height:240px;overflow-y:auto}
+.ob-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:5px 2px;font-family:var(--mono);font-size:11.5px;font-variant-numeric:tabular-nums;position:relative}
+.ob-row .bid{color:var(--success);font-weight:600}
+.ob-row .ask{color:var(--danger);font-weight:600;text-align:right}
+.ob-row .sz{color:var(--meta);text-align:center}
+.ob-row::before,.ob-row::after{content:"";position:absolute;top:0;bottom:0;pointer-events:none;opacity:.16}
+.ob-row::before{left:0;background:linear-gradient(to right,var(--success),transparent);width:var(--bid-depth,0%)}
+.ob-row::after{right:0;background:linear-gradient(to left,var(--danger),transparent);width:var(--ask-depth,0%)}
+
+.detail-empty{padding:18px 8px;text-align:center;color:var(--meta);font-size:13px}
+
+/* Short / Long pinned to the bottom of the screen, ALWAYS visible above the
+   tabbar. Sticky offset = tabbar height (button row ~40 + padding 9 top + safe
+   area on iOS). Full-bleed across body padding so the bar reads as a footer. */
+.detail-actions{
+  position:sticky;
+  bottom:calc(60px + env(safe-area-inset-bottom));
+  margin-inline:-18px;
+  padding:10px 18px 14px;
+  display:flex;
+  gap:10px;
+  background:linear-gradient(to top,var(--bg) 78%,transparent);
+  z-index:20;
+}
+.detail-actions .btn-trade{margin-top:0;flex:1}
+
+/* PLANB W3 — desktop market detail at ≥1200px: chart column + trade column.
+   Hidden tab panels are display:none so the four panels share the right
+   column safely; the chart is lightweight-charts autoSize and follows its
+   column. Below 1200px everything stays the single mobile-first stack. */
+@media (min-width: 1200px) {
+  /* Static (non-sticky) actions need the tabbar clearance the mobile stack
+     gets from .body's global padding — .detail-body overrides it to 8px. */
+  #s27d .detail-body{display:grid;grid-template-columns:minmax(0,1fr) 340px;column-gap:24px;align-content:start;grid-template-rows:auto auto auto auto 1fr auto;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  #s27d .detail-hero{grid-column:1;grid-row:1}
+  #s27d .detail-price-row{grid-column:1;grid-row:2}
+  #s27d .detail-stat-strip{grid-column:1;grid-row:3}
+  #s27d .detail-tf{grid-column:1;grid-row:4}
+  #s27d .detail-tv{grid-column:1;grid-row:5/7;width:100%;margin-inline:0;height:clamp(420px,62dvh,680px)}
+  #s27d .detail-tabs{grid-column:2;grid-row:1/3;align-self:start}
+  #s27d .detail-tab-body{grid-column:2;grid-row:3/6;overflow-y:auto;min-height:0}
+  #s27d .detail-actions{grid-column:2;grid-row:6;position:static;margin-inline:0;padding:10px 0 0;background:none}
+}
+
+/* Polymarket prediction event cards (s27 Predictions tab). Vertical stack
+   of cards: image + title row, outcome chips, volume footer. */
+.pm-cat-filter{display:flex;gap:14px;padding:8px 0 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.pm-cat-filter::-webkit-scrollbar{display:none}
+.pm-cat-filter .pm-cat{flex:0 0 auto;padding:6px 2px;background:transparent;border:0;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--meta);cursor:pointer;line-height:1.2}
+.pm-cat-filter .pm-cat.on{color:var(--fg);border-bottom:2px solid var(--accent)}
+
+/* Lane C — Polymarket top-traders strip: horizontal cards, dot-mark avatars,
+   one-tap Copy. Same surface grammar as event cards (surface + hairline +
+   r-md), mono numbers, gain/danger PnL coloring. */
+.pm-traders{margin:2px 0 12px}
+.pm-traders-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.pm-traders-strip{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.pm-traders-strip::-webkit-scrollbar{display:none}
+.pm-trader-card{flex:0 0 auto;min-width:176px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;display:grid;grid-template-columns:34px minmax(0,1fr);gap:3px 10px;align-items:center}
+.pm-trader-card .avatar{grid-row:1/3;width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);display:grid;place-items:center;color:var(--meta);position:relative;overflow:hidden}
+.pm-trader-card .avatar svg{position:absolute;inset:3px;width:auto;height:auto;opacity:.6}
+.pm-trader-card .who{display:flex;align-items:baseline;gap:6px;min-width:0}
+.pm-trader-card .rk{font-family:var(--mono);font-size:10px;color:var(--meta);flex:none}
+.pm-trader-card .nm{font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-trader-card .pnl{font-family:var(--mono);font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--fg)}
+.pm-trader-card .pnl.pos{color:var(--success)}
+.pm-trader-card .pnl.neg{color:var(--danger)}
+.pm-trader-card .meta-line{grid-column:1/3;font-family:var(--mono);font-size:10px;color:var(--meta);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pm-trader-card .pillbtn{grid-column:1/3;display:inline-flex;justify-content:center;min-height:30px;margin-top:5px}
+.pm-events-list{display:flex;flex-direction:column;gap:10px}
+.pm-event-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s var(--ease)}
+.pm-event-card:hover{border-color:var(--border-md)}
+.pm-event-head{display:flex;align-items:center;gap:12px;min-width:0}
+.pm-event-img{width:40px;height:40px;border-radius:8px;overflow:hidden;flex:none;border:1px solid var(--border);background:var(--surface-2);display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:13px;color:var(--fg)}
+.pm-event-img img{width:100%;height:100%;object-fit:cover;display:block}
+.pm-event-title{font-size:14.5px;font-weight:600;line-height:1.3;color:var(--fg);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* Binary outcomes: side-by-side Yes / No */
+.pm-outcomes-binary{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* Multi-candidate: vertical stack, label on left + pct on right */
+.pm-outcomes-list{display:flex;flex-direction:column;gap:6px}
+.pm-outcome-btn{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+  padding:9px 12px;font-family:var(--sans);font-size:13px;font-weight:500;
+  color:var(--fg);cursor:pointer;min-height:38px;text-align:left;
+  transition:background .15s var(--ease),border-color .15s var(--ease);
+}
+.pm-outcome-btn:hover{background:color-mix(in oklab,var(--fg) 4%,var(--surface-2));border-color:var(--border-md)}
+.pm-outcome-btn .pm-outcome-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+.pm-outcome-btn .pm-outcome-pct{font-family:var(--mono);font-weight:700;font-variant-numeric:tabular-nums;flex:none;color:var(--meta)}
+.pm-outcome-btn.yes{border-color:color-mix(in oklab,var(--success) 40%,transparent)}
+.pm-outcome-btn.yes .pm-outcome-pct{color:var(--success)}
+.pm-outcome-btn.no{border-color:color-mix(in oklab,var(--danger) 40%,transparent)}
+.pm-outcome-btn.no .pm-outcome-pct{color:var(--danger)}
+
+.pm-event-foot{display:flex;justify-content:space-between;align-items:center;padding-top:2px;font-family:var(--mono);font-size:11px;color:var(--meta)}
+.pm-event-more{background:transparent;border:0;color:var(--meta);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;padding:0}
+.pm-event-more:hover{color:var(--fg)}
+.pm-event-vol{font-variant-numeric:tabular-nums}
+.pm-price-hint{font-size:12px;color:var(--muted);margin:2px 2px 10px;line-height:1.5}
+.pm-outcome-btn.resolved{opacity:.55;cursor:default}
+.pm-outcome-btn.resolved .pm-outcome-pct{color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+
+.cards-row{gap:12px}
+.market-show-all{width:100%;background:transparent;border:0;font:inherit;color:var(--accent);text-align:left;cursor:pointer}
+.market-show-all .t{font-weight:600;color:var(--accent)}
+.market-show-all:hover .t{text-decoration:underline}
+.cards-thumb{position:relative;width:44px;height:44px;border-radius:8px;overflow:hidden;flex:0 0 auto;border:1px solid var(--border);background:var(--surface-2);display:grid;place-items:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--meta)}
+.cards-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+/* Dot-matrix identity fallback (PLANB W4) — seeded mark behind the letter,
+   currentColor so it reads on light and dark surfaces alike. */
+.cards-thumb svg{position:absolute;inset:3px;width:auto;height:auto;opacity:.5}
+.cards-thumb .thumb-glyph{position:relative}
+.cards-detail-card{padding:14px}
+.cards-detail-hero{display:flex;align-items:center;gap:12px}
+.cards-detail-img{width:72px;height:72px;border-radius:8px;overflow:hidden;flex:0 0 auto;border:1px solid var(--border);background:var(--surface-2);display:grid;place-items:center;font-family:var(--mono);font-size:16px;font-weight:700;color:var(--meta)}
+.cards-detail-img img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Hyperliquid + Polymarket row + trade button wrapper. Row spans the width,
+   trade button sits on the right edge. */
+.mkt-row-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+}
+.mkt-row-wrap:first-child { border-top: 0; }
+.mkt-row-wrap > nexa-market-row { flex: 1; min-width: 0; border-top: 0; }
+.mkt-info {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  margin-right: 10px;
+  border: 1px solid var(--border-md);
+  border-radius: var(--pill);
+  background: var(--surface);
+  color: var(--meta);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.mkt-info:hover,
+.mkt-info:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent-edge);
+  background: var(--accent-soft);
+  outline: 0;
+}
+.pm-event-wrap {
+  align-items: stretch;
+  padding-right: 0;
+}
+.pm-event-stack {
+  flex: 1;
+  min-width: 0;
+}
+.pm-event-stack > nexa-market-row { width: 100%; }
+.pm-mobile-question { display: none; }
+.pm-outcomes {
+  margin: -6px 0 10px 42px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--meta);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 480px) {
+  .mkt-row-wrap { gap: 6px; }
+  .mkt-info {
+    width: 32px;
+    height: 32px;
+    margin-right: 4px;
+  }
+  .pm-mobile-question {
+    margin: -4px 42px 4px 34px;
+    font-size: 11.5px;
+    line-height: 1.35;
+    color: var(--muted);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .pm-outcomes {
+    margin: 0 42px 10px 34px;
+    font-size: 10px;
+  }
+}
+.mkt-trade {
+  flex: 0 0 auto;
+  margin-right: 12px;
+  color: var(--accent);
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+}
+.mkt-trade:hover {
+  color: var(--accent-on);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.pm-foot .mkt-trade {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+/* ═══ s16 — SWAP QUOTE STRIP + SLIPPAGE ═══ */
+.swap-quote-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in oklab, var(--accent) 30%, transparent);
+  border-radius: var(--r-md);
+  background: color-mix(in oklab, var(--accent) 5%, var(--surface));
+}
+.swap-quote-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--meta);
+  font-weight: 500;
+}
+.swap-quote-route {
+  font-family: var(--mono);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.swap-quote-eta {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: var(--meta);
+  text-transform: uppercase;
+}
+.swap-slippage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.swap-slippage .k {
+  flex: 0 0 100%;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--meta);
+  text-transform: uppercase;
+}
+.swap-slippage-options {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
