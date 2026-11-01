@@ -35,7 +35,7 @@
     "@types/react": "^19.0.0",
     "lightweight-charts": "^5.0.9",
     "react": "^19.0.0",
-    "typescript": "^5.7.2",
+    "typescript": "^7.0.2",
     "vitest": "^3.2.6"
   }
 }
