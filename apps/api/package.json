@@ -33,7 +33,7 @@
     "@polymarket/builder-signing-sdk": "1.0.0",
     "@polymarket/clob-client-v2": "1.0.8",
     "@privy-io/server-auth": "^1.18.0",
-    "@sentry/node": "^10.57.0",
+    "@sentry/node": "^11.10.0",
     "@solana/web3.js": "^1.98.4",
     "bullmq": "^5.34.0",
     "drizzle-orm": "^0.45.2",
