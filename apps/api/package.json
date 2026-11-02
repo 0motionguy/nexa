@@ -22,8 +22,8 @@
     "@asteasolutions/zod-to-openapi": "^7.3.4",
     "@hono/node-server": "^1.13.7",
     "@hono/node-ws": "^1.0.0",
-    "@hono/swagger-ui": "^0.4",
-    "@hono/zod-validator": "^0.4.1",
+    "@hono/swagger-ui": "^0.6",
+    "@hono/zod-validator": "^0.9.1",
     "@mathieuc/tradingview": "^3.5.2",
     "@mayanfinance/swap-sdk": "^15.0.0",
     "@modelcontextprotocol/sdk": "^1.12.0",
@@ -31,7 +31,7 @@
     "@nktkas/hyperliquid": "^0.33.1",
     "@polymarket/builder-relayer-client": "0.0.10",
     "@polymarket/builder-signing-sdk": "1.0.0",
-    "@polymarket/clob-client-v2": "1.0.8",
+    "@polymarket/clob-client-v2": "1.2.0",
     "@privy-io/server-auth": "^1.18.0",
     "@sentry/node": "^10.57.0",
     "@solana/web3.js": "^1.98.4",
@@ -49,7 +49,7 @@
     "stripe": "22.2.1",
     "viem": "^2.21.55",
     "web-push": "^3.6.7",
-    "ws": "8.21.0",
+    "ws": "8.22.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
